@@ -13,7 +13,7 @@ const { initializeSocket } = require('./socket/chat');
 dotenv.config();
 
 // Connect to database
-connectDB();
+connectDB().catch(err => console.error('Initial DB connection failed:', err));
 
 const app = express();
 const server = http.createServer(app);
