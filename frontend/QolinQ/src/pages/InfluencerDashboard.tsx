@@ -9,39 +9,43 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { influencerAPI } from "@/lib/api";
 
+import { useQuery } from "@tanstack/react-query";
+
 const InfluencerDashboard = () => {
   const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [dashboard, setDashboard] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+
+  const { data: dashboardData, isLoading: dashLoading } = useQuery({
+    queryKey: ['influencer-dashboard'],
+    queryFn: async () => {
+      const res = await influencerAPI.getDashboard();
+      return res.data.data;
+    },
+    enabled: !!user && user.role === 'influencer',
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryKey: ['influencer-profile'],
+    queryFn: async () => {
+      const res = await influencerAPI.getProfile();
+      return res.data.data;
+    },
+    enabled: !!user && user.role === 'influencer',
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const loading = authLoading || dashLoading || profileLoading;
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== 'influencer')) {
+    if (!authLoading && (!user || user.role !== 'influencer')) {
       navigate(user?.role === 'brand' ? "/brand/dashboard" : "/influencer/login");
-      return;
     }
+  }, [user, authLoading, navigate]);
 
-    const loadData = async () => {
-      try {
-        const [dashRes, profileRes] = await Promise.all([
-          influencerAPI.getDashboard(),
-          influencerAPI.getProfile().catch(() => null),
-        ]);
-        setDashboard(dashRes.data.data);
-        if (profileRes) setProfile(profileRes.data.data);
-      } catch (err: unknown) {
-        console.error("Dashboard load error:", err);
-        if (err && typeof err === 'object' && 'response' in err && (err as any).response?.status === 403) {
-          toast.error("Access denied. Please check your role.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user?.role === 'influencer') loadData();
-  }, [user, isLoading, navigate]);
+  const dashboard = dashboardData;
+  const profile = profileData;
 
   const stats = [
     { label: "Profile Views", value: dashboard?.profileViews?.toLocaleString() || "0", icon: Eye },

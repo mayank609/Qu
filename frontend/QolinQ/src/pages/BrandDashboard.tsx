@@ -9,41 +9,53 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { brandAPI, campaignAPI, searchAPI } from "@/lib/api";
 
+import { useQuery } from "@tanstack/react-query";
+
 const BrandDashboard = () => {
   const navigate = useNavigate();
-  const { user, isLoading } = useAuth();
-  const [dashboard, setDashboard] = useState<any>(null);
-  const [campaigns, setCampaigns] = useState<any[]>([]);
-  const [latestInfluencers, setLatestInfluencers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { user, isLoading: authLoading } = useAuth();
+
+  const { data: dashboardData, isLoading: dashLoading } = useQuery({
+    queryKey: ['brand-dashboard'],
+    queryFn: async () => {
+      const res = await brandAPI.getDashboard();
+      return res.data.data;
+    },
+    enabled: !!user && user.role === 'brand',
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: campaignsData, isLoading: campaignsLoading } = useQuery({
+    queryKey: ['brand-campaigns-preview'],
+    queryFn: async () => {
+      const res = await campaignAPI.getMyCampaigns({ limit: 3 });
+      return res.data.data || [];
+    },
+    enabled: !!user && user.role === 'brand',
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: influencersData, isLoading: influencersLoading } = useQuery({
+    queryKey: ['latest-influencers-preview'],
+    queryFn: async () => {
+      const res = await searchAPI.influencers({ limit: 4 });
+      return res.data.data || [];
+    },
+    enabled: !!user && user.role === 'brand',
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const loading = authLoading || dashLoading || campaignsLoading || influencersLoading;
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== 'brand')) {
+    if (!authLoading && (!user || user.role !== 'brand')) {
       navigate(user?.role === 'influencer' ? "/influencer/dashboard" : "/brand/login");
-      return;
     }
+  }, [user, authLoading, navigate]);
 
-    const loadData = async () => {
-      try {
-        const [dashRes, campRes, infRes] = await Promise.all([
-          brandAPI.getDashboard(),
-          campaignAPI.getMyCampaigns({ limit: 3 }),
-          searchAPI.influencers({ limit: 4 }),
-        ]);
-        setDashboard(dashRes.data.data);
-        setCampaigns(campRes.data.data || []);
-        setLatestInfluencers(infRes.data.data || []);
-      } catch (err: unknown) {
-        console.error("Dashboard load error:", err);
-        if (err && typeof err === 'object' && 'response' in err && (err as any).response?.status === 403) {
-          toast.error("Access denied. Please check your role.");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user?.role === 'brand') loadData();
-  }, [user, isLoading, navigate]);
+  const dashboard = dashboardData;
+  const campaigns = campaignsData || [];
+  const latestInfluencers = influencersData || [];
 
   const stats = [
     { label: "Active Campaigns", value: dashboard?.activeCampaigns?.toString() || "0", icon: TrendingUp },

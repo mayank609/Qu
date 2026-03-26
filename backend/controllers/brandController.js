@@ -95,9 +95,18 @@ const getDashboard = async (req, res, next) => {
         ] = await Promise.all([
             Campaign.countDocuments({ brand: req.user._id, status: 'active' }),
             Campaign.countDocuments({ brand: req.user._id }),
-            Application.countDocuments({
-                campaign: { $in: await Campaign.find({ brand: req.user._id }).distinct('_id') },
-            }),
+            Application.aggregate([
+                {
+                    $lookup: {
+                        from: 'campaigns',
+                        localField: 'campaign',
+                        foreignField: '_id',
+                        as: 'campaignInfo',
+                    },
+                },
+                { $match: { 'campaignInfo.brand': req.user._id } },
+                { $count: 'total' },
+            ]),
             Escrow.aggregate([
                 { $match: { brand: req.user._id, status: 'released' } },
                 { $group: { _id: null, total: { $sum: '$amount' } } },
@@ -113,7 +122,7 @@ const getDashboard = async (req, res, next) => {
             data: {
                 activeCampaigns,
                 totalCampaigns,
-                totalApplicationsReceived: totalApplications,
+                totalApplicationsReceived: totalApplications[0]?.total || 0,
                 totalSpent: totalSpent[0]?.total || 0,
                 rating: {
                     average: avgRating[0]?.avg?.toFixed(1) || 0,
