@@ -20,7 +20,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/frontend/QolinQ/$1"
+      "destination": "/frontend/QolinQ/index.html"
     }
   ]
 }
