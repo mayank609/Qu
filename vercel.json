@@ -19,7 +19,11 @@
       "destination": "/backend/api/index.js"
     },
     {
-      "source": "/(.*)",
+      "source": "/assets/(.*)",
+      "destination": "/frontend/QolinQ/assets/$1"
+    },
+    {
+      "source": "/((?!api|assets).*)",
       "destination": "/frontend/QolinQ/index.html"
     }
   ]
