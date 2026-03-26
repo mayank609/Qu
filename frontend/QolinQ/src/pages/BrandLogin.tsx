@@ -19,7 +19,7 @@ const BrandLogin = () => {
     try {
       await login(email, password);
       toast.success("Welcome back!");
-      navigate("/brand/dashboard");
+      navigate("/explore/influencers");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Login failed");
     } finally {

@@ -29,7 +29,7 @@ api.interceptors.response.use(
 
 // ─── Auth ───
 export const authAPI = {
-    register: (data: { name: string; email: string; password: string; role: string }) => api.post('/auth/register', data),
+    register: (data: any) => api.post('/auth/register', data),
     login: (data: { email: string; password: string }) => api.post('/auth/login', data),
     getMe: () => api.get('/auth/me'),
     switchRole: () => api.put('/auth/switch-role'),
@@ -99,6 +99,12 @@ export const ratingAPI = {
 export const searchAPI = {
     influencers: (params?: any) => api.get('/search/influencers', { params }),
     campaigns: (params?: any) => api.get('/search/campaigns', { params }),
+};
+
+// ─── Fraud & Admin ───
+export const fraudAPI = {
+    runGlobalCheck: () => api.post('/fraud/verify-all'),
+    getFlaggedProfiles: () => api.get('/admin/flagged-profiles'), // I'll need to add this to backend
 };
 
 // ─── Notifications ───

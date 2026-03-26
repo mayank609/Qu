@@ -3,6 +3,7 @@ const InfluencerProfile = require('../models/InfluencerProfile');
 const Application = require('../models/Application');
 const Escrow = require('../models/Escrow');
 const Rating = require('../models/Rating');
+const Notification = require('../models/Notification');
 
 // @desc    Get influencer own profile
 // @route   GET /api/influencer/profile
@@ -131,6 +132,21 @@ const connectPlatform = async (req, res, next) => {
         profile.engagementRate = profile.platforms.instagram?.engagementRate || 0;
 
         await profile.save();
+
+        // Trigger fraud check in background
+        const { detectProfileAnomaly } = require('../controllers/fraudController');
+        detectProfileAnomaly(profile).then(async (anomalies) => {
+            if (anomalies.length > 0) {
+                await User.findByIdAndUpdate(req.user._id, { verificationStatus: 'flagged' });
+                await Notification.create({
+                    user: req.user._id,
+                    type: 'system_alert',
+                    title: 'Profile Flagged',
+                    message: `System detected anomalies: ${anomalies.join(', ')}. Profile is under review.`,
+                    link: '/profile'
+                });
+            }
+        });
 
         res.json({
             success: true,

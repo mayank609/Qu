@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Search, MessageCircle, Settings, PlusCircle, List, User, Bookmark, ClipboardList, RefreshCw, LogOut } from "lucide-react";
+import { Home, Search, MessageCircle, Settings, PlusCircle, List, User, Bookmark, ClipboardList, RefreshCw, LogOut, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
@@ -21,7 +21,7 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
     try {
       const newRole = await switchRole();
       toast.success(`Switched to ${newRole} mode`);
-      navigate(newRole === 'brand' ? '/brand/dashboard' : '/influencer/dashboard');
+      navigate(newRole === 'brand' ? '/explore/influencers' : '/influencer/dashboard');
     } catch (err) {
       toast.error("Failed to switch role");
     }
@@ -46,6 +46,11 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
         { icon: User, label: "My Profile", path: "/my-profile" },
         { icon: Settings, label: "Settings", path: "/settings" },
       ];
+
+  // Add Admin items if user is admin
+  if (user?.role === 'admin') {
+    navItems.push({ icon: ShieldAlert, label: "Security", path: "/admin/security" });
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">

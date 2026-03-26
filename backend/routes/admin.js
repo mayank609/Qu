@@ -8,6 +8,7 @@ const fraudCtrl = require('../controllers/fraudController');
 router.use(protect, roleGuard('admin'));
 
 router.get('/stats', adminCtrl.getPlatformStats);
+router.get('/flagged-profiles', adminCtrl.getFlaggedProfiles);
 router.put('/verify-user/:userId', adminCtrl.verifyUser);
 router.post('/fraud/verify-all', fraudCtrl.runGlobalFraudCheck);
 

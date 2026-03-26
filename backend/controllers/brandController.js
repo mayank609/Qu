@@ -35,7 +35,7 @@ const updateProfile = async (req, res, next) => {
         const {
             companyName,
             website,
-            category,
+            categories,
             gst,
             description,
             logo,
@@ -54,7 +54,7 @@ const updateProfile = async (req, res, next) => {
 
         if (companyName !== undefined) profile.companyName = companyName;
         if (website !== undefined) profile.website = website;
-        if (category !== undefined) profile.category = category;
+        if (categories !== undefined) profile.categories = categories;
         if (gst !== undefined) profile.gst = gst;
         if (description !== undefined) profile.description = description;
         if (logo !== undefined) profile.logo = logo;

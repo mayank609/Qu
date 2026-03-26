@@ -18,10 +18,10 @@ const brandProfileSchema = new mongoose.Schema(
             type: String,
             default: '',
         },
-        category: {
+        categories: [{
             type: String,
             default: '',
-        },
+        }],
         gst: {
             type: String,
             default: '',

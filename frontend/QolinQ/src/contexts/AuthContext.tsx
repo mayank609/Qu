@@ -6,7 +6,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'brand' | 'influencer';
+  role: 'brand' | 'influencer' | 'admin';
   avatar: string;
   isVerified: boolean;
   verificationStatus: string;
@@ -18,7 +18,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role: string) => Promise<void>;
+  register: (name: string, email: string, password: string, role: string, phoneNumber?: string) => Promise<void>;
   logout: () => void;
   switchRole: () => Promise<string>;
   updateUser: (data: Partial<User>) => void;
@@ -58,8 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(u);
   };
 
-  const register = async (name: string, email: string, password: string, role: string) => {
-    const res = await authAPI.register({ name, email, password, role });
+  const register = async (name: string, email: string, password: string, role: string, phoneNumber?: string) => {
+    const res = await authAPI.register({ name, email, password, role, phoneNumber });
     const { token: t, user: u } = res.data.data;
     localStorage.setItem('token', t);
     localStorage.setItem('user', JSON.stringify(u));

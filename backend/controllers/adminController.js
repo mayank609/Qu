@@ -66,7 +66,34 @@ const getPlatformStats = async (req, res, next) => {
     }
 };
 
+// @desc    Get flagged profiles for security review
+// @route   GET /api/admin/flagged-profiles
+const getFlaggedProfiles = async (req, res, next) => {
+    try {
+        const flaggedUsers = await User.find({ verificationStatus: 'flagged' })
+            .select('name email role avatar createdAt verificationStatus');
+        
+        // Enhance with profile data if influencer
+        const enhancedProfiles = await Promise.all(flaggedUsers.map(async (user) => {
+            const userData = user.toObject();
+            if (user.role === 'influencer') {
+                const profile = await InfluencerProfile.findOne({ user: user._id });
+                userData.profile = profile;
+            }
+            return userData;
+        }));
+
+        res.json({
+            success: true,
+            data: enhancedProfiles
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     verifyUser,
-    getPlatformStats
+    getPlatformStats,
+    getFlaggedProfiles
 };

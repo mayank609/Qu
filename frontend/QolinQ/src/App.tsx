@@ -23,6 +23,7 @@ import MyProfile from "./pages/MyProfile";
 import Applications from "./pages/Applications";
 import SavedProfiles from "./pages/SavedProfiles";
 import AppliedCampaigns from "./pages/AppliedCampaigns";
+import AdminSecurity from "./pages/AdminSecurity";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/applications" element={<Applications />} />
             <Route path="/saved-profiles" element={<SavedProfiles />} />
             <Route path="/applied-campaigns" element={<AppliedCampaigns />} />
+            <Route path="/admin/security" element={<AdminSecurity />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
