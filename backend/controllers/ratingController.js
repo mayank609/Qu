@@ -23,19 +23,50 @@ const rateCampaign = async (req, res, next) => {
             return res.status(400).json({ success: false, message: 'Cannot rate yourself' });
         }
 
+        // Calculate Rater Weight based on experience
+        let raterWeight = 1.0;
+        if (req.user.role === 'influencer') {
+            const raterProfile = await InfluencerProfile.findOne({ user: req.user._id });
+            if (raterProfile) raterWeight = 1.0 + (raterProfile.completedCampaigns * 0.05); 
+        } else {
+            const raterProfile = await BrandProfile.findOne({ user: req.user._id });
+            if (raterProfile) raterWeight = 1.0 + (raterProfile.campaignsPosted * 0.05);
+        }
+        raterWeight = Math.min(raterWeight, 2.5); // Cap weight at 2.5x
+
         const rating = await Rating.create({
             campaign: campaignId, rater: req.user._id, ratee: rateeId,
             communication, timeliness, professionalism, review,
+            raterWeight
         });
 
-        const allRatings = await Rating.aggregate([
+        // Weighted Aggregation
+        const weightedStats = await Rating.aggregate([
             { $match: { ratee: rating.ratee } },
-            { $group: { _id: null, avgC: { $avg: '$communication' }, avgT: { $avg: '$timeliness' }, avgP: { $avg: '$professionalism' }, avgO: { $avg: '$overallScore' }, count: { $sum: 1 } } },
+            { 
+                $group: { 
+                    _id: null, 
+                    weightedSum: { $sum: { $multiply: ['$overallScore', '$raterWeight'] } },
+                    totalWeight: { $sum: '$raterWeight' },
+                    avgC: { $avg: '$communication' },
+                    avgT: { $avg: '$timeliness' },
+                    avgP: { $avg: '$professionalism' },
+                    count: { $sum: 1 } 
+                } 
+            },
         ]);
 
-        if (allRatings[0]) {
+        if (weightedStats[0]) {
+            const stats = weightedStats[0];
+            const weightedAverage = parseFloat((stats.weightedSum / stats.totalWeight).toFixed(1));
             const ratee = await User.findById(rateeId);
-            const rd = { average: +allRatings[0].avgO.toFixed(1), count: allRatings[0].count, communication: +allRatings[0].avgC.toFixed(1), timeliness: +allRatings[0].avgT.toFixed(1), professionalism: +allRatings[0].avgP.toFixed(1) };
+            const rd = { 
+                average: weightedAverage, 
+                count: stats.count, 
+                communication: +stats.avgC.toFixed(1), 
+                timeliness: +stats.avgT.toFixed(1), 
+                professionalism: +stats.avgP.toFixed(1) 
+            };
             if (ratee.role === 'influencer') {
                 await InfluencerProfile.findOneAndUpdate({ user: rateeId }, { ratings: rd, searchRank: rd.average * rd.count });
             } else {

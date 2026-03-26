@@ -24,6 +24,7 @@ import Applications from "./pages/Applications";
 import SavedProfiles from "./pages/SavedProfiles";
 import AppliedCampaigns from "./pages/AppliedCampaigns";
 import AdminSecurity from "./pages/AdminSecurity";
+import Register from "./pages/Register";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/influencer/signup" element={<InfluencerSignup />} />
             <Route path="/brand/signup" element={<BrandSignup />} />
             <Route path="/influencer/login" element={<InfluencerLogin />} />

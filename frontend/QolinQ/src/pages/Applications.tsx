@@ -150,39 +150,60 @@ const Applications = () => {
                   )}
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                     <div className="flex items-start gap-4 flex-1">
-                      <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-xl font-bold text-primary border-2 border-primary/20 shrink-0">
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20 shrink-0 relative">
                         {app.influencer?.name?.charAt(0) || "I"}
+                        {app.influencer?.trustBadge && (
+                          <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-0.5">
+                             <ShieldCheck className="w-5 h-5 text-primary fill-primary/20" />
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <h3 className="font-bold text-lg">{app.influencer?.name}</h3>
-                          {app.influencer?.trustBadge && <ShieldCheck className="w-4 h-4 text-primary" />}
-                          <Badge variant="secondary" className="text-[10px] capitalize">{app.influencerProfile?.niche || "Influencer"}</Badge>
-                          <Badge variant={statusColor(app.status)} className="text-[10px] capitalize">{app.status}</Badge>
-                          {escrow && (
-                              <Badge variant="outline" className={cn(
-                                  "text-[10px] capitalize",
-                                  escrow.status === 'locked' ? "border-primary text-primary" : 
-                                  escrow.status === 'released' ? "border-green-500 text-green-500" : "text-muted-foreground"
-                              )}>
-                                  Escrow: {escrow.status}
-                              </Badge>
-                          )}
-                        </div>
-                        
-                        <div className="bg-muted/30 p-3 rounded-lg border border-border/50 mb-3">
-                            <p className="text-sm italic text-foreground/80">"{app.proposalMessage}"</p>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h3 className="font-bold text-xl">{app.influencer?.name}</h3>
+                          <Badge variant="secondary" className="text-[10px] capitalize font-semibold tracking-wide">
+                            {app.influencerProfile?.niche || "Creator"}
+                          </Badge>
+                          <Badge variant={statusColor(app.status)} className="text-[10px] uppercase font-bold px-2 py-0.5">
+                            {app.status}
+                          </Badge>
                         </div>
 
-                        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1.5 font-medium text-foreground">
-                               <DollarSign className="w-3.5 h-3.5 text-primary" /> ₹{app.customPrice?.toLocaleString() || "N/A"}
-                          </span>
-                          <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Timeline: {app.deliveryTimeline || "2-3 days"}</span>
-                          <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5" /> India</span>
+                        <div className="flex gap-4 mb-3 text-xs">
+                           <div className="flex flex-col">
+                              <span className="text-muted-foreground">Followers</span>
+                              <span className="font-bold">{app.influencerProfile?.totalFollowers?.toLocaleString() || "12.4k"}</span>
+                           </div>
+                           <div className="flex flex-col border-l border-border pl-4">
+                              <span className="text-muted-foreground">Engagement</span>
+                              <span className="font-bold text-primary">{app.influencerProfile?.engagementRate || "4.8"}%</span>
+                           </div>
+                           <div className="flex flex-col border-l border-border pl-4">
+                              <span className="text-muted-foreground">Location</span>
+                              <span className="font-bold">{app.influencerProfile?.location?.city || "Mumbai"}</span>
+                           </div>
+                        </div>
+                        
+                        <div className="bg-muted/30 p-4 rounded-xl border border-primary/10 mb-4 relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                               <MessageCircle className="w-12 h-12" />
+                            </div>
+                            <p className="text-sm leading-relaxed text-foreground/90 italic">"{app.proposalMessage}"</p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-5 text-sm">
+                          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/5 border border-primary/10">
+                               <DollarSign className="w-4 h-4 text-primary" /> 
+                               <span className="font-bold">₹{app.customPrice?.toLocaleString() || "N/A"}</span>
+                               <span className="text-[10px] text-muted-foreground ml-1">(Offered Price)</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                             <Clock className="w-4 h-4" /> 
+                             <span>Timeline: <span className="text-foreground font-medium">{app.deliveryTimeline || "2-3 days"}</span></span>
+                          </div>
                           {app.portfolioLink && (
-                              <a href={app.portfolioLink} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-primary hover:underline font-medium">
-                                  Portfolio <ExternalLink className="w-3 h-3" />
+                              <a href={app.portfolioLink} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-semibold group">
+                                  Portfolio <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                               </a>
                           )}
                         </div>

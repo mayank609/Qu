@@ -70,89 +70,81 @@ const CreateListing = () => {
           <p className="text-muted-foreground">Create a new campaign listing for influencers to discover</p>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <Card className="bg-card border border-border p-6 space-y-5">
-            <div className="space-y-2">
-              <Label>Campaign Title *</Label>
-              <Input 
-                placeholder="Summer Fashion Collection Launch" 
-                required 
-                value={formData.title}
-                onChange={e => setFormData({...formData, title: e.target.value})}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Description *</Label>
-              <Textarea 
-                placeholder="Describe your campaign goals, target audience, and what you're looking for..." 
-                className="min-h-[120px]" 
-                required 
-                value={formData.description}
-                onChange={e => setFormData({...formData, description: e.target.value})}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <Card className="bg-card border border-border p-8 space-y-6">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-sm">1</span>
+              Campaign Basics
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2 space-y-2">
+                <Label>Campaign Title *</Label>
+                <Input 
+                  placeholder="e.g. Summer Fashion Collection Launch" 
+                  required 
+                  value={formData.title}
+                  onChange={e => setFormData({...formData, title: e.target.value})}
+                  className="bg-muted/30"
+                />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <Label>Campaign Description *</Label>
+                <Textarea 
+                  placeholder="Describe your goals, what you are promoting, and overall vision..." 
+                  className="min-h-[120px] bg-muted/30" 
+                  required 
+                  value={formData.description}
+                  onChange={e => setFormData({...formData, description: e.target.value})}
+                />
+              </div>
               <div className="space-y-2">
                 <Label>Category *</Label>
                 <Select value={formData.category} onValueChange={v => setFormData({...formData, category: v})}>
-                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectTrigger className="bg-muted/30"><SelectValue placeholder="Select industry" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fashion">Fashion</SelectItem>
-                    <SelectItem value="tech">Tech</SelectItem>
-                    <SelectItem value="fitness">Fitness</SelectItem>
-                    <SelectItem value="food">Food</SelectItem>
-                    <SelectItem value="beauty">Beauty</SelectItem>
-                    <SelectItem value="gaming">Gaming</SelectItem>
-                    <SelectItem value="travel">Travel</SelectItem>
-                    <SelectItem value="lifestyle">Lifestyle</SelectItem>
+                    <SelectItem value="fashion">Fashion & Lifestyle</SelectItem>
+                    <SelectItem value="tech">Tech & Gadgets</SelectItem>
+                    <SelectItem value="fitness">Health & Fitness</SelectItem>
+                    <SelectItem value="food">Food & Beverage</SelectItem>
+                    <SelectItem value="beauty">Beauty & Skincare</SelectItem>
+                    <SelectItem value="gaming">Gaming & ESports</SelectItem>
+                    <SelectItem value="travel">Travel & Tourism</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Platform *</Label>
+                <Label>Urgency Level</Label>
+                <Select defaultValue="medium" onValueChange={v => setFormData({...formData, platform: formData.platform}) /* Placeholder for urgency */}>
+                  <SelectTrigger className="bg-muted/30"><SelectValue placeholder="Select urgency" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low (1-2 months)</SelectItem>
+                    <SelectItem value="medium">Medium (2-4 weeks)</SelectItem>
+                    <SelectItem value="high">High (Next week)</SelectItem>
+                    <SelectItem value="urgent">Urgent (Asap)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="bg-card border border-border p-8 space-y-6">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-sm">2</span>
+              Deliverables & Budget
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Primary Platform *</Label>
                 <Select value={formData.platform} onValueChange={v => setFormData({...formData, platform: v})}>
-                  <SelectTrigger><SelectValue placeholder="Select platform" /></SelectTrigger>
+                  <SelectTrigger className="bg-muted/30"><SelectValue placeholder="Select platform" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="instagram_reel">Instagram Reels</SelectItem>
                     <SelectItem value="instagram_story">Instagram Stories</SelectItem>
-                    <SelectItem value="youtube_video">YouTube Video</SelectItem>
+                    <SelectItem value="youtube_video">YouTube Main Video</SelectItem>
                     <SelectItem value="youtube_short">YouTube Shorts</SelectItem>
-                    <SelectItem value="instagram_post">Static Posts</SelectItem>
+                    <SelectItem value="linkedin_post">LinkedIn Article/Post</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Min Budget (₹) *</Label>
-                <Input 
-                  type="number"
-                  placeholder="5000" 
-                  required 
-                  value={formData.budgetMin}
-                  onChange={e => setFormData({...formData, budgetMin: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Max Budget (₹) *</Label>
-                <Input 
-                  type="number"
-                  placeholder="10000" 
-                  required 
-                  value={formData.budgetMax}
-                  onChange={e => setFormData({...formData, budgetMax: e.target.value})}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Location *</Label>
-                <Input 
-                  placeholder="Mumbai, India" 
-                  required 
-                  value={formData.location}
-                  onChange={e => setFormData({...formData, location: e.target.value})}
-                />
               </div>
               <div className="space-y-2">
                 <Label>Deadline *</Label>
@@ -161,25 +153,82 @@ const CreateListing = () => {
                   required 
                   value={formData.endDate}
                   onChange={e => setFormData({...formData, endDate: e.target.value})}
+                  className="bg-muted/30"
+                />
+              </div>
+              <div className="space-y-2 text-primary">
+                <Label>Min Budget (₹) *</Label>
+                <Input 
+                  type="number"
+                  placeholder="5000" 
+                  required 
+                  value={formData.budgetMin}
+                  onChange={e => setFormData({...formData, budgetMin: e.target.value})}
+                  className="bg-muted/30 border-primary/20"
+                />
+              </div>
+              <div className="space-y-2 text-primary">
+                <Label>Max Budget (₹) *</Label>
+                <Input 
+                  type="number"
+                  placeholder="10000" 
+                  required 
+                  value={formData.budgetMax}
+                  onChange={e => setFormData({...formData, budgetMax: e.target.value})}
+                  className="bg-muted/30 border-primary/20"
+                />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <Label>Deliverables Checklist (one per line) *</Label>
+                <Textarea 
+                  placeholder="e.g.&#10;1x Instagram Reel (30-60s)&#10;2x Story with Swipe-up Link&#10;Permanent Post on Feed" 
+                  className="min-h-[100px] bg-muted/30"
+                  required
+                  value={formData.deliverables}
+                  onChange={e => setFormData({...formData, deliverables: e.target.value})}
                 />
               </div>
             </div>
-            <div className="space-y-2">
-              <Label>Deliverables & Requirements (one per line)</Label>
-              <Textarea 
-                placeholder="2 Instagram Reels&#10;3 Story Posts" 
-                value={formData.deliverables}
-                onChange={e => setFormData({...formData, deliverables: e.target.value})}
-              />
-            </div>
+          </Card>
 
-            <div className="flex gap-3 pt-2">
-              <NeonButton neonVariant="primary" type="submit" className="flex-1" disabled={loading}>
-                {loading ? "Publishing..." : "Publish Campaign"}
-              </NeonButton>
-              <NeonButton neonVariant="outline" type="button" onClick={() => navigate(-1)} className="flex-1">Cancel</NeonButton>
+          <Card className="bg-card border border-border p-8 space-y-6">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-sm">3</span>
+              Audience & Guidelines
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Target Location</Label>
+                <Input 
+                  placeholder="e.g. India, Tier 1 Cities" 
+                  value={formData.location}
+                  onChange={e => setFormData({...formData, location: e.target.value})}
+                  className="bg-muted/30"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Required Hashtags</Label>
+                <Input 
+                  placeholder="#SummerVibes #QolinqFashion" 
+                  className="bg-muted/30"
+                />
+              </div>
+              <div className="md:col-span-2 space-y-2">
+                <Label>Content Guidelines & Don'ts</Label>
+                <Textarea 
+                  placeholder="e.g. No competitors mentioned. High-lighting the fabric quality. Use clear audio..." 
+                  className="min-h-[100px] bg-muted/30"
+                />
+              </div>
             </div>
           </Card>
+
+          <div className="flex gap-4 pt-4">
+            <NeonButton neonVariant="primary" type="submit" className="flex-1 py-6 text-lg" disabled={loading}>
+              {loading ? "Publishing..." : "Publish Campaign Listing"}
+            </NeonButton>
+            <NeonButton neonVariant="outline" type="button" onClick={() => navigate(-1)} className="px-10">Cancel</NeonButton>
+          </div>
         </form>
       </div>
     </DashboardLayout>

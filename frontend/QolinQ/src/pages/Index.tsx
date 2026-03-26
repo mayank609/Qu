@@ -33,22 +33,12 @@ const Index = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button
-              onClick={() => navigate("/brand/signup")}
+              onClick={() => navigate("/register")}
               size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 px-8 h-12 text-base font-semibold"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 px-12 h-14 text-lg font-bold shadow-glow"
             >
-              Enter as Brand
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-
-            <Button
-              onClick={() => navigate("/influencer/signup")}
-              size="lg"
-              variant="outline"
-              className="border-primary/30 text-foreground hover:bg-primary/5 px-8 h-12 text-base font-semibold"
-            >
-              Enter as Influencer
-              <ArrowRight className="w-4 h-4 ml-2" />
+              Get Started
+              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           </div>
 

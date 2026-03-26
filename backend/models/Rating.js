@@ -45,6 +45,10 @@ const ratingSchema = new mongoose.Schema(
             maxlength: 1000,
             default: '',
         },
+        raterWeight: {
+            type: Number,
+            default: 1.0,
+        },
     },
     {
         timestamps: true,

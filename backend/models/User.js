@@ -58,6 +58,17 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        isSuspicious: {
+            type: Boolean,
+            default: false,
+        },
+        fraudScore: {
+            type: Number,
+            default: 0,
+        },
+        lastLoginIp: {
+            type: String,
+        },
         isActive: {
             type: Boolean,
             default: true,

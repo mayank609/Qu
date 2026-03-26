@@ -63,46 +63,92 @@ const ExploreCampaigns = () => {
 
         <NeonSearchBar placeholder="Search campaigns by title, brand, or category..." value={search} onChange={setSearch} />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <div className="space-y-1.5">
-            <Label className="text-xs">Category</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder={`All Categories`} /></SelectTrigger>
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="All Categories" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="fashion">Fashion</SelectItem>
-                <SelectItem value="tech">Tech</SelectItem>
-                <SelectItem value="fitness">Fitness</SelectItem>
-                <SelectItem value="food">Food</SelectItem>
+                <SelectItem value="fashion">Fashion & Lifestyle</SelectItem>
+                <SelectItem value="tech">Tech & Gadgets</SelectItem>
+                <SelectItem value="fitness">Health & Fitness</SelectItem>
+                <SelectItem value="food">Food & Beverage</SelectItem>
+                <SelectItem value="beauty">Beauty & Cosmetics</SelectItem>
+                <SelectItem value="gaming">Gaming & ESports</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Platform</Label>
+            <Select defaultValue="all">
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Platform" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Platform</SelectItem>
+                <SelectItem value="instagram">Instagram</SelectItem>
+                <SelectItem value="youtube">YouTube</SelectItem>
+                <SelectItem value="linkedin">LinkedIn</SelectItem>
+                <SelectItem value="twitter">Twitter</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Budget Range</Label>
+            <Select defaultValue="all">
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Budget" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Budget</SelectItem>
+                <SelectItem value="0-5000">Below ₹5k</SelectItem>
+                <SelectItem value="5000-15000">₹5k - ₹15k</SelectItem>
+                <SelectItem value="15000-50000">₹15k - ₹50k</SelectItem>
+                <SelectItem value="50000+">₹50k+</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Timeline</Label>
+            <Select defaultValue="all">
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Status</SelectItem>
+                <SelectItem value="urgent">Urgent Only</SelectItem>
+                <SelectItem value="new">Newly Added</SelectItem>
+                <SelectItem value="ending">Ending Soon</SelectItem>
               </SelectContent>
             </Select>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary shadow-glow-sm"></div>
+            <p className="text-sm text-muted-foreground animate-pulse">Hunting for best brand deals...</p>
           </div>
         ) : error ? (
-          <div className="text-center py-12 text-destructive">
-            <p>Error loading campaigns. Please try again later.</p>
+          <div className="text-center py-24 text-destructive bg-destructive/5 rounded-2xl border border-destructive/10">
+            <p className="font-bold">Oops! Connection error.</p>
+            <p className="text-sm opacity-80">We couldn't reach our marketplace servers.</p>
           </div>
         ) : campaigns.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <p>No campaigns found matching your criteria.</p>
+          <div className="text-center py-24 text-muted-foreground bg-muted/20 rounded-2xl border border-dashed border-border">
+            <p className="text-lg font-semibold">No campaigns found matching your criteria.</p>
+            <p className="text-sm">Try exploring other categories or clearing filters.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6 animate-slide-up">
             {campaigns.map((campaign: any) => (
               <CampaignCard 
                 key={campaign._id} 
                 title={campaign.title}
+                brandName={campaign.brand?.name || "Premium Brand"}
                 category={campaign.category}
+                platform={campaign.platform}
                 budget={`₹${campaign.budgetRange.min.toLocaleString()} - ₹${campaign.budgetRange.max.toLocaleString()}`}
                 description={campaign.description}
                 location={campaign.location?.city || 'Remote'}
                 deadline={new Date(campaign.timeline.endDate).toLocaleDateString()}
-                requirements={campaign.deliverables.map((d: any) => d.type)}
+                requirements={campaign.deliverables.map((d: any) => d.description || d.type)}
+                urgency={campaign.urgency || "medium"}
                 onApply={() => setSelectedCampaign(campaign)} 
               />
             ))}

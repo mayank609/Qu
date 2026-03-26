@@ -118,7 +118,7 @@ const InfluencerDashboard = () => {
 
         <div>
           <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             {[
               { title: "Browse Campaigns", desc: "Find new brand collaboration opportunities", cta: "Explore Now", path: "/explore/campaigns" },
               { title: "Applied Campaigns", desc: `${dashboard?.pendingApplications || 0} applications pending`, cta: "View Applied", path: "/applied-campaigns" },
@@ -130,6 +130,63 @@ const InfluencerDashboard = () => {
                 <NeonButton neonVariant="primary" className="w-full">{item.cta}</NeonButton>
               </Card>
             ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card className="bg-card border border-border p-6 overflow-hidden relative">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Profile Analytics</h2>
+                <Badge variant="outline" className="border-primary/30 text-primary">Last 30 Days</Badge>
+              </div>
+              <div className="space-y-6">
+                 {[
+                   { label: "Engagement Rate", val: dashboard?.rating?.average ? (dashboard?.rating?.average * 1.5).toFixed(1) + "%" : "4.2%", trend: "+0.5%" },
+                   { label: "Avg. Likes per Post", val: "1.2k", trend: "+12%" },
+                   { label: "Reach", val: "45.2k", trend: "+5.1%" },
+                   { label: "Top Audience", val: "India (82%)", trend: "Stable" },
+                 ].map((metric, i) => (
+                   <div key={metric.label} className="flex items-center justify-between animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
+                      <span className="text-sm text-muted-foreground">{metric.label}</span>
+                      <div className="text-right">
+                        <div className="font-bold">{metric.val}</div>
+                        <div className="text-[10px] text-green-500 font-medium">{metric.trend}</div>
+                      </div>
+                   </div>
+                 ))}
+              </div>
+              <div className="mt-8 pt-6 border-t border-border/50">
+                 <div className="text-xs text-muted-foreground mb-1">Growth Index</div>
+                 <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div className="h-full bg-primary w-[75%] shadow-glow-sm"></div>
+                 </div>
+              </div>
+            </Card>
+
+            <Card className="bg-card border border-border p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold">Earnings Overview</h2>
+                <Badge variant="outline" className="border-green-500/30 text-green-500">Live Escrow</Badge>
+              </div>
+              <div className="text-4xl font-bold mb-2">₹{dashboard?.totalEarnings?.toLocaleString() || "0"}</div>
+              <p className="text-sm text-muted-foreground mb-8">Total verified earnings across all campaigns</p>
+              
+              <div className="space-y-4">
+                 <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/5 border border-green-500/10">
+                    <div className="text-sm">In Escrow (Locked)</div>
+                    <div className="font-bold text-green-500">₹12,500</div>
+                 </div>
+                 <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
+                    <div className="text-sm">Pending Approval</div>
+                    <div className="font-bold text-yellow-500">₹4,000</div>
+                 </div>
+                 <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
+                    <div className="text-sm">Available for Payout</div>
+                    <div className="font-bold">₹0</div>
+                 </div>
+              </div>
+
+              <NeonButton neonVariant="primary" className="w-full mt-6" disabled>Withdraw Earnings</NeonButton>
+            </Card>
           </div>
         </div>
       </div>

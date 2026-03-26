@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,8 @@ import { brandAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 const BrandSettings = () => {
-    const { user, updateUser } = useAuth();
+    const navigate = useNavigate();
+    const { user, updateUser, switchRole } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -225,6 +227,43 @@ const BrandSettings = () => {
                                         <Switch defaultChecked={item.on} />
                                     </div>
                                 ))}
+                            </div>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="account" className="animate-fade-in">
+                        <Card className="bg-card border-border p-6">
+                            <h2 className="text-lg font-bold mb-5">Account Management</h2>
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-sm font-semibold mb-2">Switch Account Type</h3>
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        Currently acting as a <strong>Brand</strong>. Switch to an Influencer account to browse campaigns and apply to jobs.
+                                    </p>
+                                    <NeonButton 
+                                        neonVariant="primary" 
+                                        type="button"
+                                        onClick={async () => {
+                                            if (window.confirm("Switch to Influencer account? You can switch back anytime and your brand data will be safe.")) {
+                                                const newRole = await switchRole();
+                                                navigate(newRole === 'brand' ? "/brand/dashboard" : "/influencer/dashboard");
+                                                toast.success("Switched to Influencer account!");
+                                            }
+                                        }}
+                                    >
+                                        Be an Influencer
+                                    </NeonButton>
+                                </div>
+                                
+                                <div className="pt-6 border-t border-border">
+                                    <h3 className="text-sm font-semibold mb-2 text-destructive">Danger Zone</h3>
+                                    <p className="text-sm text-muted-foreground mb-4">
+                                        Deleting your account is permanent and cannot be undone.
+                                    </p>
+                                    <NeonButton neonVariant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/5">
+                                        Delete My Account
+                                    </NeonButton>
+                                </div>
                             </div>
                         </Card>
                     </TabsContent>
