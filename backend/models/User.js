@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema(
         },
         verificationStatus: {
             type: String,
-            enum: ['unverified', 'pending', 'verified'],
+            enum: ['unverified', 'pending', 'verified', 'flagged'],
             default: 'unverified',
         },
         verificationDocuments: [

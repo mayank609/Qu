@@ -44,7 +44,8 @@ const NotificationDropdown = () => {
     if (!token) return;
 
     const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5001", {
-      auth: { token }
+      auth: { token },
+      transports: ['websocket'],
     });
 
     socket.on("notification", (newNotif) => {

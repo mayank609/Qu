@@ -4,6 +4,7 @@ const InfluencerProfile = require('../models/InfluencerProfile');
 const Notification = require('../models/Notification');
 const Escrow = require('../models/Escrow');
 const { getPagination, paginationMeta } = require('../utils/helpers');
+const emailService = require('../utils/emailService');
 
 // @desc    Apply to campaign
 // @route   POST /api/applications/:campaignId
@@ -182,7 +183,9 @@ const updateApplicationStatus = async (req, res, next) => {
             });
         }
 
-        const application = await Application.findById(req.params.id).populate('campaign');
+        const application = await Application.findById(req.params.id)
+            .populate('campaign')
+            .populate('influencer', 'email name');
         if (!application) {
             return res.status(404).json({ success: false, message: 'Application not found' });
         }
@@ -237,8 +240,15 @@ const updateApplicationStatus = async (req, res, next) => {
         });
 
         if (io) {
-            io.to(`user_${application.influencer}`).emit('notification', notification);
+            io.to(`user_${application.influencer._id}`).emit('notification', notification);
         }
+
+        // Send Email
+        emailService.sendApplicationStatusEmail(
+            application.influencer.email,
+            application.campaign.title,
+            status
+        ).catch(err => console.error('Email notification failed:', err));
 
         res.json({
             success: true,

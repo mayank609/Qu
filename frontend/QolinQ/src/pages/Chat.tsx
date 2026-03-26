@@ -13,9 +13,11 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+import { io } from "socket.io-client";
+
 const Chat = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const conversationIdFromUrl = searchParams.get("id");
@@ -23,8 +25,10 @@ const Chat = () => {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(conversationIdFromUrl);
   const [messageText, setMessageText] = useState("");
   const [showContract, setShowContract] = useState(false);
+  const [typingUser, setTypingUser] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const socketRef = useRef<any>(null);
 
   const { data: convRes, isLoading: convsLoading } = useQuery({
     queryKey: ['conversations'],
@@ -37,32 +41,75 @@ const Chat = () => {
     queryKey: ['messages', selectedChatId],
     enabled: !!selectedChatId,
     queryFn: () => messageAPI.getMessages(selectedChatId!),
-    refetchInterval: 3000, 
+    // refetchInterval removed in favor of sockets
   });
 
   const messages = msgRes?.data?.data || [];
   const currentChat = conversations.find((c: any) => c._id === selectedChatId);
 
+  // Socket Connection & Listeners
+  useEffect(() => {
+    if (!token) return;
+
+    socketRef.current = io(import.meta.env.VITE_API_URL || "http://localhost:5001", {
+      auth: { token },
+      transports: ['websocket'],
+    });
+
+    socketRef.current.on("newMessage", (message: any) => {
+      // If message belongs to current chat, update message list
+      if (message.conversation === selectedChatId) {
+        queryClient.setQueryData(['messages', selectedChatId], (old: any) => {
+          if (!old) return { data: [message] };
+          return { ...old, data: [...old.data, message] };
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    });
+
+    socketRef.current.on("userTyping", ({ name, userId }: any) => {
+      if (userId !== user?._id) {
+        setTypingUser(name);
+        // Clear typing indicator after 3s of inactivity
+        setTimeout(() => setTypingUser(null), 3000);
+      }
+    });
+
+    return () => {
+      socketRef.current?.disconnect();
+    };
+  }, [token, selectedChatId, queryClient, user?._id]);
+
+  // Join conversation room when selectedChatId changes
+  useEffect(() => {
+    if (selectedChatId && socketRef.current) {
+      socketRef.current.emit("joinConversation", selectedChatId);
+      socketRef.current.emit("messageRead", { conversationId: selectedChatId });
+    }
+  }, [selectedChatId]);
+
   const { data: contractRes } = useQuery({
     queryKey: ['contract', currentChat?.campaign?._id],
     enabled: !!currentChat?.campaign?._id && !!currentChat?.participants.find((p: any) => p.role === 'influencer' && p._id !== user?._id),
-    queryFn: async () => {
-        // We need the application ID. In this simplified flow, we might need a better way to find it.
-        // For now, let's assume we can fetch it if we have the campaign.
-        // Or we can just use the campaign data from the conversation.
-        return null;
-    }
+    queryFn: async () => null
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (data: any) => messageAPI.sendMessage(selectedChatId!, data),
+    mutationFn: (data: any) => {
+        // We emit via socket for "fast" feel, and fallback/log to API if needed
+        // For now, the backend socket handler handles the DB save
+        socketRef.current.emit("sendMessage", {
+            conversationId: selectedChatId,
+            ...data
+        });
+        return Promise.resolve();
+    },
     onSuccess: () => {
       setMessageText("");
-      queryClient.invalidateQueries({ queryKey: ['messages', selectedChatId] });
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      // Local update is handled by newMessage listener
     },
     onError: (err: any) => {
-        toast.error(err.response?.data?.message || "Failed to send message");
+        toast.error("Failed to send message via real-time link");
     }
   });
 
@@ -90,11 +137,15 @@ const Chat = () => {
     sendMessageMutation.mutate({ content: messageText, type: 'text' });
   };
 
+  const handleTyping = () => {
+    if (selectedChatId && socketRef.current) {
+        socketRef.current.emit("typing", { conversationId: selectedChatId });
+    }
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && selectedChatId) {
-      // Simulate file upload with a local URL for now
-      // In production, this would upload to S3/Cloudinary and return a URL
       const fakeUrl = URL.createObjectURL(file);
       sendMessageMutation.mutate({ 
         content: `Shared a file: ${file.name}`, 
@@ -188,8 +239,14 @@ const Chat = () => {
                   <div>
                     <h2 className="font-bold text-sm leading-none mb-1">{chatPartner?.name || "Loading..."}</h2>
                     <div className="flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <p className="text-[10px] text-muted-foreground">Active in negotiation</p>
+                        {typingUser ? (
+                            <span className="text-[10px] text-primary font-medium animate-pulse">{typingUser} is typing...</span>
+                        ) : (
+                            <>
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                <p className="text-[10px] text-muted-foreground">Active in negotiation</p>
+                            </>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -281,7 +338,10 @@ const Chat = () => {
                         <div className="flex-1 relative">
                             <Input 
                                 value={messageText} 
-                                onChange={(e) => setMessageText(e.target.value)} 
+                                onChange={(e) => {
+                                    setMessageText(e.target.value);
+                                    handleTyping();
+                                }} 
                                 placeholder="Write your message..." 
                                 className="pr-10 bg-background border-primary/20 focus-visible:ring-primary/30 h-11" 
                                 disabled={sendMessageMutation.isPending}

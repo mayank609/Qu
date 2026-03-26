@@ -5,6 +5,7 @@ const InfluencerProfile = require('../models/InfluencerProfile');
 const BrandProfile = require('../models/BrandProfile');
 const Conversation = require('../models/Conversation');
 const Notification = require('../models/Notification');
+const emailService = require('../utils/emailService');
 
 // @desc    Fund campaign (brand locks money in escrow)
 // @route   POST /api/escrow/fund/:campaignId
@@ -17,7 +18,7 @@ const fundCampaign = async (req, res, next) => {
             campaign: campaignId,
             application: applicationId,
             brand: req.user._id,
-        });
+        }).populate('influencer');
 
         if (!escrow) {
             return res.status(404).json({ success: false, message: 'Escrow record not found' });
@@ -47,6 +48,10 @@ const fundCampaign = async (req, res, next) => {
             link: `/escrow/${escrow._id}`,
         });
 
+        // Send Email
+        emailService.sendPaymentEmail(escrow.influencer.email, escrow.amount, 'funded')
+            .catch(err => console.error('Email notification failed:', err));
+
         res.json({
             success: true,
             message: 'Campaign funded successfully. Money locked in escrow.',
@@ -64,7 +69,7 @@ const releasePayment = async (req, res, next) => {
         const escrow = await Escrow.findOne({
             _id: req.params.escrowId,
             brand: req.user._id,
-        });
+        }).populate('influencer').populate('brand');
 
         if (!escrow) {
             return res.status(404).json({ success: false, message: 'Escrow not found' });
@@ -139,6 +144,10 @@ const releasePayment = async (req, res, next) => {
             });
         }
 
+        // Send Email
+        emailService.sendPaymentEmail(escrow.influencer.email, escrow.amount, 'released')
+            .catch(err => console.error('Email notification failed:', err));
+
         res.json({
             success: true,
             message: 'Payment released successfully',
@@ -162,7 +171,7 @@ const raiseDispute = async (req, res, next) => {
         const escrow = await Escrow.findOne({
             _id: req.params.escrowId,
             $or: [{ brand: req.user._id }, { influencer: req.user._id }],
-        });
+        }).populate('brand').populate('influencer');
 
         if (!escrow) {
             return res.status(404).json({ success: false, message: 'Escrow not found' });
@@ -205,6 +214,11 @@ const raiseDispute = async (req, res, next) => {
             message: `A dispute has been raised for the campaign payment.`,
             link: `/escrow/${escrow._id}`,
         });
+
+        // Send Email to other party
+        const recipient = escrow.brand.toString() === req.user._id.toString() ? escrow.influencer : escrow.brand;
+        emailService.sendPaymentEmail(recipient.email, escrow.amount, 'disputed')
+            .catch(err => console.error('Email notification failed:', err));
 
         res.json({
             success: true,

@@ -30,9 +30,7 @@ const AdminSecurity = () => {
 
   const verifyUserMutation = useMutation({
     mutationFn: ({ userId, status }: { userId: string, status: string }) => 
-      // Reusing authAPI or creating admin one if needed
-      // For this demo, we'll simulate the admin action
-      new Promise((resolve) => setTimeout(() => resolve({ success: true }), 1000)),
+      fraudAPI.verifyUser(userId, { verificationStatus: status }),
     onSuccess: (_, variables) => {
       toast.success(`User marked as ${variables.status}`);
       queryClient.invalidateQueries({ queryKey: ['flagged-profiles'] });
