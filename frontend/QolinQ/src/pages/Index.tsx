@@ -1,9 +1,18 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Zap } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate(user.role === 'brand' ? "/brand/dashboard" : "/influencer/dashboard");
+    }
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">

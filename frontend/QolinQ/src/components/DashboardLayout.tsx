@@ -56,9 +56,9 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex md:flex-col md:w-60 md:h-screen md:sticky md:top-0 bg-card border-r border-border p-5 shrink-0">
-        <div className="flex items-center gap-2 mb-8" onClick={() => navigate('/')}>
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">Q</div>
-          <h1 className="text-2xl font-bold text-gradient cursor-pointer">Qolinq</h1>
+        <div className="flex items-center gap-2 mb-8 cursor-pointer" onClick={() => navigate(userType === 'brand' ? '/brand/dashboard' : '/influencer/dashboard')}>
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold shadow-glow-sm">Q</div>
+          <h1 className="text-2xl font-bold text-gradient">Qolinq</h1>
         </div>
         <nav className="flex-1 space-y-1">
           {navItems.map((item) => {
@@ -103,8 +103,8 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         <header className="h-16 border-b border-border bg-card/50 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between">
-          <div className="md:hidden flex items-center gap-2" onClick={() => navigate('/')}>
-            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">Q</div>
+          <div className="md:hidden flex items-center gap-2 cursor-pointer" onClick={() => navigate(userType === 'brand' ? '/brand/dashboard' : '/influencer/dashboard')}>
+            <div className="w-6 h-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shadow-glow-sm">Q</div>
             <h1 className="text-lg font-bold text-gradient">Qolinq</h1>
           </div>
           <div className="hidden md:block">

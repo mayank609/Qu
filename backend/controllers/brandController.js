@@ -63,6 +63,15 @@ const updateProfile = async (req, res, next) => {
 
         await profile.save();
 
+        // Sync with User model
+        const userUpdate = {};
+        if (companyName) userUpdate.name = companyName;
+        if (logo) userUpdate.avatar = logo;
+        
+        if (Object.keys(userUpdate).length > 0) {
+            await User.findByIdAndUpdate(req.user._id, userUpdate);
+        }
+
         res.json({
             success: true,
             message: 'Brand profile updated successfully',

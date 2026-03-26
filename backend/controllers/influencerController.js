@@ -54,8 +54,17 @@ const updateProfile = async (req, res, next) => {
         if (location) profile.location = { ...profile.location, ...location };
         if (priceExpectation) profile.priceExpectation = { ...profile.priceExpectation, ...priceExpectation };
         if (portfolioLinks) profile.portfolioLinks = portfolioLinks;
+        if (req.body.audienceCountry) profile.audienceCountry = req.body.audienceCountry;
 
         await profile.save();
+
+        // Update User model if name or avatar is provided
+        if (req.body.name || req.body.avatar) {
+            const userUpdate = {};
+            if (req.body.name) userUpdate.name = req.body.name;
+            if (req.body.avatar) userUpdate.avatar = req.body.avatar;
+            await User.findByIdAndUpdate(req.user._id, userUpdate);
+        }
 
         // Trigger fraud check in background
         const { detectProfileAnomaly } = require('../controllers/fraudController');
