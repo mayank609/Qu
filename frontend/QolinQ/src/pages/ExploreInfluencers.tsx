@@ -16,7 +16,7 @@ const ExploreInfluencers = () => {
 
   const startConvMutation = useMutation({
     mutationFn: (data: { participantId: string, campaignId?: string }) => 
-      messageAPI.startConversation(data.participantId, data.campaignId),
+      messageAPI.startConversation(data),
     onSuccess: (res) => {
       navigate(`/chat?id=${res.data.data._id}`);
     },
