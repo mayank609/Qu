@@ -113,13 +113,20 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
           <div className="flex items-center gap-3">
              <NotificationDropdown />
              <div className="h-8 w-px bg-border mx-1 hidden sm:block"></div>
-             <div className="flex items-center gap-2 pl-2">
+             <div 
+                className="flex items-center gap-2 pl-2 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate(userType === 'influencer' ? '/my-profile' : '/brand/settings')}
+             >
                 <div className="hidden text-right sm:block">
                   <p className="text-xs font-bold leading-none">{user?.name}</p>
                   <p className="text-[10px] text-muted-foreground capitalize">{user?.role}</p>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary border border-primary/20">
-                  {user?.name?.charAt(0) || "U"}
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary border border-primary/20 overflow-hidden">
+                  {user?.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    user?.name?.charAt(0) || "U"
+                  )}
                 </div>
              </div>
           </div>

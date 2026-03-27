@@ -13,13 +13,19 @@ const MyProfile = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   
-  const { data, isLoading } = useQuery({
-    queryKey: ['influencer-dashboard'],
+  const { data: profileRes, isLoading: profileLoading } = useQuery({
+    queryKey: ['influencer-profile'],
+    queryFn: () => influencerAPI.getProfile(),
+  });
+
+  const { data: dashboardRes, isLoading: dashLoading } = useQuery({
+    queryKey: ['influencer-dashboard-stats'],
     queryFn: () => influencerAPI.getDashboard(),
   });
 
-  const profile = data?.data?.data?.influencer || {};
-  const stats = data?.data?.data?.stats || {};
+  const isLoading = profileLoading || dashLoading;
+  const profile = profileRes?.data?.data || {};
+  const stats = dashboardRes?.data?.data || {};
 
   if (isLoading) {
     return (
@@ -41,8 +47,12 @@ const MyProfile = () => {
 
         <Card className="bg-card border border-border p-6 shadow-glow">
           <div className="flex flex-col md:flex-row items-start gap-5">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary border border-primary/20">
-              {profile.name?.charAt(0) || user?.name?.charAt(0) || "U"}
+            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-3xl font-bold text-primary border border-primary/20 overflow-hidden">
+              {profile.user?.avatar || user?.avatar ? (
+                <img src={profile.user?.avatar || user?.avatar} alt={profile.name || user?.name} className="w-full h-full object-cover" />
+              ) : (
+                profile.name?.charAt(0) || user?.name?.charAt(0) || "U"
+              )}
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
@@ -98,12 +108,12 @@ const MyProfile = () => {
         <div className="grid grid-cols-3 gap-4">
           <Card className="bg-card border border-border p-5 text-center hover:border-primary/50 transition-colors">
             <Eye className="w-5 h-5 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold">{stats.totalViews || 0}</div>
+            <div className="text-2xl font-bold">{stats.profileViews || 0}</div>
             <p className="text-xs text-muted-foreground">Profile Views</p>
           </Card>
           <Card className="bg-card border border-border p-5 text-center hover:border-primary/50 transition-colors">
             <Bookmark className="w-5 h-5 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold">{stats.applicationsCount || 0}</div>
+            <div className="text-2xl font-bold">{stats.totalApplications || 0}</div>
             <p className="text-xs text-muted-foreground">Applications</p>
           </Card>
           <Card className="bg-card border border-border p-5 text-center hover:border-primary/50 transition-colors">

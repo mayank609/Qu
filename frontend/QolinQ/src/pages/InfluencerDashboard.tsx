@@ -9,11 +9,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { influencerAPI } from "@/lib/api";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 const InfluencerDashboard = () => {
   const navigate = useNavigate();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, logout, updateUser, isLoading: authLoading } = useAuth();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const { data: dashboardData, isLoading: dashLoading } = useQuery({
@@ -54,11 +54,33 @@ const InfluencerDashboard = () => {
     { label: "Rating", value: dashboard?.rating?.average || "N/A", icon: TrendingUp },
   ];
 
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: any) => influencerAPI.updateProfile(data),
+    onSuccess: (res) => {
+      toast.success("Profile photo updated!");
+      setAvatarPreview(null);
+      if (res.data.data.avatar || res.data.data.user?.avatar) {
+        updateUser({ avatar: res.data.data.avatar || res.data.data.user?.avatar });
+      }
+    },
+    onError: () => toast.error("Failed to update photo")
+  });
+
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setAvatarPreview(URL.createObjectURL(file));
-      toast.success("Profile photo updated!");
+      if (file.size > 1024 * 1024) { // 1MB limit for base64
+        toast.error("Photo is too large. Max 1MB.");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setAvatarPreview(base64String);
+        updateProfileMutation.mutate({ avatar: base64String });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -86,6 +108,8 @@ const InfluencerDashboard = () => {
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors">
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                ) : user?.avatar ? (
+                  <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
                   user?.name?.charAt(0) || "A"
                 )}
