@@ -1,7 +1,7 @@
 const InfluencerProfile = require('../models/InfluencerProfile');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
-
+const Application = require('../models/Application');
 const Rating = require('../models/Rating');
 
 /**
@@ -29,6 +29,16 @@ const detectProfileAnomaly = async (profile) => {
     // 3. Engagement Spike Anomaly: Unusually high engagement for fake profiles
     if (profile.engagementRate > 20 && profile.totalFollowers > 1000) {
         anomalies.push('engagement_spike_anomaly');
+    }
+
+    // 5. Deal Jumping: Many active applications but zero completions
+    const activeApps = await Application.countDocuments({
+        influencer: profile.user,
+        status: { $in: ['applied', 'shortlisted', 'accepted'] }
+    });
+
+    if (activeApps > 10 && profile.completedCampaigns === 0) {
+        anomalies.push('deal_jumping_suspicion');
     }
 
     // 4. Incomplete platform data with high followers

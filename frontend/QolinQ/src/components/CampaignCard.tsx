@@ -14,6 +14,7 @@ interface CampaignCardProps {
   deadline: string;
   requirements: string[];
   urgency?: "low" | "medium" | "high" | "urgent";
+  imageUrl?: string;
   onApply?: () => void;
 }
 
@@ -28,6 +29,7 @@ const CampaignCard = ({
   deadline,
   requirements,
   urgency = "medium",
+  imageUrl,
   onApply,
 }: CampaignCardProps) => {
   const getPlatformIcon = (p: string) => {
@@ -47,14 +49,30 @@ const CampaignCard = ({
   };
 
   return (
-    <Card className="group bg-card border border-border hover:border-primary/30 transition-all duration-300 hover-lift p-6 relative overflow-hidden">
-      {urgency === 'urgent' && (
-        <div className="absolute top-0 right-0 p-1 px-3 bg-destructive text-[10px] font-bold text-white rounded-bl-lg shadow-lg flex items-center gap-1">
-          <Zap className="w-3 h-3 fill-white" /> URGENT
+    <Card className="group bg-card border border-border hover:border-primary/30 transition-all duration-300 hover-lift relative overflow-hidden flex flex-col h-full">
+      {/* Featured Image */}
+      <div className="relative h-48 overflow-hidden bg-muted">
+        <img 
+          src={imageUrl || `https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80&w=800`} 
+          alt={title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+        
+        <div className="absolute top-3 left-3">
+           <Badge className="bg-primary/90 text-white border-none backdrop-blur-sm px-2 py-0.5 text-[10px]">
+              {category}
+           </Badge>
         </div>
-      )}
-      
-      <div className="space-y-4">
+
+        {urgency === 'urgent' && (
+          <div className="absolute top-0 right-0 p-1 px-3 bg-destructive text-[10px] font-bold text-white rounded-bl-lg shadow-lg flex items-center gap-1">
+            <Zap className="w-3 h-3 fill-white" /> URGENT
+          </div>
+        )}
+      </div>
+
+      <div className="p-5 flex flex-col flex-1 space-y-4">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2 mb-1">

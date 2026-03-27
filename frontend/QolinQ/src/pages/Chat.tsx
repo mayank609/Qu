@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, MessageCircle, Paperclip, Info, Lock, CheckCircle2, Clock, X } from "lucide-react";
+import { Send, MessageCircle, Paperclip, Info, Lock, CheckCircle2, Clock, X, Zap } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { messageAPI, applicationAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -25,6 +25,7 @@ const Chat = () => {
   const [selectedChatId, setSelectedChatId] = useState<string | null>(conversationIdFromUrl);
   const [messageText, setMessageText] = useState("");
   const [showContract, setShowContract] = useState(false);
+  const [showAiSummary, setShowAiSummary] = useState(false);
   const [typingUser, setTypingUser] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -407,6 +408,36 @@ const Chat = () => {
                                                   {currentChat.isLocked ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Clock className="w-4 h-4 text-yellow-500" />}
                                               </div>
                                           </div>
+                                      </div>
+
+                                      <div className="pt-6">
+                                          <NeonButton 
+                                            neonVariant="primary" 
+                                            className="w-full text-xs h-9 bg-primary/20 text-primary border-primary/30 hover:bg-primary/30"
+                                            onClick={() => setShowAiSummary(!showAiSummary)}
+                                          >
+                                              <Zap className="w-3.5 h-3.5 mr-2 fill-primary" />
+                                              {showAiSummary ? "Hide AI Summary" : "AI: Summarize Deal"}
+                                          </NeonButton>
+
+                                          {showAiSummary && (
+                                              <div className="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/20 space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                  <div className="flex items-center gap-2 mb-2">
+                                                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary">AI DEAL SUMMARY</span>
+                                                  </div>
+                                                  <p className="text-xs leading-relaxed text-foreground/80 italic">
+                                                      "The Brand <strong>{currentChat.campaign.brand?.name}</strong> is looking for a {currentChat.campaign.platform} collaboration. 
+                                                      Key deliverables include <strong>{currentChat.campaign.deliverables?.map((d: any) => `${d.quantity}x ${d.type}`).join(', ')}</strong> 
+                                                      with a budget of <strong>₹{currentChat.campaign.budgetRange?.max}</strong>. 
+                                                      Communication seems <strong>professional</strong> and <strong>high-intent</strong>."
+                                                  </p>
+                                                  <div className="flex items-center justify-between pt-2">
+                                                      <span className="text-[9px] text-muted-foreground">Confidence: 94%</span>
+                                                      <Badge className="bg-primary/10 text-primary border-none text-[8px] h-4">VERIFIED DEAL</Badge>
+                                                  </div>
+                                              </div>
+                                          )}
                                       </div>
                                   </>
                               ) : (

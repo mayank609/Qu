@@ -16,13 +16,28 @@ const ExploreCampaigns = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [platform, setPlatform] = useState("all");
+  const [budgetRange, setBudgetRange] = useState("all");
+  const [urgency, setUrgency] = useState("all");
   const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   const [proposal, setProposal] = useState("");
   const [offeredPrice, setOfferedPrice] = useState("");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['campaigns', category, search],
-    queryFn: () => campaignAPI.getAll({ category: category !== 'all' ? category.toLowerCase() : undefined, search }),
+    queryKey: ['campaigns', category, platform, budgetRange, urgency, search],
+    queryFn: () => {
+      const minBudget = budgetRange === '0-5000' ? 0 : budgetRange === '5000-15000' ? 5000 : budgetRange === '15000-50000' ? 15000 : budgetRange === '50000+' ? 50000 : undefined;
+      const maxBudget = budgetRange === '0-5000' ? 5000 : budgetRange === '5000-15000' ? 15000 : budgetRange === '15000-50000' ? 50000 : undefined;
+      
+      return campaignAPI.getAll({ 
+        category: category !== 'all' ? category.toLowerCase() : undefined, 
+        platform: platform !== 'all' ? platform.toLowerCase() : undefined,
+        urgency: urgency !== 'all' ? urgency.toLowerCase() : undefined,
+        minBudget,
+        maxBudget,
+        search 
+      });
+    },
   });
 
   const campaigns = data?.data?.data || [];
@@ -81,7 +96,7 @@ const ExploreCampaigns = () => {
           </div>
           <div className="space-y-1.5">
             <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Platform</Label>
-            <Select defaultValue="all">
+            <Select value={platform} onValueChange={setPlatform}>
               <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Platform" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any Platform</SelectItem>
@@ -94,7 +109,7 @@ const ExploreCampaigns = () => {
           </div>
           <div className="space-y-1.5">
             <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Budget Range</Label>
-            <Select defaultValue="all">
+            <Select value={budgetRange} onValueChange={setBudgetRange}>
               <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Budget" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any Budget</SelectItem>
@@ -106,14 +121,15 @@ const ExploreCampaigns = () => {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Timeline</Label>
-            <Select defaultValue="all">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Timeline / Urgency</Label>
+            <Select value={urgency} onValueChange={setUrgency}>
               <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Status" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any Status</SelectItem>
-                <SelectItem value="urgent">Urgent Only</SelectItem>
-                <SelectItem value="new">Newly Added</SelectItem>
-                <SelectItem value="ending">Ending Soon</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="high">High priority</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low priority</SelectItem>
               </SelectContent>
             </Select>
           </div>

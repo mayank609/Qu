@@ -147,10 +147,11 @@ const Settings = () => {
                 </div>
 
                 <Tabs defaultValue="profile" className="space-y-6">
-                    <TabsList className="grid grid-cols-3 w-full">
+                    <TabsList className="grid grid-cols-4 w-full">
                         <TabsTrigger value="profile">Profile</TabsTrigger>
                         <TabsTrigger value="social">Social & Content</TabsTrigger>
                         <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                        <TabsTrigger value="account">Account</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="profile" className="space-y-6">

@@ -132,9 +132,10 @@ const BrandSettings = () => {
                 </div>
 
                 <Tabs defaultValue="profile" className="space-y-6">
-                    <TabsList className="grid grid-cols-2 w-full">
+                    <TabsList className="grid grid-cols-3 w-full">
                         <TabsTrigger value="profile">Business Profile</TabsTrigger>
                         <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                        <TabsTrigger value="account">Account</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="profile" className="space-y-6">

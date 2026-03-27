@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,6 +47,8 @@ const BrandSignup = () => {
       await brandAPI.updateProfile({
         companyName: formData.businessName,
         categories: formData.categories,
+        website: (formData as any).website,
+        description: (formData as any).description,
         location: { 
           city: formData.location.split(",")[0]?.trim(), 
           country: formData.location.split(",")[1]?.trim() 
@@ -119,9 +122,25 @@ const BrandSignup = () => {
               <Input id="location" placeholder="Mumbai, India" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
-              <Input id="phone" placeholder="+91 98765 43210" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+              <Label htmlFor="website">Website <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
+              <Input id="website" placeholder="https://example.com" value={(formData as any).website || ""} onChange={(e) => setFormData({ ...formData, website: e.target.value } as any)} />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">About the Brand / Requirements <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
+            <Textarea 
+              id="description" 
+              placeholder="Briefly describe your brand and what kind of influencers you're looking for..." 
+              value={(formData as any).description || ""} 
+              onChange={(e) => setFormData({ ...formData, description: e.target.value } as any)} 
+              className="min-h-[100px]"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
+            <Input id="phone" placeholder="+91 98765 43210" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
           </div>
 
           <div className="flex gap-4 pt-4">
