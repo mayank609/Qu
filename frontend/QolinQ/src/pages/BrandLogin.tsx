@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const BrandLogin = () => {
   const navigate = useNavigate();
@@ -54,6 +55,14 @@ const BrandLogin = () => {
             <NeonButton neonVariant="primary" type="submit" className="w-full" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </NeonButton>
+            
+            <div className="relative flex items-center gap-4 py-2">
+              <div className="flex-1 h-px bg-border"></div>
+              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">OR</span>
+              <div className="flex-1 h-px bg-border"></div>
+            </div>
+
+            <GoogleLoginButton role="brand" />
             <p className="text-center text-sm text-muted-foreground">
               Don't have an account?{" "}
               <button type="button" onClick={() => navigate("/brand/signup")} className="text-primary hover:underline">Sign up</button>

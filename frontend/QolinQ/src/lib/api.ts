@@ -31,6 +31,7 @@ api.interceptors.response.use(
 export const authAPI = {
     register: (data: any) => api.post('/auth/register', data),
     login: (data: { email: string; password: string }) => api.post('/auth/login', data),
+    googleLogin: (idToken: string, role?: string) => api.post('/auth/google', { idToken, role }),
     getMe: () => api.get('/auth/me'),
     switchRole: () => api.put('/auth/switch-role'),
 };

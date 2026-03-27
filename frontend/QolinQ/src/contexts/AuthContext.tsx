@@ -18,6 +18,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  googleLogin: (idToken: string, role?: string) => Promise<void>;
   register: (name: string, email: string, password: string, role: string, phoneNumber?: string) => Promise<void>;
   logout: () => void;
   switchRole: () => Promise<string>;
@@ -51,6 +52,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     const res = await authAPI.login({ email, password });
+    const { token: t, user: u } = res.data.data;
+    localStorage.setItem('token', t);
+    localStorage.setItem('user', JSON.stringify(u));
+    setToken(t);
+    setUser(u);
+  };
+  
+  const googleLogin = async (idToken: string, role?: string) => {
+    const res = await authAPI.googleLogin(idToken, role);
     const { token: t, user: u } = res.data.data;
     localStorage.setItem('token', t);
     localStorage.setItem('user', JSON.stringify(u));
@@ -93,7 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, switchRole, updateUser }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, googleLogin, register, logout, switchRole, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

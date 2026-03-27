@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { brandAPI } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import GoogleLoginButton from "@/components/GoogleLoginButton";
 
 const BrandSignup = () => {
   const navigate = useNavigate();
@@ -142,6 +143,14 @@ const BrandSignup = () => {
             <Label htmlFor="phone">Phone Number <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
             <Input id="phone" placeholder="+91 98765 43210" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
           </div>
+
+          <div className="relative flex items-center gap-4 py-2">
+            <div className="flex-1 h-px bg-border"></div>
+            <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">OR SIGN UP WITH</span>
+            <div className="flex-1 h-px bg-border"></div>
+          </div>
+
+          <GoogleLoginButton role="brand" text="Sign up with Google" />
 
           <div className="flex gap-4 pt-4">
             <NeonButton neonVariant="primary" type="submit" className="flex-1" disabled={loading}>

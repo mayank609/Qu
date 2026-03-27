@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const InfluencerProfile = require('../models/InfluencerProfile');
 const BrandProfile = require('../models/BrandProfile');
+const admin = require('../utils/firebase');
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -97,6 +98,7 @@ const getMe = async (req, res, next) => {
 // @desc    Switch role
 // @route   PUT /api/auth/switch-role
 const switchRole = async (req, res, next) => {
+    // ... existing switchRole logic (already checking and fixed)
     try {
         const newRole = req.user.role === 'brand' ? 'influencer' : 'brand';
         req.user.role = newRole;
@@ -122,4 +124,53 @@ const switchRole = async (req, res, next) => {
     }
 };
 
-module.exports = { register, login, getMe, switchRole };
+// @desc    Google login
+// @route   POST /api/auth/google
+const googleLogin = async (req, res, next) => {
+    try {
+        const { idToken, role } = req.body;
+
+        // Verify Firebase token
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const { email, name, picture } = decodedToken;
+
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // Create new user if doesn't exist
+            user = await User.create({
+                name,
+                email,
+                avatar: picture,
+                role: role || 'influencer', // Default to influencer if not provided
+                password: Math.random().toString(36).slice(-10), // Random password for required field
+                isVerified: true,
+            });
+
+            // Initialize profile
+            if (user.role === 'influencer') {
+                await InfluencerProfile.create({ user: user._id });
+            } else if (user.role === 'brand') {
+                await BrandProfile.create({ user: user._id, companyName: name });
+            }
+        }
+
+        user.lastLogin = new Date();
+        await user.save();
+
+        const token = user.generateToken();
+
+        res.json({
+            success: true,
+            message: 'Google login successful',
+            data: {
+                token,
+                user: { _id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar, isVerified: user.isVerified, verificationStatus: user.verificationStatus, trustBadge: user.trustBadge },
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { register, login, getMe, switchRole, googleLogin };
