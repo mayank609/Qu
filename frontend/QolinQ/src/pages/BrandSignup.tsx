@@ -26,14 +26,12 @@ const BrandSignup = () => {
   const [otherCategory, setOtherCategory] = useState("");
   const categoryOptions = [
     "Gaming", 
-    "Fashion", 
     "Lifestyle", 
     "Travel", 
     "Food & Cooking", 
     "Tech", 
     "Fitness", 
     "Health & Wellness", 
-    "Beauty & Skincare", 
     "Education", 
     "Finance & Investing", 
     "Parenting & Family", 

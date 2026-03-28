@@ -145,10 +145,6 @@ const Applications = () => {
                               <span className="font-bold">{app.influencerProfile?.totalFollowers?.toLocaleString() || "12.4k"}</span>
                            </div>
                            <div className="flex flex-col border-l border-border pl-4">
-                              <span className="text-muted-foreground">Engagement</span>
-                              <span className="font-bold text-primary">{app.influencerProfile?.engagementRate || "4.8"}%</span>
-                           </div>
-                           <div className="flex flex-col border-l border-border pl-4">
                               <span className="text-muted-foreground">Location</span>
                               <span className="font-bold">{app.influencerProfile?.location?.city || "Mumbai"}</span>
                            </div>
@@ -173,7 +169,7 @@ const Applications = () => {
                           </div>
                           {app.portfolioLink && (
                               <a href={app.portfolioLink} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-primary hover:text-primary/80 transition-colors font-semibold group">
-                                  Portfolio <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                                  Profile Link <ExternalLink className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                               </a>
                           )}
                         </div>
@@ -185,10 +181,11 @@ const Applications = () => {
                         <>
                           <NeonButton 
                             neonVariant="primary" 
-                            onClick={() => updateStatusMutation.mutate({ id: app._id, status: 'accepted' })}
+                            onClick={() => updateStatusMutation.mutate({ id: app._id, status: 'shortlisted' })}
                             disabled={updateStatusMutation.isPending}
+                            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                           >
-                            <Check className="w-4 h-4 mr-2" />Accept Deal
+                            <Check className="w-4 h-4 mr-2" />Shortlist
                           </NeonButton>
                           <NeonButton 
                             neonVariant="outline" 
@@ -198,25 +195,33 @@ const Applications = () => {
                             <X className="w-4 h-4 mr-2" />Reject
                           </NeonButton>
                         </>
-                      ) : app.status === "accepted" ? (
+                      ) : (app.status === "shortlisted" || app.status === "accepted") ? (
                           <>
-                              <NeonButton 
-                                neonVariant="primary" 
-                                onClick={() => setRatingTarget({ id: app.influencer._id, name: app.influencer.name })}
-                              >
-                                <Star className="w-4 h-4 mr-2" />Rate Influencer
-                              </NeonButton>
+                              {app.status === "accepted" ? (
+                                   <NeonButton 
+                                       neonVariant="primary" 
+                                       onClick={() => setRatingTarget({ id: app.influencer._id, name: app.influencer.name })}
+                                   >
+                                       <Star className="w-4 h-4 mr-2" />Rate Influencer
+                                   </NeonButton>
+                              ) : (
+                                   <NeonButton 
+                                       neonVariant="primary" 
+                                       onClick={() => updateStatusMutation.mutate({ id: app._id, status: 'accepted' })}
+                                       disabled={updateStatusMutation.isPending}
+                                   >
+                                       <Check className="w-4 h-4 mr-2" />Accept Deal
+                                   </NeonButton>
+                              )}
                               <NeonButton 
                                 neonVariant="outline" 
-                                onClick={() => navigate(`/chat?id=${escrow?.conversationId || ''}`)}
+                                onClick={() => startConvMutation.mutate({ participantId: app.influencer._id, campaignId: campaigns[0]?._id })}
+                                disabled={startConvMutation.isPending}
                               >
                                 <MessageCircle className="w-4 h-4 mr-2" />Message
                               </NeonButton>
                           </>
                       ) : null}
-                      <NeonButton neonVariant="ghost" className="h-8 text-[10px]" onClick={() => startConvMutation.mutate({ participantId: app.influencer._id, campaignId: campaigns[0]?._id })}>
-                        View Performance Stats
-                      </NeonButton>
                     </div>
                   </div>
                 </Card>

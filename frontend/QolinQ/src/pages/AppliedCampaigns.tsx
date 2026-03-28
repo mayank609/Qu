@@ -6,7 +6,7 @@ import { Calendar, MapPin, DollarSign, ShieldCheck, Clock, CheckCircle2, Message
 import NeonButton from "@/components/NeonButton";
 import RatingModal from "@/components/RatingModal";
 import { toast } from "sonner";
-import { applicationAPI, ratingAPI } from "@/lib/api";
+import { applicationAPI, ratingAPI, messageAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -15,6 +15,17 @@ const AppliedCampaigns = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [ratingTarget, setRatingTarget] = useState<any>(null);
+
+  const startConvMutation = useMutation({
+    mutationFn: (data: { participantId: string, campaignId?: string }) => 
+      messageAPI.startConversation(data),
+    onSuccess: (res: any) => {
+      navigate(`/chat?id=${res.data.data._id}`);
+    },
+    onError: () => {
+      toast.error("Failed to start conversation");
+    }
+  });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['my-applications'],
@@ -161,9 +172,16 @@ const AppliedCampaigns = () => {
                   </div>
 
                   <div className="flex flex-col gap-3 w-full md:w-44 shrink-0 justify-end">
-                    <NeonButton neonVariant="outline" onClick={() => navigate(`/chat?id=${app.conversationId || ''}`)} className="w-full">
-                        <MessageCircle className="w-4 h-4 mr-2" />Message Brand
-                    </NeonButton>
+                    {(app.status === 'shortlisted' || app.status === 'accepted') && (
+                        <NeonButton 
+                            neonVariant="outline" 
+                            onClick={() => startConvMutation.mutate({ participantId: app.campaign?.brand?._id || app.campaign?.brand, campaignId: app.campaign?._id })} 
+                            className="w-full"
+                            disabled={startConvMutation.isPending}
+                        >
+                            <MessageCircle className="w-4 h-4 mr-2" />Message Brand
+                        </NeonButton>
+                    )}
                     
                     {app.status === 'accepted' && (
                         <>

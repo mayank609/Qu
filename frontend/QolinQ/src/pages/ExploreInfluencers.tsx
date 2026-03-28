@@ -69,14 +69,12 @@ const ExploreInfluencers = () => {
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 <SelectItem value="gaming">Gaming</SelectItem>
-                <SelectItem value="fashion">Fashion</SelectItem>
                 <SelectItem value="lifestyle">Lifestyle</SelectItem>
                 <SelectItem value="travel">Travel</SelectItem>
                 <SelectItem value="food">Food & Cooking</SelectItem>
                 <SelectItem value="tech">Tech</SelectItem>
                 <SelectItem value="fitness">Fitness</SelectItem>
                 <SelectItem value="health">Health & Wellness</SelectItem>
-                <SelectItem value="beauty">Beauty & Skincare</SelectItem>
                 <SelectItem value="education">Education</SelectItem>
                 <SelectItem value="finance">Finance & Investing</SelectItem>
                 <SelectItem value="parenting">Parenting & Family</SelectItem>
@@ -169,7 +167,6 @@ const ExploreInfluencers = () => {
                 price={`₹${profile.priceExpectation?.min?.toLocaleString()} - ₹${profile.priceExpectation?.max?.toLocaleString()}`}
                 location={profile.location?.city || 'India'}
                 contentTypes={profile.categories || []}
-                onContact={() => startConvMutation.mutate({ participantId: profile.user?._id })} 
               />
             ))}
           </div>

@@ -105,12 +105,7 @@ const MyProfile = () => {
           </div>
         </Card>
 
-        <div className="grid grid-cols-3 gap-4">
-          <Card className="bg-card border border-border p-5 text-center hover:border-primary/50 transition-colors">
-            <Eye className="w-5 h-5 text-primary mx-auto mb-2" />
-            <div className="text-2xl font-bold">{stats.profileViews || 0}</div>
-            <p className="text-xs text-muted-foreground">Profile Views</p>
-          </Card>
+        <div className="grid grid-cols-2 gap-4">
           <Card className="bg-card border border-border p-5 text-center hover:border-primary/50 transition-colors">
             <Bookmark className="w-5 h-5 text-primary mx-auto mb-2" />
             <div className="text-2xl font-bold">{stats.totalApplications || 0}</div>
@@ -123,15 +118,38 @@ const MyProfile = () => {
           </Card>
         </div>
 
-        <Card className="bg-card border border-border p-6">
-          <h3 className="font-bold mb-3">Portfolio Links</h3>
-          <div className="space-y-2">
-            {profile.socialMedia?.instagram?.handle ? (
-              <a href={`https://instagram.com/${profile.socialMedia.instagram.handle}`} target="_blank" className="block text-sm text-primary hover:underline">
-                https://instagram.com/{profile.socialMedia.instagram.handle}
-              </a>
+        <Card className="bg-card border border-border p-6 shadow-glow">
+          <h3 className="font-bold mb-5">Best Content</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {profile.bestContent?.length > 0 ? (
+                profile.bestContent.map((content: any, idx: number) => (
+                    <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-border bg-muted/30">
+                        {content.type === 'video' ? (
+                            <video src={content.url} className="w-full h-full object-cover" controls />
+                        ) : (
+                            <img src={content.url} alt={`Best content ${idx+1}`} className="w-full h-full object-cover" />
+                        )}
+                    </div>
+                ))
             ) : (
-                <p className="text-sm text-muted-foreground italic">No portfolio links added yet.</p>
+                <div className="col-span-full py-8 text-center text-muted-foreground italic border-2 border-dashed border-border rounded-lg">
+                    No best content uploaded yet.
+                </div>
+            )}
+          </div>
+        </Card>
+
+        <Card className="bg-card border border-border p-6">
+          <h3 className="font-bold mb-3">Profile Links</h3>
+          <div className="space-y-2">
+            {profile.portfolioLinks?.length > 0 ? (
+              profile.portfolioLinks.map((link: any, idx: number) => (
+                <a key={idx} href={link.url} target="_blank" rel="noreferrer" className="block text-sm text-primary hover:underline">
+                  {link.url}
+                </a>
+              ))
+            ) : (
+                <p className="text-sm text-muted-foreground italic">No profile links added yet.</p>
             )}
           </div>
         </Card>

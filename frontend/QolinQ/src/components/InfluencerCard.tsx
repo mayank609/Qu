@@ -74,9 +74,11 @@ const InfluencerCard = ({ name, bio, category, followers, price, location, image
           <span className="font-semibold text-primary">{price}</span>
         </div>
 
-        <NeonButton neonVariant="primary" className="w-full" onClick={onContact}>
-          Contact
-        </NeonButton>
+        {onContact && (
+          <NeonButton neonVariant="primary" className="w-full" onClick={onContact}>
+            Contact
+          </NeonButton>
+        )}
       </div>
     </Card>
   );

@@ -1,5 +1,8 @@
 const Message = require('../models/Message');
 const Notification = require('../models/Notification');
+const Conversation = require('../models/Conversation');
+const Application = require('../models/Application');
+const User = require('../models/User');
 const messageService = require('../services/messageService');
 const { getPagination, paginationMeta } = require('../utils/helpers');
 
@@ -28,6 +31,34 @@ const startConversation = async (req, res, next) => {
         if (participantId === req.user._id.toString()) {
             return res.status(400).json({ success: false, message: 'Cannot start conversation with yourself' });
         }
+
+        // --- NEW RESTRICTION LOGIC ---
+        // Check if there's a shortlisted or accepted application between these two users
+        // This only applies if one is a brand and the other is an influencer
+        const participant = await User.findById(participantId);
+        if (participant && ((req.user.role === 'brand' && participant.role === 'influencer') || (req.user.role === 'influencer' && participant.role === 'brand'))) {
+            const brandId = req.user.role === 'brand' ? req.user._id : participantId;
+            const influencerId = req.user.role === 'influencer' ? req.user._id : participantId;
+
+            // Find any application for any campaign of this brand by this influencer
+            const Campaigns = require('../models/Campaign');
+            const brandCampaigns = await Campaigns.find({ brand: brandId });
+            const campaignIds = brandCampaigns.map(c => c._id);
+
+            const hasValidApplication = await Application.findOne({
+                influencer: influencerId,
+                campaign: { $in: campaignIds },
+                status: { $in: ['shortlisted', 'accepted'] }
+            });
+
+            if (!hasValidApplication) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: 'Messaging only allowed after brand shortlists or accepts an application' 
+                });
+            }
+        }
+        // -----------------------------
 
         // Check if conversation already exists between these users
         let conversation = await Conversation.findOne({

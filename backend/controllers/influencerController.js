@@ -39,6 +39,7 @@ const updateProfile = async (req, res, next) => {
             location,
             priceExpectation,
             portfolioLinks,
+            bestContent,
         } = req.body;
 
         let profile = await InfluencerProfile.findOne({ user: req.user._id });
@@ -54,6 +55,10 @@ const updateProfile = async (req, res, next) => {
         if (location) profile.location = { ...profile.location, ...location };
         if (priceExpectation) profile.priceExpectation = { ...profile.priceExpectation, ...priceExpectation };
         if (portfolioLinks) profile.portfolioLinks = portfolioLinks;
+        if (bestContent) {
+            // Limit to 6 items
+            profile.bestContent = bestContent.slice(0, 6);
+        }
         if (req.body.audienceCountry) profile.audienceCountry = req.body.audienceCountry;
 
         await profile.save();

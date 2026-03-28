@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2, X, Video } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { influencerAPI } from "@/lib/api";
@@ -43,6 +43,7 @@ const Settings = () => {
         portfolioLink1: "",
         portfolioLink2: "",
         otherNiche: "",
+        bestContent: [] as { url: string; type: string }[],
     });
 
     useEffect(() => {
@@ -73,6 +74,7 @@ const Settings = () => {
                     portfolioLink1: profile.portfolioLinks?.[0]?.url || "",
                     portfolioLink2: profile.portfolioLinks?.[1]?.url || "",
                     otherNiche: "",
+                    bestContent: profile.bestContent || [],
                 });
                 if (u.avatar) setAvatarPreview(u.avatar);
             } catch (error) {
@@ -105,9 +107,10 @@ const Settings = () => {
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
                 priceExpectation: { min: Number(formData.price) },
                 portfolioLinks: [
-                    { title: "Portfolio 1", url: formData.portfolioLink1 },
-                    { title: "Portfolio 2", url: formData.portfolioLink2 },
+                    { title: "Link 1", url: formData.portfolioLink1 },
+                    { title: "Link 2", url: formData.portfolioLink2 },
                 ].filter(p => p.url),
+                bestContent: formData.bestContent,
                 avatar: avatarPreview
             };
 
@@ -152,8 +155,7 @@ const Settings = () => {
     };
 
     const platforms = ["Instagram", "YouTube", "Twitter", "TikTok", "Snapchat"];
-    const contentTypes = ["Photos", "Videos", "Short-form", "Long-form", "Vlogs", "Tech", "Beauty", "Fashion"];
-    const categories = ["Fashion", "Fitness", "Beauty", "Gaming", "Food", "Tech", "Travel", "Lifestyle"];
+    const categories = ["Fitness", "Gaming", "Food", "Tech", "Travel", "Lifestyle"];
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -294,11 +296,68 @@ const Settings = () => {
                         </Card>
 
                         <Card className="bg-card border border-border p-6 shadow-glow">
-                            <h2 className="text-lg font-bold mb-5">Portfolio Links</h2>
+                            <h2 className="text-lg font-bold mb-5">Profile Links</h2>
                             <div className="space-y-3">
-                                <div className="space-y-2"><Label>Portfolio Link 1</Label><Input id="portfolioLink1" value={formData.portfolioLink1} onChange={handleInputChange} /></div>
-                                <div className="space-y-2"><Label>Portfolio Link 2</Label><Input id="portfolioLink2" value={formData.portfolioLink2} onChange={handleInputChange} /></div>
+                                <div className="space-y-2"><Label>Profile Link 1</Label><Input id="portfolioLink1" value={formData.portfolioLink1} onChange={handleInputChange} /></div>
+                                <div className="space-y-2"><Label>Profile Link 2</Label><Input id="portfolioLink2" value={formData.portfolioLink2} onChange={handleInputChange} /></div>
                             </div>
+                        </Card>
+
+                        <Card className="bg-card border border-border p-6 shadow-glow">
+                             <div className="flex items-center justify-between mb-5">
+                                <h2 className="text-lg font-bold">Best Content (Max 6)</h2>
+                                <p className="text-xs text-muted-foreground">Share your actual work files</p>
+                             </div>
+                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {Array.from({ length: 6 }).map((_, idx) => (
+                                    <div key={idx} className="aspect-video relative group border-2 border-dashed border-border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
+                                        {formData.bestContent[idx] ? (
+                                            <>
+                                                {formData.bestContent[idx].type === 'video' ? (
+                                                    <video src={formData.bestContent[idx].url} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <img src={formData.bestContent[idx].url} className="w-full h-full object-cover" />
+                                                )}
+                                                <button 
+                                                    onClick={() => {
+                                                        const newContent = [...formData.bestContent];
+                                                        newContent.splice(idx, 1);
+                                                        setFormData({ ...formData, bestContent: newContent });
+                                                    }}
+                                                    className="absolute top-1 right-1 bg-destructive text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </>
+                                        ) : (
+                                            <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-muted/50 transition-colors">
+                                                <Camera className="w-6 h-6 text-muted-foreground mb-1" />
+                                                <span className="text-[10px] uppercase font-bold text-muted-foreground">Upload</span>
+                                                <input 
+                                                    type="file" 
+                                                    className="hidden" 
+                                                    accept="image/*,video/*"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files?.[0];
+                                                        if (file) {
+                                                            const reader = new FileReader();
+                                                            reader.onloadend = () => {
+                                                                const newContent = [...formData.bestContent];
+                                                                newContent[idx] = { 
+                                                                    url: reader.result as string, 
+                                                                    type: file.type.startsWith('video') ? 'video' : 'image' 
+                                                                };
+                                                                setFormData({ ...formData, bestContent: newContent });
+                                                            };
+                                                            reader.readAsDataURL(file);
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
+                                ))}
+                             </div>
                         </Card>
                     </TabsContent>
 
@@ -312,7 +371,6 @@ const Settings = () => {
                                     { title: "Campaign Matches", desc: "Alert when campaigns match your profile", on: true },
                                     { title: "Weekly Summary", desc: "Get weekly performance reports", on: false },
                                     { title: "New Brand Contacts", desc: "Notify when a brand contacts you", on: true },
-                                    { title: "Profile View Alerts", desc: "Alert when someone views your profile", on: false },
                                 ].map((item, idx) => (
                                     <div key={idx} className="flex items-center justify-between">
                                         <div>

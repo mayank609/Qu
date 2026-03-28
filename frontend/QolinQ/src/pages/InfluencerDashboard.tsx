@@ -48,7 +48,6 @@ const InfluencerDashboard = () => {
   const profile = profileData;
 
   const stats = [
-    { label: "Profile Views", value: dashboard?.profileViews?.toLocaleString() || "0", icon: Eye },
     { label: "Applications", value: dashboard?.totalApplications?.toString() || "0", icon: MessageSquare },
     { label: "Accepted", value: dashboard?.acceptedCampaigns?.toString() || "0", icon: Bookmark },
     { label: "Rating", value: dashboard?.rating?.average || "N/A", icon: TrendingUp },
@@ -156,34 +155,7 @@ const InfluencerDashboard = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="bg-card border border-border p-6 overflow-hidden relative">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Profile Analytics</h2>
-                <Badge variant="outline" className="border-primary/30 text-primary">Last 30 Days</Badge>
-              </div>
-              <div className="space-y-6">
-                 {[
-                   { label: "Engagement Rate", val: dashboard?.rating?.average ? (dashboard?.rating?.average * 1.5).toFixed(1) + "%" : "4.2%", trend: "+0.5%" },
-                   { label: "Avg. Likes per Post", val: "1.2k", trend: "+12%" },
-                   { label: "Reach", val: "45.2k", trend: "+5.1%" },
-                   { label: "Top Audience", val: "India (82%)", trend: "Stable" },
-                 ].map((metric, i) => (
-                   <div key={metric.label} className="flex items-center justify-between animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
-                      <span className="text-sm text-muted-foreground">{metric.label}</span>
-                      <div className="text-right">
-                        <div className="font-bold">{metric.val}</div>
-                        <div className="text-[10px] text-green-500 font-medium">{metric.trend}</div>
-                      </div>
-                   </div>
-                 ))}
-              </div>
-              <div className="mt-8 pt-6 border-t border-border/50">
-                 <div className="text-xs text-muted-foreground mb-1">Growth Index</div>
-                 <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-primary w-[75%] shadow-glow-sm"></div>
-                 </div>
-              </div>
-            </Card>
+            {/* Analytics section removed */}
           </div>
         </div>
       </div>

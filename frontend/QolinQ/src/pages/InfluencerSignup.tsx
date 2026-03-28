@@ -23,17 +23,13 @@ const InfluencerSignup = () => {
   });
 
   const platforms = ["Instagram", "YouTube", "TikTok", "Twitter", "Facebook"];
-  const contentTypes = ["Photos", "Videos", "Short-form", "Long-form", "Vlogs", "Tech", "Beauty", "Fashion"];
+  const contentTypes = ["Photos", "Videos", "Short-form", "Long-form", "Vlogs", "Tech"];
   const categories = [
     "Gaming", 
-    "Fashion", 
-    "Lifestyle", 
-    "Travel", 
     "Food & Cooking", 
     "Tech", 
     "Fitness", 
     "Health & Wellness", 
-    "Beauty & Skincare", 
     "Education", 
     "Finance & Investing", 
     "Parenting & Family", 
@@ -266,9 +262,9 @@ const InfluencerSignup = () => {
           </div>
 
           <div className="space-y-2">
-            <Label>Top 3 Portfolio Links</Label>
+            <Label>Top 3 Profile Links</Label>
             {formData.portfolio.map((link, idx) => (
-              <Input key={idx} placeholder={`Portfolio link ${idx + 1}`} value={link}
+              <Input key={idx} placeholder={`Profile link ${idx + 1}`} value={link}
                 onChange={(e) => { const p = [...formData.portfolio]; p[idx] = e.target.value; setFormData({ ...formData, portfolio: p }); }} />
             ))}
           </div>

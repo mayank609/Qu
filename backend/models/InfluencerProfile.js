@@ -19,8 +19,6 @@ const influencerProfileSchema = new mongoose.Schema(
                 enum: [
                     'fitness',
                     'tech',
-                    'fashion',
-                    'beauty',
                     'food',
                     'travel',
                     'lifestyle',
@@ -47,6 +45,12 @@ const influencerProfileSchema = new mongoose.Schema(
                     'news',
                     'other',
                 ],
+            },
+        ],
+        bestContent: [
+            {
+                url: String,
+                type: { type: String, enum: ['image', 'video'], default: 'image' },
             },
         ],
         platforms: {
