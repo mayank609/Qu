@@ -23,7 +23,37 @@ const BrandSignup = () => {
     categories: [] as string[], 
     location: "" 
   });
-  const categoryOptions = ["Fashion", "Fitness", "Beauty", "Gaming", "Food", "Tech", "Travel", "Lifestyle"];
+  const [otherCategory, setOtherCategory] = useState("");
+  const categoryOptions = [
+    "Gaming", 
+    "Fashion", 
+    "Lifestyle", 
+    "Travel", 
+    "Food & Cooking", 
+    "Tech", 
+    "Fitness", 
+    "Health & Wellness", 
+    "Beauty & Skincare", 
+    "Education", 
+    "Finance & Investing", 
+    "Parenting & Family", 
+    "Automobile (Cars & Bikes)", 
+    "Entertainment", 
+    "Comedy & Memes", 
+    "Motivation & Self Growth", 
+    "Business & Entrepreneurship", 
+    "Photography", 
+    "Videography", 
+    "Home Decor & Interior", 
+    "DIY & Crafts", 
+    "Pets & Animals", 
+    "Music & Singing", 
+    "Dance", 
+    "Art & Illustration", 
+    "Spirituality & Astrology", 
+    "News & Politics", 
+    "Other"
+  ];
 
   const toggleCategory = (cat: string) => {
     setFormData(prev => ({
@@ -44,10 +74,12 @@ const BrandSignup = () => {
     try {
       await register(formData.name, formData.email, formData.password, "brand", formData.phone);
 
+      const finalCategories = formData.categories.map(c => c === "Other" ? otherCategory : c).filter(c => c);
+
       // Update brand profile with multiple categories
       await brandAPI.updateProfile({
         companyName: formData.businessName,
-        categories: formData.categories,
+        categories: finalCategories,
         website: (formData as any).website,
         description: (formData as any).description,
         location: { 
@@ -115,6 +147,17 @@ const BrandSignup = () => {
                 </button>
               ))}
             </div>
+            {formData.categories.includes("Other") && (
+              <div className="pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                <Input 
+                  placeholder="Describe your industry category..." 
+                  value={otherCategory} 
+                  onChange={(e) => setOtherCategory(e.target.value)}
+                  className="bg-muted/30 border-primary/20 focus:border-primary h-10"
+                  required
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
