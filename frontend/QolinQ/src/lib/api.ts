@@ -53,6 +53,8 @@ export const brandAPI = {
     updateProfile: (data: any) => api.put('/brand/profile', data),
     getDashboard: () => api.get('/brand/dashboard'),
     inviteInfluencer: (influencerId: string, data: any) => api.post(`/brand/invite/${influencerId}`, data),
+    toggleSaveInfluencer: (influencerId: string) => api.post(`/brand/save-influencer/${influencerId}`),
+    getSavedInfluencers: () => api.get('/brand/saved-influencers'),
 };
 
 // ─── Campaigns ───

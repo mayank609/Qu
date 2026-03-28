@@ -180,10 +180,9 @@ const Applications = () => {
                       {app.status === "applied" ? (
                         <>
                           <NeonButton 
-                            neonVariant="primary" 
+                            neonVariant="secondary" 
                             onClick={() => updateStatusMutation.mutate({ id: app._id, status: 'shortlisted' })}
                             disabled={updateStatusMutation.isPending}
-                            className="bg-secondary hover:bg-secondary/80 text-secondary-foreground"
                           >
                             <Check className="w-4 h-4 mr-2" />Shortlist
                           </NeonButton>

@@ -6,11 +6,14 @@ import InfluencerCard from "@/components/InfluencerCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { searchAPI, messageAPI } from "@/lib/api";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { searchAPI, messageAPI, brandAPI } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ExploreInfluencers = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user: currentUser } = useAuth();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [platform, setPlatform] = useState("all");
@@ -48,8 +51,25 @@ const ExploreInfluencers = () => {
       });
     },
   });
+  
+  const { data: brandProfileRes } = useQuery({
+    queryKey: ['brand-profile'],
+    queryFn: () => brandAPI.getProfile(),
+    enabled: currentUser?.role === 'brand',
+  });
+
+  const toggleSaveMutation = useMutation({
+    mutationFn: (id: string) => brandAPI.toggleSaveInfluencer(id),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['brand-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['saved-influencers'] });
+      toast.success(res.data.message);
+    },
+    onError: () => toast.error("Failed to update saved status")
+  });
 
   const influencers = data?.data?.data || [];
+  const savedInfluencerIds = brandProfileRes?.data?.data?.savedInfluencers || [];
 
   return (
     <DashboardLayout userType="brand">
@@ -166,7 +186,11 @@ const ExploreInfluencers = () => {
                 ]}
                 price={`₹${profile.priceExpectation?.min?.toLocaleString()} - ₹${profile.priceExpectation?.max?.toLocaleString()}`}
                 location={profile.location?.city || 'India'}
+                image={profile.user?.avatar}
                 contentTypes={profile.categories || []}
+                isSaved={savedInfluencerIds.includes(profile.user?._id)}
+                onToggleSave={() => toggleSaveMutation.mutate(profile.user?._id)}
+                onContact={() => startConvMutation.mutate({ participantId: profile.user?._id })}
               />
             ))}
           </div>

@@ -197,9 +197,64 @@ const inviteInfluencer = async (req, res, next) => {
     }
 };
 
+const InfluencerProfile = require('../models/InfluencerProfile');
+
+// @desc    Toggle save influencer profile
+// @route   POST /api/brand/save-influencer/:influencerId
+const toggleSaveInfluencer = async (req, res, next) => {
+    try {
+        const { influencerId } = req.params;
+        const brandProfile = await BrandProfile.findOne({ user: req.user._id });
+
+        if (!brandProfile) {
+            return res.status(404).json({ success: false, message: 'Brand profile not found' });
+        }
+
+        const index = brandProfile.savedInfluencers.indexOf(influencerId);
+        if (index === -1) {
+            brandProfile.savedInfluencers.push(influencerId);
+            await brandProfile.save();
+            return res.json({ success: true, message: 'Influencer saved to your list', isSaved: true });
+        } else {
+            brandProfile.savedInfluencers.splice(index, 1);
+            await brandProfile.save();
+            return res.json({ success: true, message: 'Influencer removed from your list', isSaved: false });
+        }
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Get all saved influencers
+// @route   GET /api/brand/saved-influencers
+const getSavedInfluencers = async (req, res, next) => {
+    try {
+        const brandProfile = await BrandProfile.findOne({ user: req.user._id })
+            .populate({
+                path: 'savedInfluencers',
+                select: 'name avatar trustBadge verificationStatus',
+            });
+
+        if (!brandProfile) {
+            return res.status(404).json({ success: false, message: 'Brand profile not found' });
+        }
+
+        // Get the corresponding InfluencerProfile for each saved User
+        const influencerProfiles = await InfluencerProfile.find({
+            user: { $in: brandProfile.savedInfluencers.map(u => u._id) }
+        }).populate('user', 'name avatar trustBadge verificationStatus');
+
+        res.json({ success: true, data: influencerProfiles });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProfile,
     updateProfile,
     getDashboard,
     inviteInfluencer,
+    toggleSaveInfluencer,
+    getSavedInfluencers,
 };

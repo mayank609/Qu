@@ -3,8 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Instagram, Youtube, Twitter, TrendingUp, MapPin, Bookmark } from "lucide-react";
 import NeonButton from "./NeonButton";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface InfluencerCardProps {
+  id?: string;
   name: string;
   bio: string;
   category: string;
@@ -13,6 +15,8 @@ interface InfluencerCardProps {
   location: string;
   image?: string;
   contentTypes?: string[];
+  isSaved?: boolean;
+  onToggleSave?: () => void;
   onContact?: () => void;
 }
 
@@ -22,7 +26,7 @@ const platformIcons: Record<string, any> = {
   Twitter,
 };
 
-const InfluencerCard = ({ name, bio, category, followers, price, location, image, contentTypes, onContact }: InfluencerCardProps) => {
+const InfluencerCard = ({ name, bio, category, followers, price, location, image, contentTypes, onContact, isSaved, onToggleSave }: InfluencerCardProps) => {
   return (
     <Card className="group bg-card border border-border hover:border-primary/30 transition-all duration-200 hover-lift p-5">
       <div className="space-y-4">
@@ -38,13 +42,21 @@ const InfluencerCard = ({ name, bio, category, followers, price, location, image
             <h3 className="text-lg font-bold truncate">{name}</h3>
             <p className="text-sm text-muted-foreground line-clamp-1">{bio}</p>
           </div>
-          <button
-            onClick={() => toast.success(`${name} saved to your list!`)}
-            className="text-muted-foreground hover:text-primary transition-colors p-1"
-            title="Save Profile"
-          >
-            <Bookmark className="w-5 h-5" />
-          </button>
+          {onToggleSave && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleSave();
+              }}
+              className={cn(
+                "transition-colors p-1",
+                isSaved ? "text-primary fill-primary" : "text-muted-foreground hover:text-primary"
+              )}
+              title={isSaved ? "Unsave Profile" : "Save Profile"}
+            >
+              <Bookmark className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         <div className="flex flex-wrap gap-1.5">

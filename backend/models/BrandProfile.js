@@ -64,6 +64,10 @@ const brandProfileSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        savedInfluencers: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        }],
     },
     {
         timestamps: true,
