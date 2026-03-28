@@ -17,32 +17,23 @@ const InfluencerSignup = () => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "", email: "", password: "", bio: "", category: "", platforms: [] as string[],
-    instagram: "", youtube: "", twitter: "", tiktok: "",
+    instagram: "", youtube: "", twitter: "", tiktok: "", facebook: "",
     contentTypes: [] as string[], price: "", location: "", portfolio: ["", "", ""],
   });
 
-  const platforms = ["Instagram", "YouTube", "Twitter", "TikTok", "Snapchat"];
+  const platforms = ["Instagram", "YouTube", "TikTok", "Twitter", "Facebook"];
   const contentTypes = ["Photos", "Videos", "Short-form", "Long-form", "Vlogs", "Tech", "Beauty", "Fashion"];
   const categories = ["Fashion", "Fitness", "Beauty", "Gaming", "Food", "Tech", "Travel", "Lifestyle"];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.platforms.length === 0) {
+      toast.error("Please select at least one social platform");
+      return;
+    }
     setLoading(true);
     try {
       await register(formData.name, formData.email, formData.password, "influencer");
-
-      // Simulated "System Pull" for stats if handles are provided
-      const instagramStats = formData.instagram ? {
-        followers: Math.floor(Math.random() * 50000) + 5000,
-        engagementRate: parseFloat((Math.random() * 5 + 1).toFixed(2)),
-        avgLikes: Math.floor(Math.random() * 2000) + 200,
-        avgComments: Math.floor(Math.random() * 100) + 10,
-      } : null;
-
-      const youtubeStats = formData.youtube ? {
-        subscribers: Math.floor(Math.random() * 100000) + 1000,
-        avgViews: Math.floor(Math.random() * 10000) + 500,
-      } : null;
 
       // Update profile with extra details
       await influencerAPI.updateProfile({
@@ -59,23 +50,35 @@ const InfluencerSignup = () => {
         audienceCountry: [{ country: "India", percentage: 85 }, { country: "USA", percentage: 10 }],
       });
 
-      // Connect platforms with simulated stats
-      if (formData.instagram) {
-        await influencerAPI.connectPlatform({ 
-          platform: "instagram", 
-          handle: formData.instagram, 
-          ...instagramStats 
-        });
-      }
-      if (formData.youtube) {
-        await influencerAPI.connectPlatform({ 
-          platform: "youtube", 
-          handle: formData.youtube, 
-          ...youtubeStats 
-        });
-      }
+      // Connect each selected platform with simulated stats
+      const platformPromises = formData.platforms.map(async (p) => {
+        const platformKey = p.toLowerCase() as keyof typeof formData;
+        const handle = formData[platformKey] as string;
+        
+        if (handle) {
+          const stats: any = {};
+          if (p === "YouTube") {
+            stats.subscribers = Math.floor(Math.random() * 50000) + 1000;
+            stats.avgViews = Math.floor(Math.random() * 5000) + 100;
+          } else {
+            stats.followers = Math.floor(Math.random() * 20000) + 1000;
+            if (p === "Instagram") {
+              stats.engagementRate = parseFloat((Math.random() * 4 + 1).toFixed(2));
+              stats.avgLikes = Math.floor(Math.random() * 1000) + 100;
+            }
+          }
 
-      toast.success("Profile created! We've automatically pulled your stats.");
+          return influencerAPI.connectPlatform({ 
+            platform: platformKey, 
+            handle: handle, 
+            ...stats 
+          });
+        }
+      });
+
+      await Promise.all(platformPromises.filter(p => p));
+
+      toast.success("Profile created with all your platforms!");
       navigate("/influencer/dashboard");
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Registration failed");
@@ -99,7 +102,7 @@ const InfluencerSignup = () => {
 
         <form onSubmit={handleSubmit} className="bg-card border border-border rounded-xl p-8 space-y-6 animate-slide-up relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4">
-             <span className="text-[10px] font-bold uppercase tracking-wider text-primary/40">Step 1/2</span>
+             <span className="text-[10px] font-bold uppercase tracking-wider text-primary/40">Profile Setup</span>
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">Full Name *</Label>
@@ -122,40 +125,59 @@ const InfluencerSignup = () => {
             <Textarea id="bio" value={formData.bio} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} placeholder="Tell brands about yourself..." className="min-h-[100px]" required />
           </div>
 
-          <div className="space-y-2">
-            <Label>Category / Niche *</Label>
-            <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-              <SelectTrigger><SelectValue placeholder="Select your niche" /></SelectTrigger>
-              <SelectContent>
-                {categories.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Category / Niche *</Label>
+              <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                <SelectTrigger><SelectValue placeholder="Select your niche" /></SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location">Location *</Label>
+              <Input id="location" placeholder="Mumbai, India" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} required />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Social Platforms *</Label>
-            <div className="grid grid-cols-2 gap-3">
+          <div className="p-4 bg-muted/30 rounded-lg space-y-4 border border-border/50">
+            <div className="space-y-1">
+              <Label className="text-primary font-bold">Social Platforms *</Label>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Select at least one platform and enter your handle</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {platforms.map((platform) => (
-                <div key={platform} className="flex items-center space-x-2">
+                <div key={platform} className="flex items-center space-x-2 bg-card p-2 rounded border border-border/50 hover:border-primary/30 transition-colors">
                   <Checkbox id={platform} checked={formData.platforms.includes(platform)}
                     onCheckedChange={(checked) => {
                       setFormData({ ...formData, platforms: checked ? [...formData.platforms, platform] : formData.platforms.filter(p => p !== platform) });
                     }} />
-                  <label htmlFor={platform} className="text-sm">{platform}</label>
+                  <label htmlFor={platform} className="text-xs font-medium cursor-pointer">{platform}</label>
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="instagram">Instagram Handle</Label>
-              <Input id="instagram" placeholder="@username" value={formData.instagram} onChange={(e) => setFormData({ ...formData, instagram: e.target.value })} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="youtube">YouTube Channel</Label>
-              <Input id="youtube" placeholder="Channel name" value={formData.youtube} onChange={(e) => setFormData({ ...formData, youtube: e.target.value })} />
-            </div>
+            {formData.platforms.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                {formData.platforms.map((p) => {
+                  const key = p.toLowerCase() as keyof typeof formData;
+                  return (
+                    <div key={p} className="space-y-1.5 animate-slide-up">
+                      <Label htmlFor={key} className="text-[10px] font-bold uppercase tracking-wider text-primary/80">{p} Handle</Label>
+                      <Input 
+                        id={key} 
+                        placeholder={p === 'YouTube' ? "Channel URL or Name" : `@username`} 
+                        value={formData[key] as string} 
+                        onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                        className="h-9 text-sm"
+                        required
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

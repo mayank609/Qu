@@ -124,10 +124,28 @@ const connectPlatform = async (req, res, next) => {
                 connections: connections || 0,
                 connected: true,
             };
+        } else if (platform === 'tiktok') {
+            profile.platforms.tiktok = {
+                handle: handle || '',
+                followers: followers || 0,
+                connected: true,
+            };
+        } else if (platform === 'twitter') {
+            profile.platforms.twitter = {
+                handle: handle || '',
+                followers: followers || 0,
+                connected: true,
+            };
+        } else if (platform === 'facebook') {
+            profile.platforms.facebook = {
+                handle: handle || '',
+                followers: followers || 0,
+                connected: true,
+            };
         } else {
             return res.status(400).json({
                 success: false,
-                message: 'Invalid platform. Supported: instagram, youtube, linkedin',
+                message: 'Invalid platform. Supported: instagram, youtube, linkedin, tiktok, twitter, facebook',
             });
         }
 
@@ -135,7 +153,10 @@ const connectPlatform = async (req, res, next) => {
         profile.totalFollowers =
             (profile.platforms.instagram?.followers || 0) +
             (profile.platforms.youtube?.subscribers || 0) +
-            (profile.platforms.linkedin?.connections || 0);
+            (profile.platforms.linkedin?.connections || 0) +
+            (profile.platforms.tiktok?.followers || 0) +
+            (profile.platforms.twitter?.followers || 0) +
+            (profile.platforms.facebook?.followers || 0);
 
         // Use Instagram engagement rate as primary
         profile.engagementRate = profile.platforms.instagram?.engagementRate || 0;

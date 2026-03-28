@@ -61,6 +61,21 @@ const influencerProfileSchema = new mongoose.Schema(
                 connections: { type: Number, default: 0 },
                 connected: { type: Boolean, default: false },
             },
+            tiktok: {
+                handle: { type: String, default: '' },
+                followers: { type: Number, default: 0 },
+                connected: { type: Boolean, default: false },
+            },
+            twitter: {
+                handle: { type: String, default: '' },
+                followers: { type: Number, default: 0 },
+                connected: { type: Boolean, default: false },
+            },
+            facebook: {
+                handle: { type: String, default: '' },
+                followers: { type: Number, default: 0 },
+                connected: { type: Boolean, default: false },
+            },
         },
         totalFollowers: {
             type: Number,
