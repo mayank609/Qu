@@ -126,7 +126,7 @@ const CampaignCard = ({
           </div>
         </div>
 
-        <NeonButton neonVariant="primary" className="w-full py-5 text-sm font-bold shadow-glow-sm group-hover:shadow-glow-md transition-all" onClick={onApply}>
+        <NeonButton neonVariant="primary" className="w-full py-5 text-sm font-bold transition-all" onClick={onApply}>
           Apply for Collaboration
         </NeonButton>
       </div>
