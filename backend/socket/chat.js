@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const User = require('../models/User');
+const messageService = require('../services/messageService');
 
 const initializeSocket = (io) => {
     // Auth middleware for socket connections
@@ -27,33 +28,18 @@ const initializeSocket = (io) => {
         // Join a conversation room
         socket.on('joinConversation', async (conversationId) => {
             const conv = await Conversation.findById(conversationId);
-            if (!conv || !conv.participants.includes(socket.user._id)) return;
+            if (!conv || !messageService.isParticipant(conv, socket.user._id)) return;
             socket.join(`conv_${conversationId}`);
         });
 
-        // Real-time message
+        // Real-time message (Now used primarily for real-time delivery if not using API)
         socket.on('sendMessage', async (data) => {
             try {
                 const { conversationId, content, type, fileUrl, fileName } = data;
-                const conv = await Conversation.findById(conversationId);
-                if (!conv || !conv.participants.includes(socket.user._id) || conv.isLocked) return;
-
-                const message = await Message.create({
-                    conversation: conversationId, sender: socket.user._id,
-                    content: content || '', fileUrl: fileUrl || '', fileName: fileName || '',
-                    type: type || 'text', readBy: [{ user: socket.user._id }],
+                const { message } = await messageService.createMessage(conversationId, socket.user._id, {
+                    content, type, fileUrl, fileName
                 });
-                await message.populate('sender', 'name avatar');
-
-                conv.lastMessage = { content: content || '[File]', sender: socket.user._id, sentAt: new Date() };
-                conv.participants.forEach((p) => {
-                    if (p.toString() !== socket.user._id.toString()) {
-                        const c = conv.unreadCount.get(p.toString()) || 0;
-                        conv.unreadCount.set(p.toString(), c + 1);
-                    }
-                });
-                await conv.save();
-
+                
                 io.to(`conv_${conversationId}`).emit('newMessage', message);
             } catch (err) { console.error('Socket message error:', err); }
         });

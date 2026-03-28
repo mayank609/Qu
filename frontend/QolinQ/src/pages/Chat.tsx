@@ -55,6 +55,23 @@ const Chat = () => {
     socketRef.current = io(import.meta.env.VITE_API_URL || "http://localhost:5001", {
       auth: { token },
       transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+    });
+
+    socketRef.current.on("connect", () => {
+      console.log("🟢 Connected to chat server");
+      if (selectedChatId) {
+        socketRef.current.emit("joinConversation", selectedChatId);
+      }
+    });
+
+    socketRef.current.on("disconnect", (reason: string) => {
+      console.log("🔴 Disconnected from chat server:", reason);
+    });
+
+    socketRef.current.on("connect_error", (err: any) => {
+      console.error("⚠️ Socket connection error:", err.message);
     });
 
     socketRef.current.on("newMessage", (message: any) => {
@@ -62,6 +79,9 @@ const Chat = () => {
       if (message.conversation === selectedChatId) {
         queryClient.setQueryData(['messages', selectedChatId], (old: any) => {
           if (!old) return { data: [message] };
+          // Deduplicate based on ID to avoid double-showing API sent messages
+          const exists = old.data.some((m: any) => m._id === message._id);
+          if (exists) return old;
           return { ...old, data: [...old.data, message] };
         });
       }
@@ -83,7 +103,7 @@ const Chat = () => {
 
   // Join conversation room when selectedChatId changes
   useEffect(() => {
-    if (selectedChatId && socketRef.current) {
+    if (selectedChatId && socketRef.current?.connected) {
       socketRef.current.emit("joinConversation", selectedChatId);
       socketRef.current.emit("messageRead", { conversationId: selectedChatId });
     }
@@ -96,21 +116,20 @@ const Chat = () => {
   });
 
   const sendMessageMutation = useMutation({
-    mutationFn: (data: any) => {
-        // We emit via socket for "fast" feel, and fallback/log to API if needed
-        // For now, the backend socket handler handles the DB save
-        socketRef.current.emit("sendMessage", {
-            conversationId: selectedChatId,
-            ...data
-        });
-        return Promise.resolve();
-    },
-    onSuccess: () => {
+    mutationFn: (data: any) => messageAPI.sendMessage(selectedChatId!, data),
+    onSuccess: (res) => {
       setMessageText("");
-      // Local update is handled by newMessage listener
+      // Optimistically update or wait for socket "newMessage"
+      const newMessage = res.data.data;
+      queryClient.setQueryData(['messages', selectedChatId], (old: any) => {
+        if (!old) return { data: [newMessage] };
+        const exists = old.data.some((m: any) => m._id === newMessage._id);
+        if (exists) return old;
+        return { ...old, data: [...old.data, newMessage] };
+      });
     },
     onError: (err: any) => {
-        toast.error("Failed to send message via real-time link");
+        toast.error(err.response?.data?.message || "Failed to send message");
     }
   });
 

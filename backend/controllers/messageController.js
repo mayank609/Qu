@@ -1,6 +1,6 @@
-const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const Notification = require('../models/Notification');
+const messageService = require('../services/messageService');
 const { getPagination, paginationMeta } = require('../utils/helpers');
 
 // Spam keywords for auto-moderation
@@ -15,7 +15,7 @@ const SPAM_KEYWORDS = [
 ];
 
 const isSpam = (content) => {
-    const lower = content.toLowerCase();
+    const lower = content?.toString().toLowerCase() || '';
     return SPAM_KEYWORDS.some((keyword) => lower.includes(keyword));
 };
 
@@ -48,7 +48,7 @@ const startConversation = async (req, res, next) => {
                 if (campaign) {
                     await Message.create({
                         conversation: conversation._id,
-                        sender: req.user._id, // System messages can be sent as the initiator
+                        sender: req.user._id,
                         content: `[System] Conversation started for campaign: "${campaign.title}". Expected deliverables: ${campaign.platform}. Budget: ₹${campaign.budgetRange.min} - ₹${campaign.budgetRange.max}.`,
                         type: 'text',
                         isModerated: false,
@@ -102,78 +102,35 @@ const sendMessage = async (req, res, next) => {
         const { conversationId } = req.params;
         const { content, fileUrl, fileName, type } = req.body;
 
-        const conversation = await Conversation.findById(conversationId);
-        if (!conversation) {
-            return res.status(404).json({ success: false, message: 'Conversation not found' });
-        }
-
-        // Check if user is participant
-        if (!conversation.participants.includes(req.user._id)) {
-            return res.status(403).json({ success: false, message: 'Not a participant in this conversation' });
-        }
-
-        // Check if locked
-        if (conversation.isLocked) {
-            return res.status(400).json({ success: false, message: 'This conversation has been locked after deal completion' });
-        }
-
         // Auto-moderation
         const moderated = content ? isSpam(content) : false;
 
-        const message = await Message.create({
-            conversation: conversationId,
-            sender: req.user._id,
-            content: content || '',
-            fileUrl: fileUrl || '',
-            fileName: fileName || '',
-            type: type || 'text',
+        const { message, conversation } = await messageService.createMessage(conversationId, req.user._id, {
+            content, fileUrl, fileName, type,
             isModerated: moderated,
-            moderationReason: moderated ? 'Spam detected' : '',
-            readBy: [{ user: req.user._id }],
+            moderationReason: moderated ? 'Spam detected' : ''
         });
-
-        // Update conversation last message
-        conversation.lastMessage = {
-            content: moderated ? '[Message flagged]' : content || '[File]',
-            sender: req.user._id,
-            sentAt: new Date(),
-        };
-
-        // Increment unread for other participants
-        conversation.participants.forEach((p) => {
-            if (p.toString() !== req.user._id.toString()) {
-                const current = conversation.unreadCount.get(p.toString()) || 0;
-                conversation.unreadCount.set(p.toString(), current + 1);
-            }
-        });
-
-        await conversation.save();
-
-        // Populate sender for response
-        await message.populate('sender', 'name avatar');
 
         // Notify other participants via Socket and DB
         const io = req.app.get('io');
-        const otherParticipants = conversation.participants.filter(
-            (p) => p.toString() !== req.user._id.toString()
-        );
-
-        for (const participant of otherParticipants) {
-            const notification = await Notification.create({
-                user: participant,
-                type: 'message_received',
-                title: 'New Message',
-                message: `${req.user.name}: ${content?.substring(0, 50) || '[File shared]'}`,
-                link: `/chat?id=${conversationId}`,
-                channel: 'push',
+        if (io) {
+            // Real-time delivery to the chat room
+            io.to(`conv_${conversationId}`).emit('newMessage', message);
+            
+            // Push notification logic
+            await messageService.sendPushNotifications(conversation, message, req.user.name);
+            
+            // Real-time notification badge update
+            conversation.participants.forEach(p => {
+                if (p.toString() !== req.user._id.toString()) {
+                    io.to(`user_${p}`).emit('notification', {
+                        type: 'message_received',
+                        title: 'New Message',
+                        message: `${req.user.name}: ${content?.substring(0, 50) || '[File shared]'}`,
+                        link: `/chat?id=${conversationId}`
+                    });
+                }
             });
-
-            // Emit real-time notification
-            if (io) {
-                io.to(`user_${participant}`).emit('notification', notification);
-                // Also emit to the conversation room if user is in it
-                io.to(`conv_${conversationId}`).emit('newMessage', message);
-            }
         }
 
         res.status(201).json({
@@ -197,8 +154,8 @@ const getMessages = async (req, res, next) => {
             return res.status(404).json({ success: false, message: 'Conversation not found' });
         }
 
-        if (!conversation.participants.includes(req.user._id)) {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        if (!messageService.isParticipant(conversation, req.user._id)) {
+            return res.status(403).json({ success: false, message: 'Unauthorized access to this chat' });
         }
 
         // Reset unread count for this user
@@ -210,7 +167,7 @@ const getMessages = async (req, res, next) => {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
-                .populate('sender', 'name avatar'),
+                .populate('sender', 'name avatar role'),
             Message.countDocuments({ conversation: conversationId }),
         ]);
 
@@ -225,6 +182,11 @@ const getMessages = async (req, res, next) => {
 };
 
 module.exports = {
+    startConversation,
+    getConversations,
+    sendMessage,
+    getMessages,
+};module.exports = {
     startConversation,
     getConversations,
     sendMessage,
