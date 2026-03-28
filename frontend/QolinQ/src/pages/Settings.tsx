@@ -276,7 +276,7 @@ const Settings = () => {
                         <Card className="bg-card border-border p-6">
                             <h2 className="text-lg font-bold mb-5">Account Management</h2>
                             <div className="space-y-6">
-                                <div>
+                                {/* <div>
                                     <h3 className="text-sm font-semibold mb-2">Switch Account Type</h3>
                                     <p className="text-sm text-muted-foreground mb-4">
                                         Currently acting as an <strong>Influencer</strong>. Switch to a Brand account to post campaigns and hire other creators.
@@ -294,7 +294,7 @@ const Settings = () => {
                                     >
                                         Be a Brand
                                     </NeonButton>
-                                </div>
+                                </div> */}
                                 
                                 <div className="pt-6 border-t border-border">
                                     <h3 className="text-sm font-semibold mb-2 text-destructive">Danger Zone</h3>

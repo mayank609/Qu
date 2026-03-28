@@ -83,13 +83,13 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
         </nav>
 
         <div className="mt-auto space-y-1 pt-4 border-t border-border">
-          <button
+{/* <button
             onClick={handleSwitchRole}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200"
           >
             <RefreshCw className="w-4 h-4" />
             <span className="font-medium">Switch to {userType === 'brand' ? 'Influencer' : 'Brand'}</span>
-          </button>
+          </button> */}
           <button
             onClick={() => { logout(); navigate('/'); }}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-destructive hover:bg-destructive/10 transition-all duration-200"
@@ -156,13 +156,13 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
               </button>
             );
           })}
-          <button
+{/* <button
             onClick={handleSwitchRole}
             className="flex flex-col items-center gap-1 p-2 rounded-lg text-muted-foreground"
           >
             <RefreshCw className="w-5 h-5" />
             <span className="text-[10px]">Switch</span>
-          </button>
+          </button> */}
           <button
             onClick={() => { logout(); navigate('/'); }}
             className="flex flex-col items-center gap-1 p-2 rounded-lg text-destructive"

@@ -23,7 +23,36 @@ const InfluencerSignup = () => {
 
   const platforms = ["Instagram", "YouTube", "TikTok", "Twitter", "Facebook"];
   const contentTypes = ["Photos", "Videos", "Short-form", "Long-form", "Vlogs", "Tech", "Beauty", "Fashion"];
-  const categories = ["Fashion", "Fitness", "Beauty", "Gaming", "Food", "Tech", "Travel", "Lifestyle"];
+  const categories = [
+    "Gaming", 
+    "Fashion", 
+    "Lifestyle", 
+    "Travel", 
+    "Food & Cooking", 
+    "Tech", 
+    "Fitness", 
+    "Health & Wellness", 
+    "Beauty & Skincare", 
+    "Education", 
+    "Finance & Investing", 
+    "Parenting & Family", 
+    "Automobile (Cars & Bikes)", 
+    "Entertainment", 
+    "Comedy & Memes", 
+    "Motivation & Self Growth", 
+    "Business & Entrepreneurship", 
+    "Photography", 
+    "Videography", 
+    "Home Decor & Interior", 
+    "DIY & Crafts", 
+    "Pets & Animals", 
+    "Music & Singing", 
+    "Dance", 
+    "Art & Illustration", 
+    "Spirituality & Astrology", 
+    "News & Politics", 
+    "Other"
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
