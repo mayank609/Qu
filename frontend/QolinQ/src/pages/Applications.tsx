@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Youtube, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, Star } from "lucide-react";
+import { Instagram, Youtube, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, Star, User } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import RatingModal from "@/components/RatingModal";
 import { toast } from "sonner";
@@ -194,6 +194,13 @@ const Applications = () => {
                           >
                             <X className="w-4 h-4 mr-2" />Reject
                           </NeonButton>
+                          <NeonButton 
+                            neonVariant="ghost" 
+                            onClick={() => navigate(`/influencer/${app.influencer._id}`)}
+                            className="h-9 px-3"
+                          >
+                            <User className="w-4 h-4 mr-2" />View Profile
+                          </NeonButton>
                         </>
                       ) : (app.status === "shortlisted" || app.status === "accepted") ? (
                           <>
@@ -219,6 +226,13 @@ const Applications = () => {
                                 disabled={startConvMutation.isPending}
                               >
                                 <MessageCircle className="w-4 h-4 mr-2" />Message
+                              </NeonButton>
+                              <NeonButton 
+                                neonVariant="ghost" 
+                                onClick={() => navigate(`/influencer/${app.influencer._id}`)}
+                                className="h-9 px-3"
+                              >
+                                <User className="w-4 h-4 mr-2" />View Profile
                               </NeonButton>
                           </>
                       ) : null}

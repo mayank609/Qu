@@ -44,6 +44,7 @@ export const influencerAPI = {
     getDashboard: () => api.get('/influencer/dashboard'),
     getAnalytics: () => api.get('/influencer/analytics'),
     getEarnings: (params?: any) => api.get('/influencer/earnings', { params }),
+    getById: (id: string) => api.get(`/influencer/${id}`),
 };
 
 // ─── Brand ───

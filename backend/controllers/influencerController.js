@@ -323,6 +323,28 @@ const getEarnings = async (req, res, next) => {
     }
 };
 
+// @desc    Get influencer profile by ID (for brands/public)
+// @route   GET /api/influencer/:id
+const getInfluencerById = async (req, res, next) => {
+    try {
+        const profile = await InfluencerProfile.findOne({ user: req.params.id }).populate(
+            'user',
+            'name email avatar verificationStatus trustBadge'
+        );
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                message: 'Influencer profile not found.',
+            });
+        }
+
+        res.json({ success: true, data: profile });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getProfile,
     updateProfile,
@@ -330,4 +352,5 @@ module.exports = {
     getDashboard,
     getAnalytics,
     getEarnings,
+    getInfluencerById,
 };

@@ -25,6 +25,7 @@ import SavedProfiles from "./pages/SavedProfiles";
 import AppliedCampaigns from "./pages/AppliedCampaigns";
 import AdminSecurity from "./pages/AdminSecurity";
 import Register from "./pages/Register";
+import InfluencerProfileView from "./pages/InfluencerProfileView";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/saved-profiles" element={<SavedProfiles />} />
             <Route path="/applied-campaigns" element={<AppliedCampaigns />} />
             <Route path="/admin/security" element={<AdminSecurity />} />
+            <Route path="/influencer/:id" element={<InfluencerProfileView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
