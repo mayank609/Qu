@@ -34,6 +34,7 @@ const Settings = () => {
         youtubeSubscribers: "",
         portfolioLink1: "",
         portfolioLink2: "",
+        otherNiche: "",
     });
 
     useEffect(() => {
@@ -55,6 +56,7 @@ const Settings = () => {
                     youtubeSubscribers: profile.platforms?.youtube?.subscribers?.toString() || "",
                     portfolioLink1: profile.portfolioLinks?.[0]?.url || "",
                     portfolioLink2: profile.portfolioLinks?.[1]?.url || "",
+                    otherNiche: "",
                 });
                 if (u.avatar) setAvatarPreview(u.avatar);
             } catch (error) {
@@ -78,12 +80,12 @@ const Settings = () => {
     };
 
     const handleSave = async () => {
-        setIsSaving(true);
+        const nicheToSave = formData.niche === "Other" ? formData.otherNiche : formData.niche;
         try {
             const updateData = {
                 name: formData.name,
                 bio: formData.bio,
-                niche: formData.niche,
+                niche: nicheToSave,
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
                 priceExpectation: { min: Number(formData.price) },
                 portfolioLinks: [
@@ -194,6 +196,16 @@ const Settings = () => {
                                             {categories.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}
                                         </SelectContent>
                                     </Select>
+                                    {formData.niche === "Other" && (
+                                        <div className="pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                            <Input 
+                                                placeholder="Specify niche..." 
+                                                value={formData.otherNiche} 
+                                                onChange={(e) => setFormData({ ...formData, otherNiche: e.target.value })}
+                                                className="bg-muted/30 border-primary/20"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">

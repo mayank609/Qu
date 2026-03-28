@@ -22,17 +22,19 @@ const CreateListing = () => {
     budgetMax: "",
     location: "Remote",
     endDate: "",
-    deliverables: ""
+    deliverables: "",
+    otherCategory: ""
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      const finalCategory = formData.category === "Other" ? formData.otherCategory : formData.category;
       const payload = {
         title: formData.title,
         description: formData.description,
-        category: formData.category,
+        category: finalCategory,
         platform: formData.platform,
         budgetRange: {
           min: parseInt(formData.budgetMin),
@@ -102,15 +104,21 @@ const CreateListing = () => {
                 <Select value={formData.category} onValueChange={v => setFormData({...formData, category: v})}>
                   <SelectTrigger className="bg-muted/30"><SelectValue placeholder="Select industry" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="fashion">Fashion & Lifestyle</SelectItem>
-                    <SelectItem value="tech">Tech & Gadgets</SelectItem>
-                    <SelectItem value="fitness">Health & Fitness</SelectItem>
-                    <SelectItem value="food">Food & Beverage</SelectItem>
-                    <SelectItem value="beauty">Beauty & Skincare</SelectItem>
-                    <SelectItem value="gaming">Gaming & ESports</SelectItem>
-                    <SelectItem value="travel">Travel & Tourism</SelectItem>
+                    {["Gaming", "Fashion", "Lifestyle", "Travel", "Food & Cooking", "Tech", "Fitness", "Health & Wellness", "Beauty & Skincare", "Education", "Finance & Investing", "Parenting & Family", "Automobile", "Entertainment", "Comedy & Memes", "Motivation", "Business", "Photography", "Videography", "Home Decor", "DIY & Crafts", "Pets & Animals", "Music & Singing", "Dance", "Art & Illustration", "Spirituality", "News & Politics", "Other"].map(c => (
+                      <SelectItem key={c} value={c === "Other" ? "Other" : c.toLowerCase()}>{c}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                {formData.category === "Other" && (
+                  <div className="pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <Input 
+                      placeholder="Specify campaign niche..." 
+                      value={formData.otherCategory} 
+                      onChange={(e) => setFormData({ ...formData, otherCategory: e.target.value })}
+                      className="bg-muted/30 border-primary/20"
+                    />
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Urgency Level</Label>

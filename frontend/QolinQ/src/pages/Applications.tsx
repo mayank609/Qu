@@ -61,26 +61,6 @@ const Applications = () => {
     onError: () => toast.error("Failed to update status")
   });
 
-  const fundEscrowMutation = useMutation({
-    mutationFn: ({ campaignId, applicationId }: { campaignId: string, applicationId: string }) => 
-      escrowAPI.fund(campaignId, { applicationId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['escrows'] });
-      toast.success("Campaign funded! Money is now locked in escrow.");
-    },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Funding failed")
-  });
-
-  const releasePaymentMutation = useMutation({
-    mutationFn: (escrowId: string) => escrowAPI.release(escrowId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['escrows'] });
-      queryClient.invalidateQueries({ queryKey: ['applications'] });
-      toast.success("Payment released to influencer!");
-    },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Release failed")
-  });
-
   const rateMutation = useMutation({
     mutationFn: (data: any) => ratingAPI.rate(campaigns[0]._id, data),
     onSuccess: () => {
@@ -138,16 +118,6 @@ const Applications = () => {
               const escrow = escrows.find((e: any) => e.application === app._id);
               return (
                 <Card key={app._id} className="bg-card border border-border p-6 hover-lift overflow-hidden relative">
-                  {escrow?.status === 'locked' && (
-                      <div className="absolute top-0 right-0 p-1 px-3 bg-primary/10 text-[10px] font-bold text-primary rounded-bl-lg flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3" /> ESCROW PROTECTED
-                      </div>
-                  )}
-                  {escrow?.status === 'released' && (
-                      <div className="absolute top-0 right-0 p-1 px-3 bg-green-500/10 text-[10px] font-bold text-green-500 rounded-bl-lg flex items-center gap-1">
-                          <Check className="w-3 h-3" /> COMPLETED
-                      </div>
-                  )}
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                     <div className="flex items-start gap-4 flex-1">
                       <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20 shrink-0 relative">
@@ -230,33 +200,12 @@ const Applications = () => {
                         </>
                       ) : app.status === "accepted" ? (
                           <>
-                              {escrow?.status === 'pending' && (
-                                  <NeonButton 
-                                    neonVariant="primary" 
-                                    className="bg-primary hover:bg-primary/90"
-                                    onClick={() => fundEscrowMutation.mutate({ campaignId: campaigns[0]._id, applicationId: app._id })}
-                                    disabled={fundEscrowMutation.isPending}
-                                  >
-                                    <DollarSign className="w-4 h-4 mr-2" />Fund Escrow
-                                  </NeonButton>
-                              )}
-                              {escrow?.status === 'locked' && (
-                                  <NeonButton 
-                                    neonVariant="secondary" 
-                                    onClick={() => releasePaymentMutation.mutate(escrow._id)}
-                                    disabled={releasePaymentMutation.isPending}
-                                  >
-                                    <Check className="w-4 h-4 mr-2" />Release Payment
-                                  </NeonButton>
-                              )}
-                              {escrow?.status === 'released' && (
-                                  <NeonButton 
-                                    neonVariant="primary" 
-                                    onClick={() => setRatingTarget({ id: app.influencer._id, name: app.influencer.name })}
-                                  >
-                                    <Star className="w-4 h-4 mr-2" />Rate Influencer
-                                  </NeonButton>
-                              )}
+                              <NeonButton 
+                                neonVariant="primary" 
+                                onClick={() => setRatingTarget({ id: app.influencer._id, name: app.influencer.name })}
+                              >
+                                <Star className="w-4 h-4 mr-2" />Rate Influencer
+                              </NeonButton>
                               <NeonButton 
                                 neonVariant="outline" 
                                 onClick={() => navigate(`/chat?id=${escrow?.conversationId || ''}`)}

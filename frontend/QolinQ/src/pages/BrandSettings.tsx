@@ -30,6 +30,7 @@ const BrandSettings = () => {
         location: "",
         description: "",
         website: "",
+        otherCategory: "",
     });
 
     useEffect(() => {
@@ -48,6 +49,7 @@ const BrandSettings = () => {
                     location: `${profile.location?.city || ""}${profile.location?.country ? ", " + profile.location.country : ""}`,
                     description: profile.description || "",
                     website: profile.website || "",
+                    otherCategory: "",
                 });
                 if (u.avatar) setLogoPreview(u.avatar);
                 else if (profile.logo) setLogoPreview(profile.logo);
@@ -73,11 +75,12 @@ const BrandSettings = () => {
 
     const handleSave = async () => {
         setIsSaving(true);
+        const categoryToSave = formData.category === "Other" ? formData.otherCategory : formData.category;
         try {
             const updateData = {
                 companyName: formData.companyName,
                 website: formData.website,
-                categories: [formData.category],
+                categories: [categoryToSave.toLowerCase()],
                 description: formData.description,
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
                 logo: logoPreview,
@@ -187,11 +190,21 @@ const BrandSettings = () => {
                                     <Select value={formData.category} onValueChange={handleSelectChange}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            {["Fashion", "Fitness", "Beauty", "Gaming", "Food", "Tech", "Travel", "Lifestyle"].map(c => (
-                                                <SelectItem key={c} value={c.toLowerCase()}>{c}</SelectItem>
+                                            {["Gaming", "Fashion", "Lifestyle", "Travel", "Food & Cooking", "Tech", "Fitness", "Health & Wellness", "Beauty & Skincare", "Education", "Finance & Investing", "Parenting & Family", "Automobile", "Entertainment", "Comedy & Memes", "Motivation", "Business", "Photography", "Videography", "Home Decor", "DIY & Crafts", "Pets & Animals", "Music & Singing", "Dance", "Art & Illustration", "Spirituality", "News & Politics", "Other"].map(c => (
+                                                <SelectItem key={c} value={c === "Other" ? "Other" : c.toLowerCase()}>{c}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
+                                    {formData.category === "Other" && (
+                                        <div className="pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                            <Input 
+                                                placeholder="Specify category..." 
+                                                value={formData.otherCategory} 
+                                                onChange={(e) => setFormData({ ...formData, otherCategory: e.target.value })}
+                                                className="bg-muted/30 border-primary/20"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="location">Location</Label>

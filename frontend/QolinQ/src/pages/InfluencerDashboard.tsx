@@ -127,7 +127,6 @@ const InfluencerDashboard = () => {
                   <Badge key={c} variant="secondary" className="capitalize">{c}</Badge>
                 ))}
                 {profile?.totalFollowers > 0 && <Badge variant="secondary">{profile.totalFollowers.toLocaleString()} followers</Badge>}
-                {dashboard?.totalEarnings > 0 && <Badge variant="secondary">₹{dashboard.totalEarnings.toLocaleString()} earned</Badge>}
               </div>
               <div className="flex flex-wrap gap-3">
                 <NeonButton neonVariant="primary" onClick={() => navigate("/my-profile")}>Edit Profile</NeonButton>
@@ -184,32 +183,6 @@ const InfluencerDashboard = () => {
                     <div className="h-full bg-primary w-[75%] shadow-glow-sm"></div>
                  </div>
               </div>
-            </Card>
-
-            <Card className="bg-card border border-border p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">Earnings Overview</h2>
-                <Badge variant="outline" className="border-green-500/30 text-green-500">Live Escrow</Badge>
-              </div>
-              <div className="text-4xl font-bold mb-2">₹{dashboard?.totalEarnings?.toLocaleString() || "0"}</div>
-              <p className="text-sm text-muted-foreground mb-8">Total verified earnings across all campaigns</p>
-              
-              <div className="space-y-4">
-                 <div className="flex items-center justify-between p-3 rounded-lg bg-green-500/5 border border-green-500/10">
-                    <div className="text-sm">In Escrow (Locked)</div>
-                    <div className="font-bold text-green-500">₹12,500</div>
-                 </div>
-                 <div className="flex items-center justify-between p-3 rounded-lg bg-yellow-500/5 border border-yellow-500/10">
-                    <div className="text-sm">Pending Approval</div>
-                    <div className="font-bold text-yellow-500">₹4,000</div>
-                 </div>
-                 <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/10">
-                    <div className="text-sm">Available for Payout</div>
-                    <div className="font-bold">₹0</div>
-                 </div>
-              </div>
-
-              <NeonButton neonVariant="primary" className="w-full mt-6" disabled>Withdraw Earnings</NeonButton>
             </Card>
           </div>
         </div>

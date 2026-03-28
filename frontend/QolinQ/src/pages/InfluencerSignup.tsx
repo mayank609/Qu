@@ -16,7 +16,7 @@ const InfluencerSignup = () => {
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "", email: "", password: "", bio: "", category: "", platforms: [] as string[],
+    name: "", email: "", password: "", bio: "", category: "", otherCategory: "", platforms: [] as string[],
     instagram: "", youtube: "", twitter: "", tiktok: "", facebook: "",
     contentTypes: [] as string[], price: "", location: "", portfolio: ["", "", ""],
   });
@@ -65,10 +65,11 @@ const InfluencerSignup = () => {
       await register(formData.name, formData.email, formData.password, "influencer");
 
       // Update profile with extra details
+      const niche = formData.category === "Other" ? formData.otherCategory : formData.category;
       await influencerAPI.updateProfile({
         bio: formData.bio,
-        categories: [formData.category.toLowerCase()],
-        niche: formData.category,
+        categories: [niche.toLowerCase()],
+        niche: niche,
         location: { 
           city: formData.location.split(",")[0]?.trim() || "Mumbai", 
           country: formData.location.split(",")[1]?.trim() || "India" 
@@ -163,6 +164,17 @@ const InfluencerSignup = () => {
                   {categories.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}
                 </SelectContent>
               </Select>
+              {formData.category === "Other" && (
+                <div className="pt-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <Input 
+                    placeholder="Describe your custom niche..." 
+                    value={formData.otherCategory} 
+                    onChange={(e) => setFormData({ ...formData, otherCategory: e.target.value })}
+                    className="bg-muted/30 border-primary/20 focus:border-primary h-9 text-sm"
+                    required
+                  />
+                </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="location">Location *</Label>

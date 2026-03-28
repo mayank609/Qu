@@ -396,19 +396,15 @@ const Chat = () => {
                                               ))}
                                           </ul>
                                       </div>
-                                      <div className="pt-4 border-t border-border">
-                                          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Status</h4>
-                                          <div className="space-y-3">
-                                              <div className="flex items-center justify-between text-xs">
-                                                  <span>Agreement Signed</span>
-                                                  <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                              </div>
-                                              <div className="flex items-center justify-between text-xs">
-                                                  <span>Escrow Funded</span>
-                                                  {currentChat.isLocked ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Clock className="w-4 h-4 text-yellow-500" />}
-                                              </div>
-                                          </div>
-                                      </div>
+                                       <div className="pt-4 border-t border-border">
+                                           <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">Status</h4>
+                                           <div className="space-y-3">
+                                               <div className="flex items-center justify-between text-xs">
+                                                   <span>Agreement Signed</span>
+                                                   <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                               </div>
+                                           </div>
+                                       </div>
 
                                       <div className="pt-6">
                                           <NeonButton 
