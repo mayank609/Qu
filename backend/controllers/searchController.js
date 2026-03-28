@@ -5,7 +5,7 @@ const { getPagination, paginationMeta, buildSort } = require('../utils/helpers')
 const searchInfluencers = async (req, res, next) => {
     try {
         const { page, limit, skip } = getPagination(req.query);
-        const { minFollowers, maxFollowers, country, minEngagement, maxEngagement, niche, category, verified, sort: sortQuery, search } = req.query;
+        const { minFollowers, maxFollowers, country, minEngagement, maxEngagement, niche, category, verified, sort: sortQuery, search, minPrice, maxPrice, platform } = req.query;
         const filter = {};
         if (minFollowers || maxFollowers) {
             filter.totalFollowers = {};
@@ -21,6 +21,15 @@ const searchInfluencers = async (req, res, next) => {
         if (niche) filter.niche = { $regex: niche, $options: 'i' };
         if (category) filter.categories = category;
         if (search) filter.bio = { $regex: search, $options: 'i' };
+
+        if (minPrice || maxPrice) {
+            if (minPrice) filter['priceExpectation.max'] = { $gte: parseInt(minPrice) };
+            if (maxPrice) filter['priceExpectation.min'] = { $lte: parseInt(maxPrice) };
+        }
+
+        if (platform && platform !== 'all') {
+            filter[`platforms.${platform.toLowerCase()}.connected`] = true;
+        }
 
         let userFilter = {};
         if (verified === 'true') userFilter = { trustBadge: true };

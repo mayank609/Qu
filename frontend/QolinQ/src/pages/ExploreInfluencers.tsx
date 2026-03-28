@@ -13,6 +13,9 @@ const ExploreInfluencers = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
+  const [platform, setPlatform] = useState("all");
+  const [priceRange, setPriceRange] = useState("all");
+  const [reach, setReach] = useState("all");
 
   const startConvMutation = useMutation({
     mutationFn: (data: { participantId: string, campaignId?: string }) => 
@@ -26,8 +29,24 @@ const ExploreInfluencers = () => {
   });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['influencers', category, search],
-    queryFn: () => searchAPI.influencers({ category: category !== 'all' ? category.toLowerCase() : undefined, search }),
+    queryKey: ['influencers', category, platform, priceRange, reach, search],
+    queryFn: () => {
+      const minPrice = priceRange === '0-5000' ? 0 : priceRange === '5000-15000' ? 5000 : priceRange === '15000-50000' ? 15000 : priceRange === '50000+' ? 50000 : undefined;
+      const maxPrice = priceRange === '0-5000' ? 5000 : priceRange === '5000-15000' ? 15000 : priceRange === '15000-50000' ? 50000 : undefined;
+      
+      const minFollowers = reach === '0-10k' ? 0 : reach === '10k-50k' ? 10000 : reach === '50k-100k' ? 50000 : reach === '100k+' ? 100000 : undefined;
+      const maxFollowers = reach === '0-10k' ? 10000 : reach === '10k-50k' ? 50000 : reach === '50k-100k' ? 100000 : undefined;
+
+      return searchAPI.influencers({ 
+        category: category !== 'all' ? category.toLowerCase() : undefined, 
+        platform: platform !== 'all' ? platform.toLowerCase() : undefined,
+        minPrice,
+        maxPrice,
+        minFollowers,
+        maxFollowers,
+        search 
+      });
+    },
   });
 
   const influencers = data?.data?.data || [];
@@ -42,17 +61,60 @@ const ExploreInfluencers = () => {
 
         <NeonSearchBar placeholder="Search by name, niche, or platform..." value={search} onChange={setSearch} />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <div className="space-y-1.5">
-            <Label className="text-xs">Category</Label>
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue placeholder={`All Categories`} /></SelectTrigger>
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="All Categories" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="fashion">Fashion</SelectItem>
-                <SelectItem value="tech">Tech</SelectItem>
-                <SelectItem value="fitness">Fitness</SelectItem>
-                <SelectItem value="food">Food</SelectItem>
+                <SelectItem value="fashion">Fashion & Lifestyle</SelectItem>
+                <SelectItem value="tech">Tech & Gadgets</SelectItem>
+                <SelectItem value="fitness">Health & Fitness</SelectItem>
+                <SelectItem value="food">Food & Beverage</SelectItem>
+                <SelectItem value="beauty">Beauty & Cosmetics</SelectItem>
+                <SelectItem value="gaming">Gaming & ESports</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Platform</Label>
+            <Select value={platform} onValueChange={setPlatform}>
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Platform" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Platform</SelectItem>
+                <SelectItem value="instagram">Instagram</SelectItem>
+                <SelectItem value="youtube">YouTube</SelectItem>
+                <SelectItem value="linkedin">LinkedIn</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Price Range</Label>
+            <Select value={priceRange} onValueChange={setPriceRange}>
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Price" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Price</SelectItem>
+                <SelectItem value="0-5000">Below ₹5k</SelectItem>
+                <SelectItem value="5000-15000">₹5k - ₹15k</SelectItem>
+                <SelectItem value="15000-50000">₹15k - ₹50k</SelectItem>
+                <SelectItem value="50000+">₹50k+</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Total Reach</Label>
+            <Select value={reach} onValueChange={setReach}>
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Any Reach" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any Reach</SelectItem>
+                <SelectItem value="0-10k">Nano (Below 10k)</SelectItem>
+                <SelectItem value="10k-50k">Micro (10k - 50k)</SelectItem>
+                <SelectItem value="50k-100k">Mid (50k - 100k)</SelectItem>
+                <SelectItem value="100k+">Macro (100k+)</SelectItem>
               </SelectContent>
             </Select>
           </div>
