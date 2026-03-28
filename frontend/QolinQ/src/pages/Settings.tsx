@@ -32,6 +32,14 @@ const Settings = () => {
         price: 0,
         instagramFollowers: "",
         youtubeSubscribers: "",
+        tiktokFollowers: "",
+        twitterFollowers: "",
+        facebookFollowers: "",
+        instagramHandle: "",
+        youtubeHandle: "",
+        tiktokHandle: "",
+        twitterHandle: "",
+        facebookHandle: "",
         portfolioLink1: "",
         portfolioLink2: "",
         otherNiche: "",
@@ -54,6 +62,14 @@ const Settings = () => {
                     price: profile.priceExpectation?.min || 0,
                     instagramFollowers: profile.platforms?.instagram?.followers?.toString() || "",
                     youtubeSubscribers: profile.platforms?.youtube?.subscribers?.toString() || "",
+                    tiktokFollowers: profile.platforms?.tiktok?.followers?.toString() || "",
+                    twitterFollowers: profile.platforms?.twitter?.followers?.toString() || "",
+                    facebookFollowers: profile.platforms?.facebook?.followers?.toString() || "",
+                    instagramHandle: profile.platforms?.instagram?.handle || "",
+                    youtubeHandle: profile.platforms?.youtube?.handle || "",
+                    tiktokHandle: profile.platforms?.tiktok?.handle || "",
+                    twitterHandle: profile.platforms?.twitter?.handle || "",
+                    facebookHandle: profile.platforms?.facebook?.handle || "",
                     portfolioLink1: profile.portfolioLinks?.[0]?.url || "",
                     portfolioLink2: profile.portfolioLinks?.[1]?.url || "",
                     otherNiche: "",
@@ -97,6 +113,29 @@ const Settings = () => {
 
             await influencerAPI.updateProfile(updateData);
             
+            // Update platform stats
+            const platformsToSync = [
+                { key: 'instagram', followers: formData.instagramFollowers, handle: formData.instagramHandle },
+                { key: 'youtube', followers: formData.youtubeSubscribers, handle: formData.youtubeHandle },
+                { key: 'tiktok', followers: formData.tiktokFollowers, handle: formData.tiktokHandle },
+                { key: 'twitter', followers: formData.twitterFollowers, handle: formData.twitterHandle },
+                { key: 'facebook', followers: formData.facebookFollowers, handle: formData.facebookHandle }
+            ];
+
+            const platformPromises = platformsToSync.filter(p => p.followers && p.handle).map(p => {
+                const stats: any = {};
+                if (p.key === 'youtube') stats.subscribers = parseInt(p.followers);
+                else stats.followers = parseInt(p.followers);
+
+                return influencerAPI.connectPlatform({
+                    platform: p.key,
+                    handle: p.handle,
+                    ...stats
+                });
+            });
+
+            await Promise.all(platformPromises);
+
             // Update local user state
             updateUser({
                 name: formData.name,
@@ -244,9 +283,12 @@ const Settings = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2"><Label>Instagram Followers</Label><Input id="instagramFollowers" value={formData.instagramFollowers} onChange={handleInputChange} /></div>
                                     <div className="space-y-2"><Label>YouTube Subscribers</Label><Input id="youtubeSubscribers" value={formData.youtubeSubscribers} onChange={handleInputChange} /></div>
+                                    <div className="space-y-2"><Label>TikTok Followers</Label><Input id="tiktokFollowers" value={formData.tiktokFollowers} onChange={handleInputChange} /></div>
+                                    <div className="space-y-2"><Label>Twitter Followers</Label><Input id="twitterFollowers" value={formData.twitterFollowers} onChange={handleInputChange} /></div>
+                                    <div className="space-y-2"><Label>Facebook Followers</Label><Input id="facebookFollowers" value={formData.facebookFollowers} onChange={handleInputChange} /></div>
                                 </div>
                             </div>
                         </Card>

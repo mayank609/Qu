@@ -18,6 +18,7 @@ const InfluencerSignup = () => {
   const [formData, setFormData] = useState({
     name: "", email: "", password: "", bio: "", category: "", otherCategory: "", platforms: [] as string[],
     instagram: "", youtube: "", twitter: "", tiktok: "", facebook: "",
+    instagramFollowers: "", youtubeSubscribers: "", tiktokFollowers: "", twitterFollowers: "", facebookFollowers: "",
     contentTypes: [] as string[], price: "", location: "", portfolio: ["", "", ""],
   });
 
@@ -86,15 +87,18 @@ const InfluencerSignup = () => {
         const handle = formData[platformKey] as string;
         
         if (handle) {
+          const followerKey = `${platformKey}${p === 'YouTube' ? 'Subscribers' : 'Followers'}` as keyof typeof formData;
+          const count = parseInt(formData[followerKey] as string) || 0;
           const stats: any = {};
+
           if (p === "YouTube") {
-            stats.subscribers = Math.floor(Math.random() * 50000) + 1000;
-            stats.avgViews = Math.floor(Math.random() * 5000) + 100;
+            stats.subscribers = count;
+            stats.avgViews = Math.floor(count * 0.1); // Estimate 10% views
           } else {
-            stats.followers = Math.floor(Math.random() * 20000) + 1000;
+            stats.followers = count;
             if (p === "Instagram") {
               stats.engagementRate = parseFloat((Math.random() * 4 + 1).toFixed(2));
-              stats.avgLikes = Math.floor(Math.random() * 1000) + 100;
+              stats.avgLikes = Math.floor(count * 0.05); // Estimate 5% likes
             }
           }
 
@@ -204,16 +208,30 @@ const InfluencerSignup = () => {
                 {formData.platforms.map((p) => {
                   const key = p.toLowerCase() as keyof typeof formData;
                   return (
-                    <div key={p} className="space-y-1.5 animate-slide-up">
-                      <Label htmlFor={key} className="text-[10px] font-bold uppercase tracking-wider text-primary/80">{p} Handle</Label>
-                      <Input 
-                        id={key} 
-                        placeholder={p === 'YouTube' ? "Channel URL or Name" : `@username`} 
-                        value={formData[key] as string} 
-                        onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
-                        className="h-9 text-sm"
-                        required
-                      />
+                    <div key={p} className="grid grid-cols-2 gap-3 animate-slide-up col-span-1 md:col-span-2">
+                      <div className="space-y-1.5">
+                        <Label htmlFor={key} className="text-[10px] font-bold uppercase tracking-wider text-primary/80">{p} Handle</Label>
+                        <Input 
+                          id={key} 
+                          placeholder={p === 'YouTube' ? "Channel URL or Name" : `@username`} 
+                          value={formData[key] as string} 
+                          onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
+                          className="h-9 text-sm"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor={`${key}Followers`} className="text-[10px] font-bold uppercase tracking-wider text-primary/80">{p === 'YouTube' ? 'Subscribers' : 'Followers'}</Label>
+                        <Input 
+                          id={`${key}Followers`} 
+                          type="number"
+                          placeholder="e.g. 5000" 
+                          value={formData[`${key}${p === 'YouTube' ? 'Subscribers' : 'Followers'}` as keyof typeof formData] as string} 
+                          onChange={(e) => setFormData({ ...formData, [`${key}${p === 'YouTube' ? 'Subscribers' : 'Followers'}`]: e.target.value })}
+                          className="h-9 text-sm"
+                          required
+                        />
+                      </div>
                     </div>
                   );
                 })}
