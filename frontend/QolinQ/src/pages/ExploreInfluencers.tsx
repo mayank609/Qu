@@ -126,7 +126,10 @@ const ExploreInfluencers = () => {
                 <SelectItem value="all">Any Platform</SelectItem>
                 <SelectItem value="instagram">Instagram</SelectItem>
                 <SelectItem value="youtube">YouTube</SelectItem>
+                <SelectItem value="facebook">Facebook</SelectItem>
+                <SelectItem value="tiktok">TikTok</SelectItem>
                 <SelectItem value="linkedin">LinkedIn</SelectItem>
+                <SelectItem value="twitter">Twitter</SelectItem>
               </SelectContent>
             </Select>
           </div>

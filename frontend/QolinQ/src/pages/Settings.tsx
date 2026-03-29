@@ -98,10 +98,15 @@ const Settings = () => {
     };
 
     const handleSave = async () => {
+        if (!formData.name.trim()) {
+            toast.error("Name cannot be empty");
+            return;
+        }
+        setIsSaving(true);
         const nicheToSave = formData.niche === "Other" ? formData.otherNiche : formData.niche;
         try {
             const updateData = {
-                name: formData.name,
+                name: formData.name.trim(),
                 bio: formData.bio,
                 niche: nicheToSave,
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
@@ -154,7 +159,7 @@ const Settings = () => {
         }
     };
 
-    const platforms = ["Instagram", "YouTube", "Twitter", "TikTok", "Snapchat"];
+    const platforms = ["Instagram", "YouTube", "Twitter", "TikTok", "Facebook", "Snapchat"];
     const categories = ["Fitness", "Gaming", "Food", "Tech", "Travel", "Lifestyle"];
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -153,7 +153,7 @@ const getMyApplications = async (req, res, next) => {
                 .limit(limit)
                 .populate({
                     path: 'campaign',
-                    select: 'title platform budgetRange timeline status brand',
+                    select: 'title platform budgetRange timeline status brand description deliverables category requirements',
                     populate: { path: 'brand', select: 'name avatar' },
                 }),
             Application.countDocuments(filter),

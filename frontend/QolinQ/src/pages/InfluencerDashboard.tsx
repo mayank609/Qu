@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, MessageSquare, Bookmark, TrendingUp, ShieldCheck, Camera } from "lucide-react";
+import { Eye, MessageSquare, Bookmark, TrendingUp, Camera } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -130,9 +130,6 @@ const InfluencerDashboard = () => {
               <div className="flex flex-wrap gap-3">
                 <NeonButton neonVariant="primary" onClick={() => navigate("/my-profile")}>Edit Profile</NeonButton>
                 <NeonButton neonVariant="outline" onClick={() => toast.success("Profile link copied!")}>Share Profile</NeonButton>
-                <NeonButton neonVariant="secondary" onClick={() => toast.success("Verification request submitted!")}>
-                  <ShieldCheck className="w-4 h-4 mr-1" />Verify Profile
-                </NeonButton>
               </div>
             </div>
           </div>

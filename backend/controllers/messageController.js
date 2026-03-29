@@ -112,7 +112,7 @@ const getConversations = async (req, res, next) => {
                 .skip(skip)
                 .limit(limit)
                 .populate('participants', 'name avatar role')
-                .populate('campaign', 'title'),
+                .populate('campaign', 'title platform budgetRange deliverables timeline category description'),
             Conversation.countDocuments({ participants: req.user._id }),
         ]);
 
@@ -213,11 +213,6 @@ const getMessages = async (req, res, next) => {
 };
 
 module.exports = {
-    startConversation,
-    getConversations,
-    sendMessage,
-    getMessages,
-};module.exports = {
     startConversation,
     getConversations,
     sendMessage,

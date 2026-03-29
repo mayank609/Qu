@@ -50,6 +50,9 @@ const InfluencerLogin = () => {
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <button type="button" onClick={() => toast.info("Password reset link sent to your email!")} className="text-xs text-primary hover:underline mt-1 block text-right">
+              Forgot password?
+            </button>
           </div>
           <div className="space-y-4 pt-4">
             <NeonButton neonVariant="primary" type="submit" className="w-full" disabled={loading}>

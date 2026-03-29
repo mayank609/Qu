@@ -10,11 +10,13 @@ import { applicationAPI, ratingAPI, messageAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 const AppliedCampaigns = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [ratingTarget, setRatingTarget] = useState<any>(null);
+  const [briefCampaign, setBriefCampaign] = useState<any>(null);
 
   const startConvMutation = useMutation({
     mutationFn: (data: { participantId: string, campaignId?: string }) => 
@@ -214,7 +216,7 @@ const AppliedCampaigns = () => {
                         </>
                     )}
                     
-                    <NeonButton neonVariant="ghost" className="h-8 text-[10px] hover:bg-transparent" onClick={() => navigate(`/explore/campaigns/${app.campaign?._id}`)}>
+                    <NeonButton neonVariant="ghost" className="h-8 text-[10px] hover:bg-transparent" onClick={() => setBriefCampaign(app.campaign)}>
                         View Campaign Brief <ExternalLink className="w-2.5 h-2.5 ml-1.5" />
                     </NeonButton>
                   </div>
@@ -234,6 +236,60 @@ const AppliedCampaigns = () => {
                 onSubmit={(data) => rateMutation.mutate({ ...data, rateeId: ratingTarget.id, campaignId: ratingTarget.campaignId })}
             />
         )}
+
+        <Dialog open={!!briefCampaign} onOpenChange={(open) => !open && setBriefCampaign(null)}>
+          <DialogContent className="sm:max-w-[550px] bg-card border-border max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">{briefCampaign?.title}</DialogTitle>
+              <DialogDescription>
+                by {briefCampaign?.brand?.name || 'Brand'} · <span className="capitalize">{briefCampaign?.platform}</span>
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-5 py-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">{briefCampaign?.description || 'No description provided.'}</p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Budget Range</p>
+                  <p className="text-sm font-semibold">₹{briefCampaign?.budgetRange?.min?.toLocaleString()} - ₹{briefCampaign?.budgetRange?.max?.toLocaleString()}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Platform</p>
+                  <p className="text-sm font-semibold capitalize">{briefCampaign?.platform}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Category</p>
+                  <p className="text-sm font-semibold capitalize">{briefCampaign?.category}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Deadline</p>
+                  <p className="text-sm font-semibold">{briefCampaign?.timeline?.endDate ? new Date(briefCampaign.timeline.endDate).toLocaleDateString() : 'Flexible'}</p>
+                </div>
+              </div>
+
+              {briefCampaign?.deliverables?.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Deliverables</p>
+                  <ul className="space-y-2">
+                    {briefCampaign.deliverables.map((d: any, i: number) => (
+                      <li key={i} className="text-sm flex items-start gap-2 bg-muted/30 p-2.5 rounded-lg">
+                        <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-primary shrink-0" />
+                        <span>{d.quantity}x {d.type}{d.description ? `: ${d.description}` : ''}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {briefCampaign?.requirements && (
+                <div className="space-y-2">
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Requirements</p>
+                  <p className="text-sm text-muted-foreground">{briefCampaign.requirements}</p>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
