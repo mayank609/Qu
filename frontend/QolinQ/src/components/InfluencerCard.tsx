@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Instagram, Youtube, Twitter, TrendingUp, MapPin, Bookmark } from "lucide-react";
@@ -26,7 +27,8 @@ const platformIcons: Record<string, any> = {
   Twitter,
 };
 
-const InfluencerCard = ({ name, bio, category, followers, price, location, image, contentTypes, onContact, isSaved, onToggleSave }: InfluencerCardProps) => {
+const InfluencerCard = ({ id, name, bio, category, followers, price, location, image, contentTypes, onContact, isSaved, onToggleSave }: InfluencerCardProps) => {
+  const navigate = useNavigate();
   return (
     <Card className="group bg-card border border-border hover:border-primary/30 transition-all duration-200 hover-lift p-5">
       <div className="space-y-4">
@@ -86,11 +88,18 @@ const InfluencerCard = ({ name, bio, category, followers, price, location, image
           <span className="font-semibold text-primary">{price}</span>
         </div>
 
-        {onContact && (
-          <NeonButton neonVariant="primary" className="w-full" onClick={onContact}>
-            Contact
-          </NeonButton>
-        )}
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          {onContact && (
+            <NeonButton neonVariant="primary" className="w-full text-xs" onClick={onContact}>
+              Contact
+            </NeonButton>
+          )}
+          {id && (
+            <NeonButton neonVariant="outline" className="w-full text-xs" onClick={() => navigate(`/influencer/${id}`)}>
+              View Profile
+            </NeonButton>
+          )}
+        </div>
       </div>
     </Card>
   );

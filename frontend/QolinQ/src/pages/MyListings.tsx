@@ -5,7 +5,7 @@ import { Eye, Edit, Trash2 } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { campaignAPI } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 const MyListings = () => {
@@ -15,7 +15,20 @@ const MyListings = () => {
     queryFn: () => campaignAPI.getMyCampaigns(),
   });
 
+  const queryClient = useQueryClient();
   const listings = data?.data?.data || [];
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this campaign?")) {
+      try {
+        await campaignAPI.delete(id);
+        toast.success("Campaign deleted successfully");
+        queryClient.invalidateQueries({ queryKey: ['my-listings'] });
+      } catch (err: any) {
+        toast.error(err.response?.data?.message || "Failed to delete campaign");
+      }
+    }
+  };
 
   return (
     <DashboardLayout userType="brand">
@@ -55,8 +68,8 @@ const MyListings = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <NeonButton neonVariant="outline" onClick={() => toast.success("Editing...")}><Edit className="w-4 h-4 mr-1" />Edit</NeonButton>
-                    <NeonButton neonVariant="ghost" onClick={() => toast.error("Deleted")}><Trash2 className="w-4 h-4" /></NeonButton>
+                    <NeonButton neonVariant="outline" onClick={() => navigate(`/edit-listing/${listing._id}`)}><Edit className="w-4 h-4 mr-1" />Edit</NeonButton>
+                    <NeonButton neonVariant="ghost" onClick={() => handleDelete(listing._id)}><Trash2 className="w-4 h-4" /></NeonButton>
                   </div>
                 </div>
               </Card>

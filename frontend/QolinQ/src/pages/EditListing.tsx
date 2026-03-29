@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,10 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { campaignAPI } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 
-const CreateListing = () => {
+const EditListing = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -26,9 +28,37 @@ const CreateListing = () => {
     otherCategory: ""
   });
 
+  const { data: campaignRes, isLoading } = useQuery({
+    queryKey: ['campaign', id],
+    queryFn: () => campaignAPI.getById(id!),
+    enabled: !!id,
+  });
+
+  useEffect(() => {
+    if (campaignRes?.data?.data) {
+      const campaign = campaignRes.data.data;
+      const categories = ["Gaming", "Lifestyle", "Travel", "Food & Cooking", "Tech", "Fitness", "Health & Wellness", "Education", "Finance & Investing", "Parenting & Family", "Automobile", "Entertainment", "Comedy & Memes", "Motivation", "Business", "Photography", "Videography", "Home Decor", "DIY & Crafts", "Pets & Animals", "Music & Singing", "Dance", "Art & Illustration", "Spirituality", "News & Politics"];
+      
+      const isOtherCategory = !categories.map(c => c.toLowerCase()).includes(campaign.category?.toLowerCase());
+
+      setFormData({
+        title: campaign.title || "",
+        description: campaign.description || "",
+        category: isOtherCategory ? "Other" : campaign.category || "",
+        platform: campaign.platform || "",
+        budgetMin: campaign.budgetRange?.min?.toString() || "",
+        budgetMax: campaign.budgetRange?.max?.toString() || "",
+        location: `${campaign.location?.city || ""}${campaign.location?.country ? `, ${campaign.location.country}` : ""}` || "Remote",
+        endDate: campaign.timeline?.endDate ? new Date(campaign.timeline.endDate).toISOString().split('T')[0] : "",
+        deliverables: campaign.deliverables?.map((d: any) => d.description).join('\n') || "",
+        otherCategory: isOtherCategory ? campaign.category : ""
+      });
+    }
+  }, [campaignRes]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSaving(true);
     try {
       const finalCategory = formData.category === "Other" ? formData.otherCategory : formData.category;
       const payload = {
@@ -54,22 +84,32 @@ const CreateListing = () => {
         }))
       };
 
-      await campaignAPI.create(payload);
-      toast.success("Campaign published successfully!");
-      navigate("/brand/dashboard");
+      await campaignAPI.update(id!, payload);
+      toast.success("Campaign updated successfully!");
+      navigate("/my-listings");
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to publish campaign");
+      toast.error(err.response?.data?.message || "Failed to update campaign");
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout userType="brand">
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout userType="brand">
       <div className="p-6 space-y-6 max-w-3xl mx-auto">
         <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold text-gradient mb-1">Post a Campaign</h1>
-          <p className="text-muted-foreground">Create a new campaign listing for influencers to discover</p>
+          <h1 className="text-3xl font-bold text-gradient mb-1">Edit Campaign</h1>
+          <p className="text-muted-foreground">Update your campaign listing details</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -119,18 +159,6 @@ const CreateListing = () => {
                     />
                   </div>
                 )}
-              </div>
-              <div className="space-y-2">
-                <Label>Urgency Level</Label>
-                <Select defaultValue="medium" onValueChange={v => setFormData({...formData, platform: formData.platform}) /* Placeholder for urgency */}>
-                  <SelectTrigger className="bg-muted/30"><SelectValue placeholder="Select urgency" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="low">Low (1-2 months)</SelectItem>
-                    <SelectItem value="medium">Medium (2-4 weeks)</SelectItem>
-                    <SelectItem value="high">High (Next week)</SelectItem>
-                    <SelectItem value="urgent">Urgent (Asap)</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
             </div>
           </Card>
@@ -218,26 +246,12 @@ const CreateListing = () => {
                   className="bg-muted/30"
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Required Hashtags</Label>
-                <Input 
-                  placeholder="#SummerVibes #QolinqFashion" 
-                  className="bg-muted/30"
-                />
-              </div>
-              <div className="md:col-span-2 space-y-2">
-                <Label>Content Guidelines & Don'ts</Label>
-                <Textarea 
-                  placeholder="e.g. No competitors mentioned. High-lighting the fabric quality. Use clear audio..." 
-                  className="min-h-[100px] bg-muted/30"
-                />
-              </div>
             </div>
           </Card>
 
           <div className="flex gap-4 pt-4">
-            <NeonButton neonVariant="primary" type="submit" className="flex-1 py-6 text-lg" disabled={loading}>
-              {loading ? "Publishing..." : "Publish Campaign Listing"}
+            <NeonButton neonVariant="primary" type="submit" className="flex-1 py-6 text-lg" disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Changes"}
             </NeonButton>
             <NeonButton neonVariant="outline" type="button" onClick={() => navigate(-1)} className="px-10">Cancel</NeonButton>
           </div>
@@ -247,4 +261,4 @@ const CreateListing = () => {
   );
 };
 
-export default CreateListing;
+export default EditListing;

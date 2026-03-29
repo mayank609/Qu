@@ -20,7 +20,13 @@ const searchInfluencers = async (req, res, next) => {
         }
         if (niche) filter.niche = { $regex: niche, $options: 'i' };
         if (category) filter.categories = category;
-        if (search) filter.bio = { $regex: search, $options: 'i' };
+        if (search) {
+            filter.$or = [
+                { bio: { $regex: search, $options: 'i' } },
+                { niche: { $regex: search, $options: 'i' } },
+                { categories: { $in: [new RegExp(search, 'i')] } }
+            ];
+        }
 
         if (minPrice || maxPrice) {
             if (minPrice) filter['priceExpectation.max'] = { $gte: parseInt(minPrice) };
