@@ -136,11 +136,17 @@ const sendMessage = async (req, res, next) => {
         // Auto-moderation
         const moderated = content ? isSpam(content) : false;
 
+        console.log(`[Chat] Attempting to send message to conversation ${conversationId} from user ${req.user._id}`);
+        
+        console.log(`[Chat] Received request to send message to conversation ${conversationId} from user ${req.user._id}`);
+        
         const { message, conversation } = await messageService.createMessage(conversationId, req.user._id, {
             content, fileUrl, fileName, type,
             isModerated: moderated,
             moderationReason: moderated ? 'Spam detected' : ''
         });
+
+        console.log(`[Chat] Message ${message._id} created successfully`);
 
         // Respond immediately to the client to prevent timeouts
         res.status(201).json({

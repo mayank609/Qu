@@ -7,7 +7,7 @@ import { notificationAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -21,6 +21,7 @@ const NotificationDropdown = () => {
     queryKey: ['notifications'],
     queryFn: () => notificationAPI.getAll({ limit: 10 }),
     enabled: !!user,
+    refetchInterval: 15000, // Poll for notifications every 15 seconds
   });
 
   const notifications = notifRes?.data?.data?.notifications || [];
@@ -40,33 +41,6 @@ const NotificationDropdown = () => {
     }
   });
 
-  useEffect(() => {
-    if (!token) return;
-
-    const socket = io(import.meta.env.VITE_API_URL || "http://localhost:5001", {
-      auth: { token },
-      transports: ['websocket', 'polling'],
-    });
-
-    socket.on("notification", (newNotif) => {
-      queryClient.setQueryData(['notifications'], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          data: {
-            ...old.data,
-            notifications: [newNotif, ...old.data.notifications].slice(0, 10),
-            unreadCount: (old.data.unreadCount || 0) + 1
-          }
-        };
-      });
-      // Optionally show a toast for high-priority types
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [token, queryClient]);
 
   const handleNotifClick = (notif: any) => {
     if (!notif.isRead) markReadMutation.mutate(notif._id);

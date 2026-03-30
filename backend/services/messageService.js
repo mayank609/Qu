@@ -29,6 +29,7 @@ const messageService = {
             throw new Error('User is not a participant in this conversation');
         }
 
+        console.log(`[MessageService] Creating message for conversation ${conversationId}`);
         const message = await Message.create({
             conversation: conversationId,
             sender: senderId,
@@ -40,6 +41,8 @@ const messageService = {
             moderationReason: moderationReason || '',
             readBy: [{ user: senderId }],
         });
+
+        console.log(`[MessageService] Message created: ${message._id}. Updating conversation...`);
 
         // Update conversation last message & unread counts
         conversation.lastMessage = {
