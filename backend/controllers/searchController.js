@@ -31,7 +31,12 @@ const searchInfluencers = async (req, res, next) => {
 
         // Platform filter
         if (platform && platform !== 'all') {
-            matchStage[`platforms.${platform.toLowerCase()}.connected`] = true;
+            const p = platform.toLowerCase();
+            matchStage.$or = [
+                { [`platforms.${p}.connected`]: true },
+                { [`platforms.${p}.followers`]: { $gt: 0 } },
+                { [`platforms.${p}.handle`]: { $ne: '' } }
+            ];
         }
 
         // Base aggregation pipeline
@@ -112,7 +117,9 @@ const searchCampaigns = async (req, res, next) => {
         
         let matchStage = { status: 'active' };
         if (category) matchStage.category = category;
-        if (platform) matchStage.platform = platform;
+        if (platform && platform !== 'all') {
+            matchStage.platform = { $regex: new RegExp(`^${platform}`, 'i') };
+        }
         if (urgency) matchStage.urgency = urgency;
         if (country) matchStage['location.country'] = { $regex: country, $options: 'i' };
         
