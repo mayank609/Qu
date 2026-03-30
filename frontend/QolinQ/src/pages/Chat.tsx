@@ -68,7 +68,7 @@ const Chat = () => {
       });
     },
     onError: (err: any) => {
-        toast.error(err.response?.data?.message || "Failed to send message");
+        console.error("Message send failed:", err.response?.data?.message || err.message);
     }
   });
 
