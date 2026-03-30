@@ -81,7 +81,7 @@ const BrandSettings = () => {
             const updateData = {
                 companyName: formData.companyName,
                 website: formData.website,
-                categories: [categoryToSave.toLowerCase()],
+                categories: [categoryToSave],
                 description: formData.description,
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
                 logo: logoPreview,
@@ -193,7 +193,7 @@ const BrandSettings = () => {
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
                                             {CATEGORIES.map(c => (
-                                                <SelectItem key={c} value={c === "Other" ? "Other" : c.toLowerCase()}>{c}</SelectItem>
+                                                <SelectItem key={c} value={c}>{c}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>

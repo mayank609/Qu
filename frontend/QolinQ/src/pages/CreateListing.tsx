@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { campaignAPI } from "@/lib/api";
+import { CATEGORIES } from "@/constants/categories";
 
 const CreateListing = () => {
   const navigate = useNavigate();
@@ -104,8 +105,8 @@ const CreateListing = () => {
                 <Select value={formData.category} onValueChange={v => setFormData({...formData, category: v})}>
                   <SelectTrigger className="bg-muted/30"><SelectValue placeholder="Select industry" /></SelectTrigger>
                   <SelectContent>
-                    {["Gaming", "Lifestyle", "Travel", "Food & Cooking", "Tech", "Fitness", "Health & Wellness", "Education", "Finance & Investing", "Parenting & Family", "Automobile", "Entertainment", "Comedy & Memes", "Motivation", "Business", "Photography", "Videography", "Home Decor", "DIY & Crafts", "Pets & Animals", "Music & Singing", "Dance", "Art & Illustration", "Spirituality", "News & Politics", "Other"].map(c => (
-                      <SelectItem key={c} value={c === "Other" ? "Other" : c.toLowerCase()}>{c}</SelectItem>
+                    {CATEGORIES.map(c => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

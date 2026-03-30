@@ -41,7 +41,7 @@ const InfluencerSignup = () => {
       const niche = formData.category === "Other" ? formData.otherCategory : formData.category;
       await influencerAPI.updateProfile({
         bio: formData.bio,
-        categories: [niche.toLowerCase()],
+        categories: [niche],
         niche: niche,
         location: { 
           city: formData.location.split(",")[0]?.trim() || "Mumbai", 

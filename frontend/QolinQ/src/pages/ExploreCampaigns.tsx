@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import NeonButton from "@/components/NeonButton";
+import { CATEGORIES } from "@/constants/categories";
 
 const ExploreCampaigns = () => {
   const queryClient = useQueryClient();
@@ -30,7 +31,7 @@ const ExploreCampaigns = () => {
       const maxBudget = budgetRange === '0-5000' ? 5000 : budgetRange === '5000-15000' ? 15000 : budgetRange === '15000-50000' ? 50000 : undefined;
       
       return searchAPI.campaigns({ 
-        category: category !== 'all' ? category.toLowerCase() : undefined, 
+        category: category !== 'all' ? category : undefined, 
         platform: platform !== 'all' ? platform.toLowerCase() : undefined,
         urgency: urgency !== 'all' ? urgency.toLowerCase() : undefined,
         minBudget,
@@ -85,34 +86,9 @@ const ExploreCampaigns = () => {
               <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="All Categories" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="gaming">Gaming</SelectItem>
-                <SelectItem value="fashion">Fashion</SelectItem>
-                <SelectItem value="lifestyle">Lifestyle</SelectItem>
-                <SelectItem value="travel">Travel</SelectItem>
-                <SelectItem value="food">Food & Cooking</SelectItem>
-                <SelectItem value="tech">Tech</SelectItem>
-                <SelectItem value="fitness">Fitness</SelectItem>
-                <SelectItem value="health">Health & Wellness</SelectItem>
-                <SelectItem value="beauty">Beauty & Skincare</SelectItem>
-                <SelectItem value="education">Education</SelectItem>
-                <SelectItem value="finance">Finance & Investing</SelectItem>
-                <SelectItem value="parenting">Parenting & Family</SelectItem>
-                <SelectItem value="automotive">Automobile</SelectItem>
-                <SelectItem value="entertainment">Entertainment</SelectItem>
-                <SelectItem value="comedy">Comedy & Memes</SelectItem>
-                <SelectItem value="motivation">Motivation</SelectItem>
-                <SelectItem value="business">Business</SelectItem>
-                <SelectItem value="photography">Photography</SelectItem>
-                <SelectItem value="videography">Videography</SelectItem>
-                <SelectItem value="decor">Home Decor</SelectItem>
-                <SelectItem value="diy">DIY & Crafts</SelectItem>
-                <SelectItem value="pets">Pets & Animals</SelectItem>
-                <SelectItem value="music">Music & Singing</SelectItem>
-                <SelectItem value="dance">Dance</SelectItem>
-                <SelectItem value="art">Art & Illustration</SelectItem>
-                <SelectItem value="spirituality">Spirituality</SelectItem>
-                <SelectItem value="news">News & Politics</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                {CATEGORIES.map(c => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
