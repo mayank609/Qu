@@ -21,11 +21,10 @@ const server = http.createServer(app);
 // Socket.IO
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL || true, // 'true' allows the requesting origin if it matches credentials
+        origin: "*",
         methods: ['GET', 'POST'],
         credentials: true
-    },
-    transports: ['websocket', 'polling']
+    }
 });
 
 // Initialize Socket.IO handlers
