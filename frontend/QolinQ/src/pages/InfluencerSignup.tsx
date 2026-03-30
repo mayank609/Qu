@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { influencerAPI } from "@/lib/api";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { CATEGORIES } from "@/constants/categories";
 
 const InfluencerSignup = () => {
   const navigate = useNavigate();
@@ -24,32 +25,7 @@ const InfluencerSignup = () => {
 
   const platforms = ["Instagram", "YouTube", "TikTok", "Twitter", "Facebook"];
   const contentTypes = ["Photos", "Videos", "Short-form", "Long-form", "Vlogs", "Tech"];
-  const categories = [
-    "Gaming", 
-    "Food & Cooking", 
-    "Tech", 
-    "Fitness", 
-    "Health & Wellness", 
-    "Education", 
-    "Finance & Investing", 
-    "Parenting & Family", 
-    "Automobile (Cars & Bikes)", 
-    "Entertainment", 
-    "Comedy & Memes", 
-    "Motivation & Self Growth", 
-    "Business & Entrepreneurship", 
-    "Photography", 
-    "Videography", 
-    "Home Decor & Interior", 
-    "DIY & Crafts", 
-    "Pets & Animals", 
-    "Music & Singing", 
-    "Dance", 
-    "Art & Illustration", 
-    "Spirituality & Astrology", 
-    "News & Politics", 
-    "Other"
-  ];
+  const categories = CATEGORIES;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

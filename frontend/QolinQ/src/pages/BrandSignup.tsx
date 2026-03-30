@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { brandAPI } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import GoogleLoginButton from "@/components/GoogleLoginButton";
+import { CATEGORIES } from "@/constants/categories";
 
 const BrandSignup = () => {
   const navigate = useNavigate();
@@ -24,34 +25,7 @@ const BrandSignup = () => {
     location: "" 
   });
   const [otherCategory, setOtherCategory] = useState("");
-  const categoryOptions = [
-    "Gaming", 
-    "Lifestyle", 
-    "Travel", 
-    "Food & Cooking", 
-    "Tech", 
-    "Fitness", 
-    "Health & Wellness", 
-    "Education", 
-    "Finance & Investing", 
-    "Parenting & Family", 
-    "Automobile (Cars & Bikes)", 
-    "Entertainment", 
-    "Comedy & Memes", 
-    "Motivation & Self Growth", 
-    "Business & Entrepreneurship", 
-    "Photography", 
-    "Videography", 
-    "Home Decor & Interior", 
-    "DIY & Crafts", 
-    "Pets & Animals", 
-    "Music & Singing", 
-    "Dance", 
-    "Art & Illustration", 
-    "Spirituality & Astrology", 
-    "News & Politics", 
-    "Other"
-  ];
+  const categoryOptions = CATEGORIES;
 
   const toggleCategory = (cat: string) => {
     setFormData(prev => ({

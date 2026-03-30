@@ -14,6 +14,7 @@ import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { influencerAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { CATEGORIES } from "@/constants/categories";
 
 const Settings = () => {
     const navigate = useNavigate();
@@ -160,7 +161,7 @@ const Settings = () => {
     };
 
     const platforms = ["Instagram", "YouTube", "Twitter", "TikTok", "Facebook", "Snapchat"];
-    const categories = ["Fitness", "Gaming", "Food", "Tech", "Travel", "Lifestyle"];
+    const categories = CATEGORIES;
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

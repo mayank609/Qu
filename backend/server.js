@@ -8,6 +8,7 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const { initializeSocket } = require('./socket/chat');
+const ensureDbConnection = require('./middleware/dbMiddleware');
 
 // Load env vars
 dotenv.config();
@@ -50,6 +51,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // --- Routes ---
+app.use('/api/', ensureDbConnection);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/influencer', require('./routes/influencer'));
 app.use('/api/brand', require('./routes/brand'));

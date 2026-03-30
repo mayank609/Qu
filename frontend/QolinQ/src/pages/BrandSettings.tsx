@@ -13,6 +13,7 @@ import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { brandAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { CATEGORIES } from "@/constants/categories";
 
 const BrandSettings = () => {
     const navigate = useNavigate();
@@ -191,7 +192,7 @@ const BrandSettings = () => {
                                     <Select value={formData.category} onValueChange={handleSelectChange}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            {["Gaming", "Fashion", "Lifestyle", "Travel", "Food & Cooking", "Tech", "Fitness", "Health & Wellness", "Beauty & Skincare", "Education", "Finance & Investing", "Parenting & Family", "Automobile", "Entertainment", "Comedy & Memes", "Motivation", "Business", "Photography", "Videography", "Home Decor", "DIY & Crafts", "Pets & Animals", "Music & Singing", "Dance", "Art & Illustration", "Spirituality", "News & Politics", "Other"].map(c => (
+                                            {CATEGORIES.map(c => (
                                                 <SelectItem key={c} value={c === "Other" ? "Other" : c.toLowerCase()}>{c}</SelectItem>
                                             ))}
                                         </SelectContent>
