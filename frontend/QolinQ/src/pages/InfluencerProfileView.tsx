@@ -1,8 +1,9 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
+import PublicLayout from "@/components/PublicLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Bookmark, ShieldCheck, Share2, Instagram, Youtube, MessageCircle, User } from "lucide-react";
+import { Eye, Bookmark, ShieldCheck, Share2, Instagram, Youtube, MessageCircle, User, LogIn } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { influencerAPI, messageAPI } from "@/lib/api";
@@ -33,25 +34,28 @@ const InfluencerProfileView = () => {
   const profile = profileRes?.data?.data || {};
   const isOwnProfile = currentUser?._id === profile.user?._id;
 
+  const Layout = currentUser ? DashboardLayout : PublicLayout;
+  const layoutProps = currentUser ? { userType: currentUser.role as "brand" | "influencer" } : {};
+
   if (isLoading) {
     return (
-      <DashboardLayout userType={currentUser?.role === 'brand' ? 'brand' : 'influencer'}>
+      <Layout {...(layoutProps as any)}>
         <div className="flex justify-center items-center h-[60vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
   if (error || !profile.user) {
     return (
-      <DashboardLayout userType={currentUser?.role === 'brand' ? 'brand' : 'influencer'}>
+      <Layout {...(layoutProps as any)}>
         <div className="text-center py-20">
           <h2 className="text-2xl font-bold mb-2">Profile not found</h2>
           <p className="text-muted-foreground mb-6">The influencer profile you are looking for does not exist or has been removed.</p>
           <NeonButton neonVariant="primary" onClick={() => navigate(-1)}>Go Back</NeonButton>
         </div>
-      </DashboardLayout>
+      </Layout>
     );
   }
 
@@ -62,8 +66,8 @@ const InfluencerProfileView = () => {
   };
 
   return (
-    <DashboardLayout userType={currentUser?.role === 'brand' ? 'brand' : 'influencer'}>
-      <div className="p-6 space-y-6 max-w-3xl mx-auto">
+    <Layout {...(layoutProps as any)}>
+      <div className="p-4 md:p-6 space-y-6 max-w-3xl mx-auto pb-20">
         <div className="animate-fade-in flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gradient mb-1">Influencer Profile</h1>
@@ -74,7 +78,7 @@ const InfluencerProfileView = () => {
           </NeonButton>
         </div>
 
-        <Card className="bg-card border border-border p-8 shadow-glow relative overflow-hidden">
+        <Card className="bg-card border border-border p-5 md:p-8 shadow-glow relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10">
              <User className="w-32 h-32" />
           </div>
@@ -92,7 +96,6 @@ const InfluencerProfileView = () => {
               <div>
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
                   <h2 className="text-3xl font-bold">{profile.user?.name}</h2>
-
                 </div>
                 <p className="text-lg text-primary font-medium">{profile.categories?.join(" • ") || "Content Creator"}</p>
               </div>
@@ -124,6 +127,13 @@ const InfluencerProfileView = () => {
                   >
                     <MessageCircle className="w-4 h-4 mr-2" /> Message Influencer
                   </NeonButton>
+                )}
+                {!currentUser && (
+                  <Link to="/brand/login" className="w-full sm:w-auto">
+                    <NeonButton neonVariant="primary" className="w-full px-8">
+                      <LogIn className="w-4 h-4 mr-2" /> Login to Collaborate
+                    </NeonButton>
+                  </Link>
                 )}
                 {isOwnProfile && (
                   <NeonButton neonVariant="secondary" onClick={() => navigate("/settings")} className="w-full sm:w-auto">
@@ -183,7 +193,7 @@ const InfluencerProfileView = () => {
            </Card>
         </div>
 
-        <Card className="bg-card border border-border p-8 shadow-glow">
+        <Card className="bg-card border border-border p-6 md:p-8 shadow-glow">
           <div className="flex items-center justify-between mb-8">
             <h3 className="text-xl font-bold">Best Content Gallery</h3>
             <Badge variant="outline" className="border-primary/30 text-primary">Featured Work</Badge>
@@ -210,8 +220,21 @@ const InfluencerProfileView = () => {
             )}
           </div>
         </Card>
+
+        {!currentUser && (
+            <div className="mt-12 p-8 rounded-2xl bg-primary/5 border border-primary/20 text-center space-y-4">
+                <h3 className="text-2xl font-bold">Want to work with {profile.user?.name}?</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                    Join Qolinq to message creators, post campaigns, and scale your brand with India's best influencers.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
+                    <NeonButton neonVariant="primary" onClick={() => navigate("/register")} className="px-10">Sign Up Now</NeonButton>
+                    <NeonButton neonVariant="outline" onClick={() => navigate("/brand/login")} className="px-10">I'm a Brand</NeonButton>
+                </div>
+            </div>
+        )}
       </div>
-    </DashboardLayout>
+    </Layout>
   );
 };
 
