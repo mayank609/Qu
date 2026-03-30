@@ -77,7 +77,7 @@ const SavedProfiles = () => {
                 onClick={() => navigate(`/influencer/${profile.user?._id}`)}
               >
                 <InfluencerCard 
-                  id={profile.user?._id}
+                  id={profile.user?._id || profile.user}
                   name={profile.user?.name || 'Influencer'}
                   bio={profile.bio || "No bio provided"}
                   category={profile.categories?.[0] || 'Influencer'}
@@ -88,10 +88,10 @@ const SavedProfiles = () => {
                   price={`₹${profile.priceExpectation?.min?.toLocaleString()} - ₹${profile.priceExpectation?.max?.toLocaleString()}`}
                   location={profile.location?.city || 'India'}
                   image={profile.user?.avatar}
-                  contentTypes={profile.categories || []}
+                  contentTypes={profile.categories?.slice(1) || []}
                   isSaved={true}
-                  onToggleSave={() => toggleSaveMutation.mutate(profile.user?._id)}
-                  onContact={() => startConvMutation.mutate({ participantId: profile.user?._id })}
+                  onToggleSave={() => toggleSaveMutation.mutate(profile.user?._id || profile.user)}
+                  onContact={() => startConvMutation.mutate({ participantId: profile.user?._id || profile.user })}
                 />
               </div>
             ))}

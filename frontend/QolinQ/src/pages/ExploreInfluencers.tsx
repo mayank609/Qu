@@ -180,7 +180,7 @@ const ExploreInfluencers = () => {
             {influencers.map((profile: any) => (
               <InfluencerCard 
                 key={profile._id} 
-                id={profile.user?._id}
+                id={profile.user?._id || profile.user}
                 name={profile.user?.name || 'Influencer'}
                 bio={profile.bio}
                 category={profile.categories?.[0] || 'Uncategorized'}
@@ -191,10 +191,10 @@ const ExploreInfluencers = () => {
                 price={`₹${profile.priceExpectation?.min?.toLocaleString()} - ₹${profile.priceExpectation?.max?.toLocaleString()}`}
                 location={profile.location?.city || 'India'}
                 image={profile.user?.avatar}
-                contentTypes={profile.categories || []}
-                isSaved={savedInfluencerIds.includes(profile.user?._id)}
-                onToggleSave={() => toggleSaveMutation.mutate(profile.user?._id)}
-                onContact={() => startConvMutation.mutate({ participantId: profile.user?._id })}
+                contentTypes={profile.categories?.slice(1) || []}
+                isSaved={savedInfluencerIds.includes(profile.user?._id || profile.user)}
+                onToggleSave={() => toggleSaveMutation.mutate(profile.user?._id || profile.user)}
+                onContact={() => startConvMutation.mutate({ participantId: profile.user?._id || profile.user })}
               />
             ))}
           </div>

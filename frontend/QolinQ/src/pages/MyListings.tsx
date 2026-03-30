@@ -62,8 +62,10 @@ const MyListings = () => {
                       </Badge>
                     </div>
                     <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{listing.engagement?.views || 0} views</span>
-                      <span>{listing.applications?.length || 0} applications</span>
+                      <span className="flex items-center gap-1 font-medium text-primary">
+                        {listing.applicationsCount || 0} applications
+                      </span>
+                      <span>·</span>
                       <span>Created {new Date(listing.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>

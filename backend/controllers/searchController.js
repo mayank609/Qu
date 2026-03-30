@@ -5,66 +5,101 @@ const { getPagination, paginationMeta, buildSort } = require('../utils/helpers')
 const searchInfluencers = async (req, res, next) => {
     try {
         const { page, limit, skip } = getPagination(req.query);
-        const { minFollowers, maxFollowers, country, minEngagement, maxEngagement, niche, category, verified, sort: sortQuery, search, minPrice, maxPrice, platform } = req.query;
-        const filter = {};
+        const { minFollowers, maxFollowers, country, niche, category, verified, sort: sortQuery, search, minPrice, maxPrice, platform } = req.query;
+        
+        let matchStage = {};
+        
+        // Follower filter
         if (minFollowers || maxFollowers) {
-            filter.totalFollowers = {};
-            if (minFollowers) filter.totalFollowers.$gte = parseInt(minFollowers);
-            if (maxFollowers) filter.totalFollowers.$lte = parseInt(maxFollowers);
+            matchStage.totalFollowers = {};
+            if (minFollowers) matchStage.totalFollowers.$gte = parseInt(minFollowers);
+            if (maxFollowers) matchStage.totalFollowers.$lte = parseInt(maxFollowers);
         }
-        if (country) filter['location.country'] = { $regex: country, $options: 'i' };
-        if (minEngagement || maxEngagement) {
-            filter.engagementRate = {};
-            if (minEngagement) filter.engagementRate.$gte = parseFloat(minEngagement);
-            if (maxEngagement) filter.engagementRate.$lte = parseFloat(maxEngagement);
-        }
-        if (niche) filter.niche = { $regex: niche, $options: 'i' };
-        if (category) filter.categories = category;
-        if (search) {
-            filter.$or = [
-                { bio: { $regex: search, $options: 'i' } },
-                { niche: { $regex: search, $options: 'i' } },
-                { categories: { $in: [new RegExp(search, 'i')] } }
-            ];
-        }
-
+        
+        // Location filter
+        if (country) matchStage['location.country'] = { $regex: country, $options: 'i' };
+        
+        // Niche/Category filter
+        if (niche) matchStage.niche = { $regex: niche, $options: 'i' };
+        if (category) matchStage.categories = category;
+        
+        // Price filter
         if (minPrice || maxPrice) {
-            if (minPrice) filter['priceExpectation.max'] = { $gte: parseInt(minPrice) };
-            if (maxPrice) filter['priceExpectation.min'] = { $lte: parseInt(maxPrice) };
+            if (minPrice) matchStage['priceExpectation.max'] = { $gte: parseInt(minPrice) };
+            if (maxPrice) matchStage['priceExpectation.min'] = { $lte: parseInt(maxPrice) };
         }
 
+        // Platform filter
         if (platform && platform !== 'all') {
-            filter[`platforms.${platform.toLowerCase()}.connected`] = true;
+            matchStage[`platforms.${platform.toLowerCase()}.connected`] = true;
         }
 
-        let userFilter = {};
-        if (verified === 'true') userFilter = { trustBadge: true };
+        // Base aggregation pipeline
+        const pipeline = [
+            { $match: matchStage },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'user',
+                    foreignField: '_id',
+                    as: 'userData'
+                }
+            },
+            { $unwind: '$userData' }
+        ];
 
-        // Improved ranking: verified first, then by average rating, then by total followers
+        // Search across profile AND user fields
+        if (search) {
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { 'userData.name': { $regex: search, $options: 'i' } },
+                        { bio: { $regex: search, $options: 'i' } },
+                        { niche: { $regex: search, $options: 'i' } },
+                        { categories: { $in: [new RegExp(search, 'i')] } }
+                    ]
+                }
+            });
+        }
+
+        // Verification filter
+        if (verified === 'true') {
+            pipeline.push({ $match: { 'userData.trustBadge': true } });
+        }
+
+        // Sorting
         const sort = buildSort(sortQuery, {
-            'user.trustBadge': -1,
+            'userData.trustBadge': -1,
             'ratings.average': -1,
             'totalFollowers': -1
         });
+        pipeline.push({ $sort: sort });
 
-        const [profiles, total] = await Promise.all([
-            InfluencerProfile.find(filter)
-                .sort(sort)
-                .skip(skip)
-                .limit(limit)
-                .populate({
-                    path: 'user',
-                    select: 'name avatar trustBadge verificationStatus',
-                    match: verified === 'true' ? { trustBadge: true } : {}
-                }),
-            InfluencerProfile.countDocuments(filter),
-        ]);
+        // Facet for pagination and count
+        pipeline.push({
+            $facet: {
+                metadata: [{ $count: 'total' }],
+                data: [{ $skip: skip }, { $limit: limit }]
+            }
+        });
 
-        const filtered = profiles.filter(p => p.user);
+        const results = await InfluencerProfile.aggregate(pipeline);
+        
+        const total = results[0].metadata[0]?.total || 0;
+        const profiles = results[0].data.map(p => ({
+            ...p,
+            user: {
+                _id: p.userData._id,
+                name: p.userData.name,
+                avatar: p.userData.avatar,
+                trustBadge: p.userData.trustBadge,
+                verificationStatus: p.userData.verificationStatus
+            }
+        }));
 
         res.json({
             success: true,
-            data: filtered,
+            data: profiles,
             pagination: paginationMeta(total, page, limit)
         });
     } catch (error) { next(error); }
@@ -74,22 +109,73 @@ const searchCampaigns = async (req, res, next) => {
     try {
         const { page, limit, skip } = getPagination(req.query);
         const { category, platform, minBudget, maxBudget, country, urgency, search, sort: sortQuery } = req.query;
-        const filter = { status: 'active' };
-        if (category) filter.category = category;
-        if (platform) filter.platform = platform;
-        if (urgency) filter.urgency = urgency;
-        if (country) filter['location.country'] = { $regex: country, $options: 'i' };
+        
+        let matchStage = { status: 'active' };
+        if (category) matchStage.category = category;
+        if (platform) matchStage.platform = platform;
+        if (urgency) matchStage.urgency = urgency;
+        if (country) matchStage['location.country'] = { $regex: country, $options: 'i' };
+        
         if (minBudget || maxBudget) {
-            if (minBudget) filter['budgetRange.max'] = { $gte: parseInt(minBudget) };
-            if (maxBudget) filter['budgetRange.min'] = { $lte: parseInt(maxBudget) };
+            matchStage['budgetRange.min'] = {};
+            matchStage['budgetRange.max'] = {};
+            if (minBudget) matchStage['budgetRange.max'].$gte = parseInt(minBudget);
+            if (maxBudget) matchStage['budgetRange.min'].$lte = parseInt(maxBudget);
         }
-        if (search) filter.$or = [{ title: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
+
+        const pipeline = [
+            { $match: matchStage },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'brand',
+                    foreignField: '_id',
+                    as: 'brandData'
+                }
+            },
+            { $unwind: '$brandData' }
+        ];
+
+        if (search) {
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { title: { $regex: search, $options: 'i' } },
+                        { description: { $regex: search, $options: 'i' } },
+                        { 'brandData.name': { $regex: search, $options: 'i' } }
+                    ]
+                }
+            });
+        }
+
         const sort = buildSort(sortQuery);
-        const [campaigns, total] = await Promise.all([
-            Campaign.find(filter).sort(sort).skip(skip).limit(limit).populate('brand', 'name avatar trustBadge'),
-            Campaign.countDocuments(filter),
-        ]);
-        res.json({ success: true, data: campaigns, pagination: paginationMeta(total, page, limit) });
+        pipeline.push({ $sort: sort });
+
+        pipeline.push({
+            $facet: {
+                metadata: [{ $count: 'total' }],
+                data: [{ $skip: skip }, { $limit: limit }]
+            }
+        });
+
+        const results = await Campaign.aggregate(pipeline);
+        
+        const total = results[0].metadata[0]?.total || 0;
+        const campaigns = results[0].data.map(c => ({
+            ...c,
+            brand: {
+                _id: c.brandData._id,
+                name: c.brandData.name,
+                avatar: c.brandData.avatar,
+                trustBadge: c.brandData.trustBadge
+            }
+        }));
+
+        res.json({
+            success: true,
+            data: campaigns,
+            pagination: paginationMeta(total, page, limit)
+        });
     } catch (error) { next(error); }
 };
 
