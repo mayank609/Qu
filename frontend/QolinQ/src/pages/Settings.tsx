@@ -188,22 +188,22 @@ const Settings = () => {
 
     return (
         <DashboardLayout userType="influencer">
-            <div className="p-6 space-y-6 max-w-3xl mx-auto">
+            <div className="p-3 md:p-6 space-y-6 max-w-3xl mx-auto">
                 <div className="animate-fade-in">
                     <h1 className="text-3xl font-bold text-gradient mb-1">Settings</h1>
                     <p className="text-muted-foreground">Manage your influencer account</p>
                 </div>
 
                 <Tabs defaultValue="profile" className="space-y-6">
-                    <TabsList className="grid grid-cols-4 w-full">
-                        <TabsTrigger value="profile">Profile</TabsTrigger>
-                        <TabsTrigger value="social">Social & Content</TabsTrigger>
-                        <TabsTrigger value="notifications">Notifications</TabsTrigger>
-                        <TabsTrigger value="account">Account</TabsTrigger>
+                    <TabsList className="flex w-full overflow-x-auto bg-transparent border-b border-border rounded-none h-auto p-0 gap-4 no-scrollbar mb-4">
+                        <TabsTrigger value="profile" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 py-3 text-xs md:text-sm font-medium transition-all">Profile</TabsTrigger>
+                        <TabsTrigger value="social" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 py-3 text-xs md:text-sm font-medium transition-all">Social</TabsTrigger>
+                        <TabsTrigger value="notifications" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 py-3 text-xs md:text-sm font-medium transition-all">Alerts</TabsTrigger>
+                        <TabsTrigger value="account" className="data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 py-3 text-xs md:text-sm font-medium transition-all">Account</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="profile" className="space-y-6">
-                        <Card className="bg-card border border-border p-6 shadow-glow">
+                        <Card className="bg-card border border-border p-4 md:p-6 shadow-glow">
                             <h2 className="text-lg font-bold mb-5">Profile Photo</h2>
                             <div className="flex items-center gap-5">
                                 <label className="relative cursor-pointer group">
@@ -253,7 +253,7 @@ const Settings = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email</Label>
                                         <Input id="email" type="email" value={formData.email} disabled className="opacity-70" />
@@ -281,7 +281,7 @@ const Settings = () => {
                             <div className="space-y-4">
                                 <div className="space-y-3">
                                     <Label>Active Platforms</Label>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {platforms.map((platform) => (
                                             <div key={platform} className="flex items-center space-x-2">
                                                 <Checkbox id={`setting-${platform}`} defaultChecked={["Instagram", "YouTube"].includes(platform)} />

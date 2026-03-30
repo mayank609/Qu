@@ -111,6 +111,9 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
             <h3 className="text-sm font-medium text-muted-foreground capitalize">{userType} Panel</h3>
           </div>
           <div className="flex items-center gap-3">
+             <button onClick={() => navigate('/chat')} className="p-2 rounded-full hover:bg-muted transition-colors md:hidden">
+                <MessageCircle className="w-5 h-5 text-muted-foreground" />
+             </button>
              <NotificationDropdown />
              <div className="h-8 w-px bg-border mx-1 hidden sm:block"></div>
              <div 
@@ -137,9 +140,15 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
         </main>
       </div>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-3 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border px-2 py-2 z-50 safe-area-bottom">
         <div className="flex items-center justify-around">
-          {navItems.slice(0, 3).map((item) => {
+          {[
+            navItems[0], // Dashboard
+            navItems[1], // Explore
+            navItems[3], // Chats (index 3 in both brand & influencer arrays)
+            navItems[2], // Applications/Applied
+            navItems[navItems.length - 1], // Settings (always last regular item)
+          ].filter(Boolean).map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
             return (
@@ -147,29 +156,15 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  "flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-200",
+                  "flex flex-col items-center gap-0.5 p-1.5 rounded-lg transition-all duration-200 min-w-0",
                   isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
                 <Icon className="w-5 h-5" />
-                <span className="text-xs">{item.label}</span>
+                <span className="text-[10px] truncate max-w-[56px]">{item.label}</span>
               </button>
             );
           })}
-{/* <button
-            onClick={handleSwitchRole}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg text-muted-foreground"
-          >
-            <RefreshCw className="w-5 h-5" />
-            <span className="text-[10px]">Switch</span>
-          </button> */}
-          <button
-            onClick={() => { logout(); navigate('/'); }}
-            className="flex flex-col items-center gap-1 p-2 rounded-lg text-destructive"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="text-[10px]">Logout</span>
-          </button>
         </div>
       </nav>
     </div>

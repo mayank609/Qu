@@ -19,24 +19,7 @@ const AdminSecurity = () => {
 
   const flaggedProfiles = flaggedRes?.data?.data || [];
 
-  const runGlobalCheckMutation = useMutation({
-    mutationFn: () => fraudAPI.runGlobalCheck(),
-    onSuccess: (res) => {
-      toast.success(res.data.message);
-      queryClient.invalidateQueries({ queryKey: ['flagged-profiles'] });
-    },
-    onError: () => toast.error("Global check failed")
-  });
 
-  const verifyUserMutation = useMutation({
-    mutationFn: ({ userId, status }: { userId: string, status: string }) => 
-      fraudAPI.verifyUser(userId, { verificationStatus: status }),
-    onSuccess: (_, variables) => {
-      toast.success(`User marked as ${variables.status}`);
-      queryClient.invalidateQueries({ queryKey: ['flagged-profiles'] });
-    },
-    onError: () => toast.error("Action failed")
-  });
 
   return (
     <DashboardLayout userType="brand"> {/* Using brand layout for now, ideally an admin one */}
@@ -46,15 +29,6 @@ const AdminSecurity = () => {
             <h1 className="text-3xl font-bold text-gradient mb-1">Security & Trust</h1>
             <p className="text-muted-foreground">Monitor flagged profiles and maintain platform integrity</p>
           </div>
-          <NeonButton 
-            neonVariant="outline" 
-            onClick={() => runGlobalCheckMutation.mutate()}
-            disabled={runGlobalCheckMutation.isPending}
-            className="group"
-          >
-            <RefreshCw className={cn("w-4 h-4 mr-2", runGlobalCheckMutation.isPending && "animate-spin")} />
-            Run Global Fraud Check
-          </NeonButton>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -76,15 +50,7 @@ const AdminSecurity = () => {
                     <p className="text-2xl font-bold">Optimal</p>
                 </div>
             </Card>
-            <Card className="bg-card/50 border-border p-5 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                    <ShieldCheck className="w-6 h-6 text-green-500" />
-                </div>
-                <div>
-                    <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Trusted Users</p>
-                    <p className="text-2xl font-bold">84%</p>
-                </div>
-            </Card>
+
         </div>
 
         {flaggedLoading ? (
@@ -117,7 +83,7 @@ const AdminSecurity = () => {
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <h3 className="font-bold text-lg">{user.name}</h3>
-                        <Badge variant="destructive" className="text-[10px] uppercase tracking-tighter">FLAGGED</Badge>
+
                       </div>
                       <p className="text-xs text-muted-foreground mb-3">{user.email} • {user.role}</p>
                       
@@ -131,21 +97,7 @@ const AdminSecurity = () => {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 shrink-0">
-                    <NeonButton 
-                        neonVariant="primary" 
-                        className="bg-green-600 hover:bg-green-700 h-9 px-4"
-                        onClick={() => verifyUserMutation.mutate({ userId: user._id, status: 'verified' })}
-                    >
-                        <UserCheck className="w-4 h-4 mr-2" />Approve
-                    </NeonButton>
-                    <NeonButton 
-                        neonVariant="outline" 
-                        className="border-red-500/50 text-red-500 hover:bg-red-500/10 h-9 px-4"
-                        onClick={() => verifyUserMutation.mutate({ userId: user._id, status: 'rejected' })}
-                    >
-                        <UserX className="w-4 h-4 mr-2" />Decline
-                    </NeonButton>
+                    <div className="flex gap-2 shrink-0">
                     <NeonButton neonVariant="ghost" className="h-9 px-3">
                         <ExternalLink className="w-4 h-4" />
                     </NeonButton>

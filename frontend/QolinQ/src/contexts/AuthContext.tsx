@@ -8,9 +8,6 @@ interface User {
   email: string;
   role: 'brand' | 'influencer' | 'admin';
   avatar: string;
-  isVerified: boolean;
-  verificationStatus: string;
-  trustBadge: boolean;
 }
 
 interface AuthContextType {

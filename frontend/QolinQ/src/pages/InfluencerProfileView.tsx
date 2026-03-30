@@ -92,11 +92,7 @@ const InfluencerProfileView = () => {
               <div>
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
                   <h2 className="text-3xl font-bold">{profile.user?.name}</h2>
-                  {profile.user?.trustBadge && (
-                     <Badge className="bg-primary/20 text-primary border-primary/30 py-0.5 px-2">
-                        <ShieldCheck className="w-3.5 h-3.5 mr-1" /> Verified
-                     </Badge>
-                  )}
+
                 </div>
                 <p className="text-lg text-primary font-medium">{profile.categories?.join(" • ") || "Content Creator"}</p>
               </div>

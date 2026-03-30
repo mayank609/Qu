@@ -107,10 +107,7 @@ export const searchAPI = {
 
 // ─── Fraud & Admin ───
 export const fraudAPI = {
-    runGlobalCheck: () => api.post('/admin/fraud/verify-all'),
-    getFlaggedProfiles: () => api.get('/admin/flagged-profiles'),
-    verifyUser: (userId: string, data: { trustBadge?: boolean, verificationStatus?: string }) => 
-        api.put(`/admin/verify-user/${userId}`, data),
+    getFlaggedProfiles: () => api.get('/admin/fraud/flagged'),
 };
 
 // ─── Notifications ───

@@ -58,7 +58,7 @@ const MyProfile = () => {
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-2xl font-bold">{profile.name || user?.name}</h2>
                 <Badge variant="secondary" className="text-xs capitalize">{profile.category || "Influencer"}</Badge>
-                {profile.isVerified && <ShieldCheck className="w-4 h-4 text-primary" />}
+
               </div>
               <p className="text-sm text-muted-foreground mb-4">{profile.bio || "No bio added yet."}</p>
 
@@ -95,11 +95,7 @@ const MyProfile = () => {
                 }}>
                   <Share2 className="w-4 h-4 mr-1" />Share
                 </NeonButton>
-                {!profile.isVerified && (
-                  <NeonButton neonVariant="secondary" onClick={() => toast.success("Verification request submitted!")}>
-                    <ShieldCheck className="w-4 h-4 mr-1" />Verify Profile
-                  </NeonButton>
-                )}
+
               </div>
             </div>
           </div>
@@ -112,7 +108,7 @@ const MyProfile = () => {
             <p className="text-xs text-muted-foreground">Applications</p>
           </Card>
           <Card className="bg-card border border-border p-5 text-center hover:border-primary/50 transition-colors">
-            <ShieldCheck className="w-5 h-5 text-primary mx-auto mb-2" />
+            <div className="w-5 h-5 text-primary mx-auto mb-2" />
             <div className="text-2xl font-bold">₹{stats.totalEarnings?.toLocaleString() || 0}</div>
             <p className="text-xs text-muted-foreground">Earnings</p>
           </Card>

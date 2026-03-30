@@ -128,11 +128,6 @@ const Applications = () => {
                     <div className="flex items-start gap-4 flex-1">
                       <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20 shrink-0 relative">
                         {app.influencer?.name?.charAt(0) || "I"}
-                        {app.influencer?.trustBadge && (
-                          <div className="absolute -bottom-1 -right-1 bg-background rounded-full p-0.5">
-                             <ShieldCheck className="w-5 h-5 text-primary fill-primary/20" />
-                          </div>
-                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
