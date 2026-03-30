@@ -19,6 +19,7 @@ const notificationSchema = new mongoose.Schema(
                 'message_received',
                 'escrow_update',
                 'verification_update',
+                'profile_saved',
                 'system',
             ],
             required: true,

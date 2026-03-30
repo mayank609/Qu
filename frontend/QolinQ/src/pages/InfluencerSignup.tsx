@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,7 @@ const InfluencerSignup = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "", email: "", password: "", bio: "", category: "", otherCategory: "", platforms: [] as string[],
     instagram: "", youtube: "", twitter: "", tiktok: "", facebook: "",
@@ -49,7 +51,6 @@ const InfluencerSignup = () => {
         },
         priceExpectation: { min: parseInt(formData.price) || 0, max: parseInt(formData.price) || 10000 },
         portfolioLinks: formData.portfolio.filter(l => l).map((url, i) => ({ title: `Portfolio ${i+1}`, url, platform: "other" })),
-        languages: ["English", "Hindi"],
         audienceCountry: [{ country: "India", percentage: 85 }, { country: "USA", percentage: 10 }],
       });
 
@@ -122,7 +123,12 @@ const InfluencerSignup = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password *</Label>
-              <Input id="password" type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required minLength={6} />
+              <div className="relative">
+                <Input id="password" type={showPassword ? "text" : "password"} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required minLength={6} className="pr-10" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
           </div>
 

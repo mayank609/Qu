@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Loader2, X, Video } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
@@ -131,7 +130,7 @@ const Settings = () => {
                 { key: 'facebook', followers: formData.facebookFollowers, handle: formData.facebookHandle }
             ];
 
-            const platformPromises = platformsToSync.filter(p => p.followers && p.handle).map(p => {
+            const platformPromises = platformsToSync.filter(p => p.followers || p.handle).map(p => {
                 const stats: any = {};
                 if (p.key === 'youtube') stats.subscribers = parseInt(p.followers);
                 else stats.followers = parseInt(p.followers);
@@ -160,7 +159,6 @@ const Settings = () => {
         }
     };
 
-    const platforms = ["Instagram", "YouTube", "Twitter", "TikTok", "Facebook", "Snapchat"];
     const categories = CATEGORIES;
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -279,25 +277,65 @@ const Settings = () => {
                     <TabsContent value="social" className="space-y-6">
                         <Card className="bg-card border border-border p-6 shadow-glow">
                             <h2 className="text-lg font-bold mb-5">Social Platforms</h2>
-                            <div className="space-y-4">
-                                <div className="space-y-3">
-                                    <Label>Active Platforms</Label>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        {platforms.map((platform) => (
-                                            <div key={platform} className="flex items-center space-x-2">
-                                                <Checkbox id={`setting-${platform}`} defaultChecked={["Instagram", "YouTube"].includes(platform)} />
-                                                <label htmlFor={`setting-${platform}`} className="text-sm">{platform}</label>
-                                            </div>
-                                        ))}
+                            <div className="space-y-6">
+                                <div className="space-y-4">
+                                    <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-pink-500 text-lg">📸</span>
+                                            <Label className="text-sm font-semibold">Instagram</Label>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle / Username</Label><Input id="instagramHandle" placeholder="@yourhandle" value={formData.instagramHandle} onChange={handleInputChange} /></div>
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="instagramFollowers" type="number" placeholder="e.g. 10000" value={formData.instagramFollowers} onChange={handleInputChange} /></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-red-500 text-lg">▶️</span>
+                                            <Label className="text-sm font-semibold">YouTube</Label>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Channel Handle</Label><Input id="youtubeHandle" placeholder="@yourchannel" value={formData.youtubeHandle} onChange={handleInputChange} /></div>
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Subscribers</Label><Input id="youtubeSubscribers" type="number" placeholder="e.g. 50000" value={formData.youtubeSubscribers} onChange={handleInputChange} /></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-blue-500 text-lg">📘</span>
+                                            <Label className="text-sm font-semibold">Facebook</Label>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Page / Profile</Label><Input id="facebookHandle" placeholder="@yourpage" value={formData.facebookHandle} onChange={handleInputChange} /></div>
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="facebookFollowers" type="number" placeholder="e.g. 5000" value={formData.facebookFollowers} onChange={handleInputChange} /></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sky-500 text-lg">𝕏</span>
+                                            <Label className="text-sm font-semibold">X (Twitter)</Label>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle</Label><Input id="twitterHandle" placeholder="@yourhandle" value={formData.twitterHandle} onChange={handleInputChange} /></div>
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="twitterFollowers" type="number" placeholder="e.g. 8000" value={formData.twitterFollowers} onChange={handleInputChange} /></div>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-foreground text-lg">🎵</span>
+                                            <Label className="text-sm font-semibold">TikTok</Label>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle</Label><Input id="tiktokHandle" placeholder="@yourhandle" value={formData.tiktokHandle} onChange={handleInputChange} /></div>
+                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="tiktokFollowers" type="number" placeholder="e.g. 15000" value={formData.tiktokFollowers} onChange={handleInputChange} /></div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2"><Label>Instagram Followers</Label><Input id="instagramFollowers" value={formData.instagramFollowers} onChange={handleInputChange} /></div>
-                                    <div className="space-y-2"><Label>YouTube Subscribers</Label><Input id="youtubeSubscribers" value={formData.youtubeSubscribers} onChange={handleInputChange} /></div>
-                                    <div className="space-y-2"><Label>TikTok Followers</Label><Input id="tiktokFollowers" value={formData.tiktokFollowers} onChange={handleInputChange} /></div>
-                                    <div className="space-y-2"><Label>Twitter Followers</Label><Input id="twitterFollowers" value={formData.twitterFollowers} onChange={handleInputChange} /></div>
-                                    <div className="space-y-2"><Label>Facebook Followers</Label><Input id="facebookFollowers" value={formData.facebookFollowers} onChange={handleInputChange} /></div>
-                                </div>
+
+                                <p className="text-xs text-muted-foreground italic">Fill in a handle or followers count to connect a platform. Leave both empty to disconnect.</p>
                             </div>
                         </Card>
 

@@ -3,12 +3,26 @@ import DashboardLayout from "@/components/DashboardLayout";
 import PublicLayout from "@/components/PublicLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Bookmark, ShieldCheck, Share2, Instagram, Youtube, MessageCircle, User, LogIn } from "lucide-react";
+import { Eye, Bookmark, ShieldCheck, Share2, Instagram, Youtube, MessageCircle, User, LogIn, Twitter, Facebook } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { influencerAPI, messageAPI } from "@/lib/api";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+
+// TikTok icon (not available in lucide-react)
+const TikTokIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.71a8.19 8.19 0 004.76 1.52V6.79a4.82 4.82 0 01-1-.1z"/>
+  </svg>
+);
+
+// LinkedIn icon
+const LinkedInIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
 
 const InfluencerProfileView = () => {
   const { id } = useParams();
@@ -104,17 +118,49 @@ const InfluencerProfileView = () => {
                  "{profile.bio || "Crafting digital experiences and connecting with audiences worldwide."}"
               </p>
 
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm">
-                <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
-                  <Instagram className="w-4 h-4 text-pink-500" />
-                  <span className="font-bold">{profile.platforms?.instagram?.followers?.toLocaleString() || "0"}</span>
-                  <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
-                </div>
-                <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
-                  <Youtube className="w-4 h-4 text-red-500" />
-                  <span className="font-bold">{profile.platforms?.youtube?.subscribers?.toLocaleString() || "0"}</span>
-                  <span className="text-muted-foreground text-[10px] uppercase">Subscribers</span>
-                </div>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm">
+                {profile.platforms?.instagram?.connected && (
+                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
+                    <Instagram className="w-4 h-4 text-pink-500" />
+                    <span className="font-bold">{profile.platforms.instagram.followers?.toLocaleString() || "0"}</span>
+                    <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
+                  </div>
+                )}
+                {profile.platforms?.youtube?.connected && (
+                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
+                    <Youtube className="w-4 h-4 text-red-500" />
+                    <span className="font-bold">{profile.platforms.youtube.subscribers?.toLocaleString() || "0"}</span>
+                    <span className="text-muted-foreground text-[10px] uppercase">Subscribers</span>
+                  </div>
+                )}
+                {profile.platforms?.facebook?.connected && (
+                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
+                    <Facebook className="w-4 h-4 text-blue-500" />
+                    <span className="font-bold">{profile.platforms.facebook.followers?.toLocaleString() || "0"}</span>
+                    <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
+                  </div>
+                )}
+                {profile.platforms?.twitter?.connected && (
+                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
+                    <Twitter className="w-4 h-4 text-sky-500" />
+                    <span className="font-bold">{profile.platforms.twitter.followers?.toLocaleString() || "0"}</span>
+                    <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
+                  </div>
+                )}
+                {profile.platforms?.tiktok?.connected && (
+                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
+                    <TikTokIcon className="w-4 h-4 text-foreground" />
+                    <span className="font-bold">{profile.platforms.tiktok.followers?.toLocaleString() || "0"}</span>
+                    <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
+                  </div>
+                )}
+                {profile.platforms?.linkedin?.connected && (
+                  <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
+                    <LinkedInIcon className="w-4 h-4 text-blue-700" />
+                    <span className="font-bold">{profile.platforms.linkedin.connections?.toLocaleString() || "0"}</span>
+                    <span className="text-muted-foreground text-[10px] uppercase">Connections</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
@@ -177,17 +223,9 @@ const InfluencerProfileView = () => {
                     <span className="text-sm text-muted-foreground">Base Location</span>
                     <span className="font-semibold">{profile.location?.city || "Remote"}, {profile.location?.country || "India"}</span>
                  </div>
-                 <div className="flex justify-between items-center py-2 border-b border-border/50">
+                 <div className="flex justify-between items-center py-2">
                     <span className="text-sm text-muted-foreground">Niche</span>
                     <span className="font-semibold capitalize">{profile.niche || "General Content"}</span>
-                 </div>
-                 <div className="flex justify-between items-center py-2">
-                    <span className="text-sm text-muted-foreground">Languages</span>
-                    <div className="flex gap-1">
-                       {profile.languages?.map((lang: string) => (
-                          <Badge key={lang} variant="outline" className="text-[10px]">{lang}</Badge>
-                       ))}
-                    </div>
                  </div>
               </div>
            </Card>

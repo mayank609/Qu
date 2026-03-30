@@ -214,6 +214,18 @@ const toggleSaveInfluencer = async (req, res, next) => {
         if (index === -1) {
             brandProfile.savedInfluencers.push(influencerId);
             await brandProfile.save();
+
+            // Notify the influencer that their profile was saved
+            const brandName = brandProfile.companyName || req.user.name || 'A brand';
+            await Notification.create({
+                user: influencerId,
+                type: 'profile_saved',
+                title: 'Profile Saved!',
+                message: `Your profile has been saved by "${brandName}". They might reach out for a collaboration soon!`,
+                link: '/influencer/dashboard',
+                metadata: { brandId: req.user._id, brandName },
+            });
+
             return res.json({ success: true, message: 'Influencer saved to your list', isSaved: true });
         } else {
             brandProfile.savedInfluencers.splice(index, 1);
