@@ -209,6 +209,8 @@ const getDashboard = async (req, res, next) => {
             Application.countDocuments({ influencer: req.user._id }),
             Application.countDocuments({ influencer: req.user._id, status: 'accepted' }),
             Application.countDocuments({ influencer: req.user._id, status: 'applied' }),
+            Application.countDocuments({ influencer: req.user._id, status: 'shortlisted' }),
+            Application.countDocuments({ influencer: req.user._id, status: 'rejected' }),
             Escrow.aggregate([
                 { $match: { influencer: req.user._id, status: 'released' } },
                 { $group: { _id: null, total: { $sum: '$netAmount' } } },
@@ -225,6 +227,8 @@ const getDashboard = async (req, res, next) => {
                 totalApplications,
                 acceptedCampaigns,
                 pendingApplications,
+                shortlistedApplications,
+                rejectedApplications,
                 totalEarnings: totalEarnings[0]?.total || 0,
                 rating: {
                     average: avgRating[0]?.avg?.toFixed(1) || 0,

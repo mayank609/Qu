@@ -23,7 +23,8 @@ const InfluencerDashboard = () => {
       return res.data.data;
     },
     enabled: !!user && user.role === 'influencer',
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 30000, // 30 seconds
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 
   const { data: profileData, isLoading: profileLoading } = useQuery({
