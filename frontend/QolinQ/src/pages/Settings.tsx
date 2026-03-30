@@ -38,8 +38,13 @@ const Settings = () => {
         instagramHandle: "",
         youtubeHandle: "",
         tiktokHandle: "",
+        tiktokConnected: false,
         twitterHandle: "",
+        twitterConnected: false,
         facebookHandle: "",
+        facebookConnected: false,
+        instagramConnected: false,
+        youtubeConnected: false,
         portfolioLink1: "",
         portfolioLink2: "",
         otherNiche: "",
@@ -71,6 +76,11 @@ const Settings = () => {
                     tiktokHandle: profile.platforms?.tiktok?.handle || "",
                     twitterHandle: profile.platforms?.twitter?.handle || "",
                     facebookHandle: profile.platforms?.facebook?.handle || "",
+                    instagramConnected: profile.platforms?.instagram?.connected || !!profile.platforms?.instagram?.handle,
+                    youtubeConnected: profile.platforms?.youtube?.connected || !!profile.platforms?.youtube?.handle,
+                    tiktokConnected: profile.platforms?.tiktok?.connected || !!profile.platforms?.tiktok?.handle,
+                    twitterConnected: profile.platforms?.twitter?.connected || !!profile.platforms?.twitter?.handle,
+                    facebookConnected: profile.platforms?.facebook?.connected || !!profile.platforms?.facebook?.handle,
                     portfolioLink1: profile.portfolioLinks?.[0]?.url || "",
                     portfolioLink2: profile.portfolioLinks?.[1]?.url || "",
                     otherNiche: "",
@@ -123,22 +133,23 @@ const Settings = () => {
             
             // Update platform stats
             const platformsToSync = [
-                { key: 'instagram', followers: formData.instagramFollowers, handle: formData.instagramHandle },
-                { key: 'youtube', followers: formData.youtubeSubscribers, handle: formData.youtubeHandle },
-                { key: 'tiktok', followers: formData.tiktokFollowers, handle: formData.tiktokHandle },
-                { key: 'twitter', followers: formData.twitterFollowers, handle: formData.twitterHandle },
-                { key: 'facebook', followers: formData.facebookFollowers, handle: formData.facebookHandle }
+                { key: 'instagram', followers: formData.instagramFollowers, handle: formData.instagramHandle, connected: formData.instagramConnected },
+                { key: 'youtube', followers: formData.youtubeSubscribers, handle: formData.youtubeHandle, connected: formData.youtubeConnected },
+                { key: 'tiktok', followers: formData.tiktokFollowers, handle: formData.tiktokHandle, connected: formData.tiktokConnected },
+                { key: 'twitter', followers: formData.twitterFollowers, handle: formData.twitterHandle, connected: formData.twitterConnected },
+                { key: 'facebook', followers: formData.facebookFollowers, handle: formData.facebookHandle, connected: formData.facebookConnected }
             ];
 
-            const platformPromises = platformsToSync.filter(p => p.followers || p.handle).map(p => {
+            const platformPromises = platformsToSync.map(p => {
                 const stats: any = {};
-                if (p.key === 'youtube') stats.subscribers = parseInt(p.followers);
-                else stats.followers = parseInt(p.followers);
+                if (p.key === 'youtube') stats.subscribers = parseInt(p.followers) || 0;
+                else stats.followers = parseInt(p.followers) || 0;
 
                 return influencerAPI.connectPlatform({
                     platform: p.key,
-                    handle: p.handle,
-                    ...stats
+                    handle: p.connected ? p.handle : "",
+                    ...stats,
+                    connected: p.connected
                 });
             });
 
@@ -280,58 +291,98 @@ const Settings = () => {
                             <div className="space-y-6">
                                 <div className="space-y-4">
                                     <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-pink-500 text-lg">📸</span>
-                                            <Label className="text-sm font-semibold">Instagram</Label>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-pink-500 text-lg">📸</span>
+                                                <Label className="text-sm font-semibold">Instagram</Label>
+                                            </div>
+                                            <Switch 
+                                                checked={formData.instagramConnected} 
+                                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, instagramConnected: checked }))} 
+                                            />
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle / Username</Label><Input id="instagramHandle" placeholder="@yourhandle" value={formData.instagramHandle} onChange={handleInputChange} /></div>
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="instagramFollowers" type="number" placeholder="e.g. 10000" value={formData.instagramFollowers} onChange={handleInputChange} /></div>
-                                        </div>
+                                        {formData.instagramConnected && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 animate-slide-up">
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle / Username</Label><Input id="instagramHandle" placeholder="@yourhandle" value={formData.instagramHandle} onChange={handleInputChange} /></div>
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="instagramFollowers" type="number" placeholder="e.g. 10000" value={formData.instagramFollowers} onChange={handleInputChange} /></div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-red-500 text-lg">▶️</span>
-                                            <Label className="text-sm font-semibold">YouTube</Label>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-red-500 text-lg">▶️</span>
+                                                <Label className="text-sm font-semibold">YouTube</Label>
+                                            </div>
+                                            <Switch 
+                                                checked={formData.youtubeConnected} 
+                                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, youtubeConnected: checked }))} 
+                                            />
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Channel Handle</Label><Input id="youtubeHandle" placeholder="@yourchannel" value={formData.youtubeHandle} onChange={handleInputChange} /></div>
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Subscribers</Label><Input id="youtubeSubscribers" type="number" placeholder="e.g. 50000" value={formData.youtubeSubscribers} onChange={handleInputChange} /></div>
-                                        </div>
+                                        {formData.youtubeConnected && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 animate-slide-up">
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Channel Handle</Label><Input id="youtubeHandle" placeholder="@yourchannel" value={formData.youtubeHandle} onChange={handleInputChange} /></div>
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Subscribers</Label><Input id="youtubeSubscribers" type="number" placeholder="e.g. 50000" value={formData.youtubeSubscribers} onChange={handleInputChange} /></div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-blue-500 text-lg">📘</span>
-                                            <Label className="text-sm font-semibold">Facebook</Label>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-blue-500 text-lg">📘</span>
+                                                <Label className="text-sm font-semibold">Facebook</Label>
+                                            </div>
+                                            <Switch 
+                                                checked={formData.facebookConnected} 
+                                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, facebookConnected: checked }))} 
+                                            />
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Page / Profile</Label><Input id="facebookHandle" placeholder="@yourpage" value={formData.facebookHandle} onChange={handleInputChange} /></div>
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="facebookFollowers" type="number" placeholder="e.g. 5000" value={formData.facebookFollowers} onChange={handleInputChange} /></div>
-                                        </div>
+                                        {formData.facebookConnected && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 animate-slide-up">
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Page / Profile</Label><Input id="facebookHandle" placeholder="@yourpage" value={formData.facebookHandle} onChange={handleInputChange} /></div>
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="facebookFollowers" type="number" placeholder="e.g. 5000" value={formData.facebookFollowers} onChange={handleInputChange} /></div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sky-500 text-lg">𝕏</span>
-                                            <Label className="text-sm font-semibold">X (Twitter)</Label>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sky-500 text-lg">𝕏</span>
+                                                <Label className="text-sm font-semibold">X (Twitter)</Label>
+                                            </div>
+                                            <Switch 
+                                                checked={formData.twitterConnected} 
+                                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, twitterConnected: checked }))} 
+                                            />
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle</Label><Input id="twitterHandle" placeholder="@yourhandle" value={formData.twitterHandle} onChange={handleInputChange} /></div>
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="twitterFollowers" type="number" placeholder="e.g. 8000" value={formData.twitterFollowers} onChange={handleInputChange} /></div>
-                                        </div>
+                                        {formData.twitterConnected && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 animate-slide-up">
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle</Label><Input id="twitterHandle" placeholder="@yourhandle" value={formData.twitterHandle} onChange={handleInputChange} /></div>
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="twitterFollowers" type="number" placeholder="e.g. 8000" value={formData.twitterFollowers} onChange={handleInputChange} /></div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="p-4 rounded-lg border border-border bg-muted/10 space-y-3">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-foreground text-lg">🎵</span>
-                                            <Label className="text-sm font-semibold">TikTok</Label>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-foreground text-lg">🎵</span>
+                                                <Label className="text-sm font-semibold">TikTok</Label>
+                                            </div>
+                                            <Switch 
+                                                checked={formData.tiktokConnected} 
+                                                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, tiktokConnected: checked }))} 
+                                            />
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle</Label><Input id="tiktokHandle" placeholder="@yourhandle" value={formData.tiktokHandle} onChange={handleInputChange} /></div>
-                                            <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="tiktokFollowers" type="number" placeholder="e.g. 15000" value={formData.tiktokFollowers} onChange={handleInputChange} /></div>
-                                        </div>
+                                        {formData.tiktokConnected && (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 animate-slide-up">
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Handle</Label><Input id="tiktokHandle" placeholder="@yourhandle" value={formData.tiktokHandle} onChange={handleInputChange} /></div>
+                                                <div className="space-y-1"><Label className="text-xs text-muted-foreground">Followers</Label><Input id="tiktokFollowers" type="number" placeholder="e.g. 15000" value={formData.tiktokFollowers} onChange={handleInputChange} /></div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

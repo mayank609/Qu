@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Bookmark, ShieldCheck, Edit, Share2, Instagram, Youtube } from "lucide-react";
+import { Eye, Bookmark, ShieldCheck, Edit, Share2, Instagram, Youtube, Twitter, Facebook } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { influencerAPI } from "@/lib/api";
@@ -63,14 +63,30 @@ const MyProfile = () => {
               <p className="text-sm text-muted-foreground mb-4">{profile.bio || "No bio added yet."}</p>
 
               <div className="flex flex-wrap gap-4 text-sm text-muted-foreground mb-4">
-                <div className="flex items-center gap-1.5">
-                  <Instagram className="w-4 h-4 text-primary" />
-                  <span>{profile.socialMedia?.instagram?.followers?.toLocaleString() || "0"}</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Youtube className="w-4 h-4 text-primary" />
-                  <span>{profile.socialMedia?.youtube?.subscribers?.toLocaleString() || "0"}</span>
-                </div>
+                {profile.platforms?.instagram?.followers > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <Instagram className="w-4 h-4 text-pink-500" />
+                    <span className="font-bold">{profile.platforms.instagram.followers?.toLocaleString() || "0"}</span>
+                  </div>
+                )}
+                {profile.platforms?.youtube?.subscribers > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <Youtube className="w-4 h-4 text-red-500" />
+                    <span className="font-bold">{profile.platforms.youtube.subscribers?.toLocaleString() || "0"}</span>
+                  </div>
+                )}
+                {profile.platforms?.facebook?.followers > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <Facebook className="w-4 h-4 text-blue-500" />
+                    <span className="font-bold">{profile.platforms.facebook.followers?.toLocaleString() || "0"}</span>
+                  </div>
+                )}
+                {profile.platforms?.twitter?.followers > 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <Twitter className="w-4 h-4 text-sky-500" />
+                    <span className="font-bold">{profile.platforms.twitter.followers?.toLocaleString() || "0"}</span>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-2 mb-4">
@@ -82,7 +98,7 @@ const MyProfile = () => {
               <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
                 <span>📍 {profile.location?.city || "Remote"}, {profile.location?.country || "India"}</span>
                 <span>·</span>
-                <span className="text-primary font-semibold">₹{profile.priceExpectation?.toLocaleString() || "N/A"} / post</span>
+                <span className="text-primary font-semibold">₹{profile.priceExpectation?.min?.toLocaleString() || "N/A"} / post</span>
               </div>
 
               <div className="flex flex-wrap gap-3">

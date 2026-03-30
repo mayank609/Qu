@@ -100,12 +100,14 @@ const updateProfile = async (req, res, next) => {
 // @route   PUT /api/influencer/connect-platform
 const connectPlatform = async (req, res, next) => {
     try {
-        const { platform, handle, followers, engagementRate, avgLikes, avgComments, subscribers, avgViews, connections } = req.body;
+        const { platform, handle, followers, engagementRate, avgLikes, avgComments, subscribers, avgViews, connections, connected } = req.body;
 
         let profile = await InfluencerProfile.findOne({ user: req.user._id });
         if (!profile) {
             profile = new InfluencerProfile({ user: req.user._id });
         }
+
+        const isConnected = connected !== undefined ? connected : true;
 
         if (platform === 'instagram') {
             profile.platforms.instagram = {
@@ -114,38 +116,38 @@ const connectPlatform = async (req, res, next) => {
                 engagementRate: engagementRate || 0,
                 avgLikes: avgLikes || 0,
                 avgComments: avgComments || 0,
-                connected: true,
+                connected: isConnected,
             };
         } else if (platform === 'youtube') {
             profile.platforms.youtube = {
                 handle: handle || '',
                 subscribers: subscribers || 0,
                 avgViews: avgViews || 0,
-                connected: true,
+                connected: isConnected,
             };
         } else if (platform === 'linkedin') {
             profile.platforms.linkedin = {
                 handle: handle || '',
                 connections: connections || 0,
-                connected: true,
+                connected: isConnected,
             };
         } else if (platform === 'tiktok') {
             profile.platforms.tiktok = {
                 handle: handle || '',
                 followers: followers || 0,
-                connected: true,
+                connected: isConnected,
             };
         } else if (platform === 'twitter') {
             profile.platforms.twitter = {
                 handle: handle || '',
                 followers: followers || 0,
-                connected: true,
+                connected: isConnected,
             };
         } else if (platform === 'facebook') {
             profile.platforms.facebook = {
                 handle: handle || '',
                 followers: followers || 0,
-                connected: true,
+                connected: isConnected,
             };
         } else {
             return res.status(400).json({

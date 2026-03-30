@@ -185,12 +185,12 @@ const ExploreInfluencers = () => {
                 bio={profile.bio}
                 category={profile.categories?.[0] || 'Uncategorized'}
                 followers={[
-                  ...(profile.platforms?.instagram?.connected ? [{ platform: "Instagram", count: profile.platforms.instagram.followers > 1000 ? `${(profile.platforms.instagram.followers/1000).toFixed(1)}K` : `${profile.platforms.instagram.followers || 0}` }] : []),
-                  ...(profile.platforms?.youtube?.connected ? [{ platform: "YouTube", count: profile.platforms.youtube.subscribers > 1000 ? `${(profile.platforms.youtube.subscribers/1000).toFixed(1)}K` : `${profile.platforms.youtube.subscribers || 0}` }] : []),
-                  ...(profile.platforms?.facebook?.connected ? [{ platform: "Facebook", count: profile.platforms.facebook.followers > 1000 ? `${(profile.platforms.facebook.followers/1000).toFixed(1)}K` : `${profile.platforms.facebook.followers || 0}` }] : []),
-                  ...(profile.platforms?.twitter?.connected ? [{ platform: "Twitter", count: profile.platforms.twitter.followers > 1000 ? `${(profile.platforms.twitter.followers/1000).toFixed(1)}K` : `${profile.platforms.twitter.followers || 0}` }] : []),
-                  ...(profile.platforms?.tiktok?.connected ? [{ platform: "TikTok", count: profile.platforms.tiktok.followers > 1000 ? `${(profile.platforms.tiktok.followers/1000).toFixed(1)}K` : `${profile.platforms.tiktok.followers || 0}` }] : []),
-                  ...(profile.platforms?.linkedin?.connected ? [{ platform: "LinkedIn", count: profile.platforms.linkedin.connections > 1000 ? `${(profile.platforms.linkedin.connections/1000).toFixed(1)}K` : `${profile.platforms.linkedin.connections || 0}` }] : []),
+                  ...(profile.platforms?.instagram?.connected || profile.platforms?.instagram?.handle ? [{ platform: "Instagram", count: profile.platforms.instagram.followers > 1000 ? `${(profile.platforms.instagram.followers/1000).toFixed(1)}K` : `${profile.platforms.instagram.followers || 0}` }] : []),
+                  ...(profile.platforms?.youtube?.connected || profile.platforms?.youtube?.handle ? [{ platform: "YouTube", count: profile.platforms.youtube.subscribers > 1000 ? `${(profile.platforms.youtube.subscribers/1000).toFixed(1)}K` : `${profile.platforms.youtube.subscribers || 0}` }] : []),
+                  ...(profile.platforms?.facebook?.connected || profile.platforms?.facebook?.handle ? [{ platform: "Facebook", count: profile.platforms.facebook.followers > 1000 ? `${(profile.platforms.facebook.followers/1000).toFixed(1)}K` : `${profile.platforms.facebook.followers || 0}` }] : []),
+                  ...(profile.platforms?.twitter?.connected || profile.platforms?.twitter?.handle ? [{ platform: "Twitter", count: profile.platforms.twitter.followers > 1000 ? `${(profile.platforms.twitter.followers/1000).toFixed(1)}K` : `${profile.platforms.twitter.followers || 0}` }] : []),
+                  ...(profile.platforms?.tiktok?.connected || profile.platforms?.tiktok?.handle ? [{ platform: "TikTok", count: profile.platforms.tiktok.followers > 1000 ? `${(profile.platforms.tiktok.followers/1000).toFixed(1)}K` : `${profile.platforms.tiktok.followers || 0}` }] : []),
+                  ...(profile.platforms?.linkedin?.connected || profile.platforms?.linkedin?.handle ? [{ platform: "LinkedIn", count: profile.platforms.linkedin.connections > 1000 ? `${(profile.platforms.linkedin.connections/1000).toFixed(1)}K` : `${profile.platforms.linkedin.connections || 0}` }] : []),
                 ]}
                 price={`₹${profile.priceExpectation?.min?.toLocaleString()} - ₹${profile.priceExpectation?.max?.toLocaleString()}`}
                 location={profile.location?.city || 'India'}

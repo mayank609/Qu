@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Youtube, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, User, Filter } from "lucide-react";
+import { Instagram, Youtube, Twitter, Facebook, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, User, Filter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
@@ -72,8 +72,11 @@ const Applications = () => {
 
 
   const PlatformIcon = ({ platform }: { platform: string }) => {
-    if (platform?.toLowerCase() === "instagram") return <Instagram className="w-3.5 h-3.5 text-primary" />;
-    if (platform?.toLowerCase() === "youtube") return <Youtube className="w-3.5 h-3.5 text-primary" />;
+    const p = platform?.toLowerCase();
+    if (p === "instagram") return <Instagram className="w-3.5 h-3.5 text-pink-500" />;
+    if (p === "youtube") return <Youtube className="w-3.5 h-3.5 text-red-500" />;
+    if (p === "facebook") return <Facebook className="w-3.5 h-3.5 text-blue-500" />;
+    if (p === "twitter" || p === "x") return <Twitter className="w-3.5 h-3.5 text-sky-500" />;
     return null;
   };
 
@@ -125,6 +128,7 @@ const Applications = () => {
           <div className="space-y-4">
             {applications.map((app: any) => {
               const escrow = escrows.find((e: any) => e.application === app._id);
+              const platforms = app.influencerProfile?.platforms || {};
               return (
                 <Card key={app._id} className="bg-card border border-border p-6 hover-lift overflow-hidden relative">
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
@@ -161,14 +165,38 @@ const Applications = () => {
                             </div>
                         )}
 
-                        <div className="flex gap-4 mb-3 text-xs">
+                        <div className="flex flex-wrap gap-4 mb-3 text-[10px] uppercase tracking-wider font-bold">
                            <div className="flex flex-col">
-                              <span className="text-muted-foreground">Followers</span>
-                              <span className="font-bold">{app.influencerProfile?.totalFollowers?.toLocaleString() || "12.4k"}</span>
+                              <span className="text-muted-foreground text-[8px]">Total Reach</span>
+                              <span className="text-primary">{app.influencerProfile?.totalFollowers?.toLocaleString() || "0"}</span>
                            </div>
+                           {platforms.instagram?.connected && (
+                             <div className="flex flex-col border-l border-border pl-4">
+                                <span className="text-pink-500 text-[8px]">Instagram</span>
+                                <span>{platforms.instagram.followers?.toLocaleString() || "0"}</span>
+                             </div>
+                           )}
+                           {platforms.youtube?.connected && (
+                             <div className="flex flex-col border-l border-border pl-4">
+                                <span className="text-red-500 text-[8px]">YouTube</span>
+                                <span>{platforms.youtube.subscribers?.toLocaleString() || "0"}</span>
+                             </div>
+                           )}
+                           {platforms.facebook?.connected && (
+                             <div className="flex flex-col border-l border-border pl-4">
+                                <span className="text-blue-500 text-[8px]">Facebook</span>
+                                <span>{platforms.facebook.followers?.toLocaleString() || "0"}</span>
+                             </div>
+                           )}
+                           {platforms.twitter?.connected && (
+                             <div className="flex flex-col border-l border-border pl-4">
+                                <span className="text-sky-500 text-[8px]">X / Twitter</span>
+                                <span>{platforms.twitter.followers?.toLocaleString() || "0"}</span>
+                             </div>
+                           )}
                            <div className="flex flex-col border-l border-border pl-4">
-                              <span className="text-muted-foreground">Location</span>
-                              <span className="font-bold">{app.influencerProfile?.location?.city || "Mumbai"}</span>
+                              <span className="text-muted-foreground text-[8px]">Location</span>
+                              <span className="text-foreground">{app.influencerProfile?.location?.city || "India"}</span>
                            </div>
                         </div>
                         

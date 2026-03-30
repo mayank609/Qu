@@ -119,42 +119,42 @@ const InfluencerProfileView = () => {
               </p>
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm">
-                {profile.platforms?.instagram?.connected && (
+                {(profile.platforms?.instagram?.connected || profile.platforms?.instagram?.handle) && (
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
                     <Instagram className="w-4 h-4 text-pink-500" />
                     <span className="font-bold">{profile.platforms.instagram.followers?.toLocaleString() || "0"}</span>
                     <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
                   </div>
                 )}
-                {profile.platforms?.youtube?.connected && (
+                {(profile.platforms?.youtube?.connected || profile.platforms?.youtube?.handle) && (
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
                     <Youtube className="w-4 h-4 text-red-500" />
                     <span className="font-bold">{profile.platforms.youtube.subscribers?.toLocaleString() || "0"}</span>
                     <span className="text-muted-foreground text-[10px] uppercase">Subscribers</span>
                   </div>
                 )}
-                {profile.platforms?.facebook?.connected && (
+                {(profile.platforms?.facebook?.connected || profile.platforms?.facebook?.handle) && (
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
                     <Facebook className="w-4 h-4 text-blue-500" />
                     <span className="font-bold">{profile.platforms.facebook.followers?.toLocaleString() || "0"}</span>
                     <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
                   </div>
                 )}
-                {profile.platforms?.twitter?.connected && (
+                {(profile.platforms?.twitter?.connected || profile.platforms?.twitter?.handle) && (
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
                     <Twitter className="w-4 h-4 text-sky-500" />
                     <span className="font-bold">{profile.platforms.twitter.followers?.toLocaleString() || "0"}</span>
                     <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
                   </div>
                 )}
-                {profile.platforms?.tiktok?.connected && (
+                {(profile.platforms?.tiktok?.connected || profile.platforms?.tiktok?.handle) && (
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
                     <TikTokIcon className="w-4 h-4 text-foreground" />
                     <span className="font-bold">{profile.platforms.tiktok.followers?.toLocaleString() || "0"}</span>
                     <span className="text-muted-foreground text-[10px] uppercase">Followers</span>
                   </div>
                 )}
-                {profile.platforms?.linkedin?.connected && (
+                {(profile.platforms?.linkedin?.connected || profile.platforms?.linkedin?.handle) && (
                   <div className="flex items-center gap-2 bg-muted/30 px-3 py-1.5 rounded-full border border-border">
                     <LinkedInIcon className="w-4 h-4 text-blue-700" />
                     <span className="font-bold">{profile.platforms.linkedin.connections?.toLocaleString() || "0"}</span>
