@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 const Applications = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
+  const campaignIdFromUrl = searchParams.get('campaignId');
   const [ratingTarget, setRatingTarget] = useState<any>(null);
 
   const startConvMutation = useMutation({
@@ -34,18 +36,22 @@ const Applications = () => {
 
   const campaigns = campaignsRes?.data?.data || [];
   
+  // Use either the ID from URL or fall back to the first campaign
+  const selectedCampaignId = campaignIdFromUrl || campaigns?.[0]?._id;
+  const selectedCampaign = campaigns.find((c: any) => c._id === selectedCampaignId) || campaigns?.[0];
+
   const { data: appsRes, isLoading: appsLoading } = useQuery({
-    queryKey: ['applications', campaigns?.[0]?._id],
-    enabled: campaigns.length > 0,
-    queryFn: () => applicationAPI.getCampaignApplications(campaigns[0]._id),
+    queryKey: ['applications', selectedCampaignId],
+    enabled: !!selectedCampaignId,
+    queryFn: () => applicationAPI.getCampaignApplications(selectedCampaignId),
   });
 
   const applications = appsRes?.data?.data || [];
 
   const { data: escrowRes } = useQuery({
-    queryKey: ['escrows', campaigns?.[0]?._id],
-    enabled: campaigns.length > 0,
-    queryFn: () => escrowAPI.getStatus(campaigns[0]._id),
+    queryKey: ['escrows', selectedCampaignId],
+    enabled: !!selectedCampaignId,
+    queryFn: () => escrowAPI.getStatus(selectedCampaignId),
   });
 
   const escrows = escrowRes?.data?.data || [];
@@ -62,7 +68,7 @@ const Applications = () => {
   });
 
   const rateMutation = useMutation({
-    mutationFn: (data: any) => ratingAPI.rate(campaigns[0]._id, data),
+    mutationFn: (data: any) => ratingAPI.rate(selectedCampaignId, data),
     onSuccess: () => {
       toast.success("Rating submitted successfully!");
       setRatingTarget(null);
@@ -96,9 +102,9 @@ const Applications = () => {
             <h1 className="text-3xl font-bold text-gradient mb-1">Applications</h1>
             <p className="text-muted-foreground">Review influencer applications for your campaigns</p>
           </div>
-          {campaigns.length > 0 && (
+          {selectedCampaign && (
               <Badge variant="outline" className="h-8 px-4 bg-muted/50 border-none">
-                  Campaign: {campaigns[0].title}
+                  Campaign: {selectedCampaign.title}
               </Badge>
           )}
         </div>
@@ -221,7 +227,7 @@ const Applications = () => {
                               )}
                               <NeonButton 
                                 neonVariant="outline" 
-                                onClick={() => startConvMutation.mutate({ participantId: app.influencer._id, campaignId: campaigns[0]?._id })}
+                                onClick={() => startConvMutation.mutate({ participantId: app.influencer._id, campaignId: selectedCampaignId })}
                                 disabled={startConvMutation.isPending}
                               >
                                 <MessageCircle className="w-4 h-4 mr-2" />Message

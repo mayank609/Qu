@@ -62,9 +62,12 @@ const MyListings = () => {
                       </Badge>
                     </div>
                     <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1 font-medium text-primary">
+                      <button 
+                        onClick={() => navigate(`/applications?campaignId=${listing._id}`)}
+                        className="flex items-center gap-1 font-medium text-primary hover:underline transition-all"
+                      >
                         {listing.applicationsCount || 0} applications
-                      </span>
+                      </button>
                       <span>·</span>
                       <span>Created {new Date(listing.createdAt).toLocaleDateString()}</span>
                     </div>
