@@ -4,7 +4,7 @@ Qolinq is a high-end digital ecosystem connecting premium brands with top-tier i
 
 
 
-- **Frontend**: React + Vite + Tailwind CSS + TanStack Query
+- **Frontend**: React + Vite + Tailwind CSS + TanStack 
 - **Backend**: Node.js + Express + MongoDB
 - **Key Features**:
   - Real-time Dashboard with Analytics
