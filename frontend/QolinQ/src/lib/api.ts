@@ -71,6 +71,7 @@ export const campaignAPI = {
 export const applicationAPI = {
     apply: (campaignId: string, data: any) => api.post(`/applications/${campaignId}`, data),
     getCampaignApplications: (campaignId: string, params?: any) => api.get(`/applications/campaign/${campaignId}`, { params }),
+    getAllBrandApplications: () => api.get('/applications/all'),
     getMyApplications: (params?: any) => api.get('/applications/my', { params }),
     updateStatus: (id: string, data: { status: string }) => api.put(`/applications/${id}/status`, data),
     uploadDeliverable: (id: string, data: any) => api.put(`/applications/${id}/deliverable`, data),

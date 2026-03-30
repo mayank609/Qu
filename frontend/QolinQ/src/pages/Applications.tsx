@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Youtube, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, User } from "lucide-react";
+import { Instagram, Youtube, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, User, Filter } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { applicationAPI, campaignAPI, messageAPI, escrowAPI, ratingAPI } from "@/lib/api";
@@ -34,21 +35,25 @@ const Applications = () => {
 
   const campaigns = campaignsRes?.data?.data || [];
   
-  // Use either the ID from URL or fall back to the first campaign
-  const selectedCampaignId = campaignIdFromUrl || campaigns?.[0]?._id;
-  const selectedCampaign = campaigns.find((c: any) => c._id === selectedCampaignId) || campaigns?.[0];
+  // If no campaignId in URL, we default to "all"
+  const selectedCampaignId = campaignIdFromUrl || 'all';
+  const selectedCampaign = campaigns.find((c: any) => c._id === selectedCampaignId);
 
   const { data: appsRes, isLoading: appsLoading } = useQuery({
     queryKey: ['applications', selectedCampaignId],
-    enabled: !!selectedCampaignId,
-    queryFn: () => applicationAPI.getCampaignApplications(selectedCampaignId),
+    queryFn: () => {
+        if (selectedCampaignId === 'all') {
+            return applicationAPI.getAllBrandApplications();
+        }
+        return applicationAPI.getCampaignApplications(selectedCampaignId);
+    },
   });
 
   const applications = appsRes?.data?.data || [];
 
   const { data: escrowRes } = useQuery({
     queryKey: ['escrows', selectedCampaignId],
-    enabled: !!selectedCampaignId,
+    enabled: selectedCampaignId !== 'all',
     queryFn: () => escrowAPI.getStatus(selectedCampaignId),
   });
 
@@ -91,12 +96,21 @@ const Applications = () => {
             <h1 className="text-3xl font-bold text-gradient mb-1">Applications</h1>
             <p className="text-muted-foreground">Review influencer applications for your campaigns</p>
           </div>
-          {selectedCampaign && (
-              <Badge variant="outline" className="h-8 px-4 bg-muted/50 border-none">
-                  Campaign: {selectedCampaign.title}
-              </Badge>
-          )}
-        </div>
+             <div className="flex items-center gap-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground hidden sm:block">Listing:</span>
+                <Select value={selectedCampaignId} onValueChange={(v) => navigate(v === 'all' ? '/applications' : `/applications?campaignId=${v}`)}>
+                    <SelectTrigger className="w-[180px] md:w-[240px] h-9 bg-muted/50 border-none shadow-glow-sm">
+                        <SelectValue placeholder="Select Campaign" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Campaigns</SelectItem>
+                        {campaigns.map((c: any) => (
+                            <SelectItem key={c._id} value={c._id}>{c.title}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+             </div>
+          </div>
 
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -139,6 +153,13 @@ const Applications = () => {
                             {app.status}
                           </Badge>
                         </div>
+
+                        {selectedCampaignId === 'all' && app.campaign && (
+                            <div className="flex items-center gap-1.5 mb-3 text-primary/80">
+                                <Filter className="w-3 h-3" />
+                                <span className="text-xs font-semibold">Campaign: {app.campaign.title}</span>
+                            </div>
+                        )}
 
                         <div className="flex gap-4 mb-3 text-xs">
                            <div className="flex flex-col">

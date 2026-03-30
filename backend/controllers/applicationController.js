@@ -103,7 +103,8 @@ const getCampaignApplications = async (req, res, next) => {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
-                .populate('influencer', 'name email avatar trustBadge'),
+                .populate('influencer', 'name email avatar trustBadge')
+                .populate('campaign', 'title'),
             Application.countDocuments(filter),
         ]);
 
@@ -120,6 +121,60 @@ const getCampaignApplications = async (req, res, next) => {
                             categories: profile.categories,
                             ratings: profile.ratings,
                             niche: profile.niche,
+                        }
+                        : null,
+                };
+            })
+        );
+
+        res.json({
+            success: true,
+            data: enriched,
+            pagination: paginationMeta(total, page, limit),
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Get all applications for brand (consolidated view)
+// @route   GET /api/applications/all
+const getAllBrandApplications = async (req, res, next) => {
+    try {
+        const { page, limit, skip } = getPagination(req.query);
+        const { status } = req.query;
+
+        // Find all campaigns for this brand
+        const myCampaigns = await Campaign.find({ brand: req.user._id }).select('_id');
+        const campaignIds = myCampaigns.map(c => c._id);
+
+        const filter = { campaign: { $in: campaignIds } };
+        if (status) filter.status = status;
+
+        const [applications, total] = await Promise.all([
+            Application.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate('influencer', 'name email avatar trustBadge')
+                .populate('campaign', 'title platform budgetRange timeline status'),
+            Application.countDocuments(filter),
+        ]);
+
+        // Enrich with influencer profile data
+        const enriched = await Promise.all(
+            applications.map(async (app) => {
+                const profile = await InfluencerProfile.findOne({ user: app.influencer._id });
+                return {
+                    ...app.toObject(),
+                    influencerProfile: profile
+                        ? {
+                            totalFollowers: profile.totalFollowers,
+                            engagementRate: profile.engagementRate,
+                            categories: profile.categories,
+                            ratings: profile.ratings,
+                            niche: profile.niche,
+                            location: profile.location
                         }
                         : null,
                 };
