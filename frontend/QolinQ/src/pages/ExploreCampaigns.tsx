@@ -5,7 +5,7 @@ import CampaignCard from "@/components/CampaignCard";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { campaignAPI, applicationAPI } from "@/lib/api";
+import { campaignAPI, applicationAPI, searchAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,7 +29,7 @@ const ExploreCampaigns = () => {
       const minBudget = budgetRange === '0-5000' ? 0 : budgetRange === '5000-15000' ? 5000 : budgetRange === '15000-50000' ? 15000 : budgetRange === '50000+' ? 50000 : undefined;
       const maxBudget = budgetRange === '0-5000' ? 5000 : budgetRange === '5000-15000' ? 15000 : budgetRange === '15000-50000' ? 50000 : undefined;
       
-      return campaignAPI.getAll({ 
+      return searchAPI.campaigns({ 
         category: category !== 'all' ? category.toLowerCase() : undefined, 
         platform: platform !== 'all' ? platform.toLowerCase() : undefined,
         urgency: urgency !== 'all' ? urgency.toLowerCase() : undefined,

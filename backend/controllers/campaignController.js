@@ -77,7 +77,9 @@ const getCampaigns = async (req, res, next) => {
         const filter = { status: status || 'active' };
 
         if (category) filter.category = category;
-        if (platform) filter.platform = platform;
+        if (platform && platform !== 'all') {
+            filter.platform = { $regex: new RegExp(`^${platform}`, 'i') };
+        }
         if (urgency) filter.urgency = urgency;
         if (country) filter['location.country'] = { $regex: country, $options: 'i' };
         if (minBudget || maxBudget) {
