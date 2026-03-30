@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, MessageSquare, TrendingUp, Users, Instagram, Youtube, MapPin, Bookmark, ClipboardList } from "lucide-react";
+import { Eye, MessageSquare, TrendingUp, Users, Instagram, Youtube, Twitter, Facebook, MapPin, Bookmark, ClipboardList } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -65,8 +65,11 @@ const BrandDashboard = () => {
   ];
 
   const PlatformIcon = ({ platform }: { platform: string }) => {
-    if (platform === "Instagram" || platform === "instagram") return <Instagram className="w-3.5 h-3.5 text-primary" />;
-    if (platform === "YouTube" || platform === "youtube") return <Youtube className="w-3.5 h-3.5 text-primary" />;
+    const p = platform?.toLowerCase();
+    if (p === "instagram") return <Instagram className="w-3.5 h-3.5 text-pink-500" />;
+    if (p === "youtube") return <Youtube className="w-3.5 h-3.5 text-red-500" />;
+    if (p === "facebook") return <Facebook className="w-3.5 h-3.5 text-blue-500" />;
+    if (p === "twitter" || p === "x") return <Twitter className="w-3.5 h-3.5 text-sky-500" />;
     return <TrendingUp className="w-3.5 h-3.5 text-primary" />;
   };
 
@@ -141,9 +144,35 @@ const BrandDashboard = () => {
                   </div>
                 </div>
                 <div className="space-y-2 text-xs text-muted-foreground mb-3">
+                  <div className="flex flex-wrap gap-2">
+                    {inf.platforms?.instagram?.connected && (
+                      <div className="flex items-center gap-1 bg-pink-500/5 px-1.5 py-0.5 rounded border border-pink-500/10">
+                        <Instagram className="w-2.5 h-2.5 text-pink-500" />
+                        <span className="font-bold text-[9px] text-pink-500">{inf.platforms.instagram.followers > 1000 ? `${(inf.platforms.instagram.followers/1000).toFixed(1)}K` : inf.platforms.instagram.followers}</span>
+                      </div>
+                    )}
+                    {inf.platforms?.youtube?.connected && (
+                      <div className="flex items-center gap-1 bg-red-500/5 px-1.5 py-0.5 rounded border border-red-500/10">
+                        <Youtube className="w-2.5 h-2.5 text-red-500" />
+                        <span className="font-bold text-[9px] text-red-500">{inf.platforms.youtube.subscribers > 1000 ? `${(inf.platforms.youtube.subscribers/1000).toFixed(1)}K` : inf.platforms.youtube.subscribers}</span>
+                      </div>
+                    )}
+                    {inf.platforms?.facebook?.connected && (
+                      <div className="flex items-center gap-1 bg-blue-500/5 px-1.5 py-0.5 rounded border border-blue-500/10">
+                        <Facebook className="w-2.5 h-2.5 text-blue-500" />
+                        <span className="font-bold text-[9px] text-blue-500">{inf.platforms.facebook.followers > 1000 ? `${(inf.platforms.facebook.followers/1000).toFixed(1)}K` : inf.platforms.facebook.followers}</span>
+                      </div>
+                    )}
+                    {inf.platforms?.twitter?.connected && (
+                      <div className="flex items-center gap-1 bg-sky-500/5 px-1.5 py-0.5 rounded border border-sky-500/10">
+                        <Twitter className="w-2.5 h-2.5 text-sky-500" />
+                        <span className="font-bold text-[9px] text-sky-500">{inf.platforms.twitter.followers > 1000 ? `${(inf.platforms.twitter.followers/1000).toFixed(1)}K` : inf.platforms.twitter.followers}</span>
+                      </div>
+                    )}
+                  </div>
                   <div className="flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-primary" />
-                    <span>{inf.totalFollowers?.toLocaleString() || 0} followers</span>
+                    <span>{inf.totalFollowers?.toLocaleString() || 0} total reach</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5" />
