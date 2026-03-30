@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-import { io } from "socket.io-client";
+
 
 const Chat = () => {
   const navigate = useNavigate();
@@ -28,11 +28,11 @@ const Chat = () => {
   const [showAiSummary, setShowAiSummary] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const socketRef = useRef<any>(null);
 
   const { data: convRes, isLoading: convsLoading } = useQuery({
     queryKey: ['conversations'],
     queryFn: () => messageAPI.getConversations(),
+    refetchInterval: 5000, // Poll for new chats every 5 seconds
   });
 
   const conversations = convRes?.data?.data || [];
@@ -41,66 +41,12 @@ const Chat = () => {
     queryKey: ['messages', selectedChatId],
     enabled: !!selectedChatId,
     queryFn: () => messageAPI.getMessages(selectedChatId!),
-    // refetchInterval removed in favor of sockets
+    refetchInterval: 3000, // Poll for new messages every 3 seconds
   });
 
   const messages = msgRes?.data?.data || [];
   const currentChat = conversations.find((c: any) => c._id === selectedChatId);
 
-  // Socket Connection & Listeners
-  useEffect(() => {
-    if (!token) return;
-
-    const SOCKET_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:5000");
-
-    socketRef.current = io(SOCKET_URL, {
-      auth: { token },
-      reconnection: true,
-      reconnectionAttempts: 5,
-    });
-
-    socketRef.current.on("connect", () => {
-      console.log("🟢 Connected to chat server");
-      if (selectedChatId) {
-        socketRef.current.emit("joinConversation", selectedChatId);
-      }
-    });
-
-    socketRef.current.on("disconnect", (reason: string) => {
-      console.log("🔴 Disconnected from chat server:", reason);
-    });
-
-    socketRef.current.on("connect_error", (err: any) => {
-      console.error("⚠️ Socket connection error:", err.message);
-    });
-
-    socketRef.current.on("newMessage", (message: any) => {
-      // If message belongs to current chat, update message list
-      if (message.conversation === selectedChatId) {
-        queryClient.setQueryData(['messages', selectedChatId], (old: any) => {
-          if (!old) return { data: [message] };
-          // Deduplicate based on ID to avoid double-showing API sent messages
-          const exists = old.data.some((m: any) => m._id === message._id);
-          if (exists) return old;
-          return { ...old, data: [...old.data, message] };
-        });
-      }
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-    });
-
-
-    return () => {
-      socketRef.current?.disconnect();
-    };
-  }, [token, selectedChatId, queryClient, user?._id]);
-
-  // Join conversation room when selectedChatId changes
-  useEffect(() => {
-    if (selectedChatId && socketRef.current?.connected) {
-      socketRef.current.emit("joinConversation", selectedChatId);
-      socketRef.current.emit("messageRead", { conversationId: selectedChatId });
-    }
-  }, [selectedChatId]);
 
   const { data: contractRes } = useQuery({
     queryKey: ['contract', currentChat?.campaign?._id],
