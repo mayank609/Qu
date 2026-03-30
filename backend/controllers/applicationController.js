@@ -416,6 +416,7 @@ const getContract = async (req, res, next) => {
 module.exports = {
     applyToCampaign,
     getCampaignApplications,
+    getAllBrandApplications,
     getMyApplications,
     updateApplicationStatus,
     uploadDeliverable,
