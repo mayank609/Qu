@@ -41,7 +41,17 @@ const ExploreCampaigns = () => {
     },
   });
 
+  const { data: applicationsData } = useQuery({
+    queryKey: ['my-applications'],
+    queryFn: () => applicationAPI.getMyApplications(),
+  });
+
   const campaigns = data?.data?.data || [];
+  const appliedCampaignIds = new Set(
+    (applicationsData?.data?.data || []).map((app: any) => 
+      typeof app.campaign === 'string' ? app.campaign : app.campaign?._id
+    )
+  );
 
   const applyMutation = useMutation({
     mutationFn: ({ id, data }: { id: string, data: any }) => applicationAPI.apply(id, data),
@@ -165,6 +175,8 @@ const ExploreCampaigns = () => {
                 deadline={new Date(campaign.timeline.endDate).toLocaleDateString()}
                 requirements={campaign.deliverables.map((d: any) => d.description || d.type)}
                 urgency={campaign.urgency || "medium"}
+                imageUrl={campaign.imageUrl}
+                isApplied={appliedCampaignIds.has(campaign._id)}
                 onApply={() => setSelectedCampaign(campaign)} 
               />
             ))}

@@ -114,6 +114,13 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
              <button onClick={() => navigate('/chat')} className="p-2 rounded-full hover:bg-muted transition-colors md:hidden">
                 <MessageCircle className="w-5 h-5 text-muted-foreground" />
              </button>
+             <button 
+                onClick={() => { logout(); navigate('/'); }} 
+                className="p-2 rounded-full hover:bg-destructive/10 transition-colors md:hidden text-destructive"
+                title="Logout"
+             >
+                <LogOut className="w-5 h-5" />
+             </button>
              <NotificationDropdown />
              <div className="h-8 w-px bg-border mx-1 hidden sm:block"></div>
              <div 

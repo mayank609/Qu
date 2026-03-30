@@ -137,8 +137,10 @@ const AppliedCampaigns = () => {
                         </div>
                         <div className="space-y-1">
                             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Platform</p>
-                            <div className="flex items-center gap-1.5 text-sm">
-                                <Badge variant="secondary" className="h-5 text-[9px]">{app.campaign?.platform}</Badge>
+                            <div className="flex flex-wrap gap-1.5 text-sm">
+                                {(Array.isArray(app.campaign?.platform) ? app.campaign?.platform : [app.campaign?.platform]).map((p: string, i: number) => (
+                                    <Badge key={i} variant="secondary" className="h-5 text-[9px]">{p}</Badge>
+                                ))}
                             </div>
                         </div>
                         <div className="space-y-1">

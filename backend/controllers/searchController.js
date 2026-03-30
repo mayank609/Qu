@@ -118,7 +118,7 @@ const searchCampaigns = async (req, res, next) => {
         let matchStage = { status: 'active' };
         if (category) matchStage.category = category;
         if (platform && platform !== 'all') {
-            matchStage.platform = { $regex: new RegExp(`^${platform}`, 'i') };
+            matchStage.platform = { $in: [platform] };
         }
         if (urgency) matchStage.urgency = urgency;
         if (country) matchStage['location.country'] = { $regex: country, $options: 'i' };

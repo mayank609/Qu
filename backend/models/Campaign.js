@@ -18,6 +18,10 @@ const campaignSchema = new mongoose.Schema(
             required: [true, 'Campaign description is required'],
             maxlength: 5000,
         },
+        imageUrl: {
+            type: String,
+            default: '',
+        },
         deliverables: [
             {
                 type: { type: String },
@@ -25,22 +29,26 @@ const campaignSchema = new mongoose.Schema(
                 quantity: { type: Number, default: 1 },
             },
         ],
-        platform: {
-            type: String,
-            enum: [
-                'instagram_reel',
-                'instagram_story',
-                'instagram_post',
-                'youtube_video',
-                'youtube_short',
-                'linkedin_post',
-                'twitter_post',
-                'blog_post',
-                'multiple',
-                'other',
-            ],
-            required: true,
-        },
+        platform: [
+            {
+                type: String,
+                enum: [
+                    'instagram_reel',
+                    'instagram_story',
+                    'instagram_post',
+                    'youtube_video',
+                    'youtube_short',
+                    'facebook_post',
+                    'tiktok_video',
+                    'linkedin_post',
+                    'twitter_post',
+                    'snapchat_spotlight',
+                    'blog_post',
+                    'multiple',
+                    'other',
+                ],
+            },
+        ],
         budgetRange: {
             min: { type: Number, required: true },
             max: { type: Number, required: true },

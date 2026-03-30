@@ -3,9 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Instagram, Youtube, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, Star, User } from "lucide-react";
+import { Instagram, Youtube, MapPin, MessageCircle, Check, X, ShieldCheck, DollarSign, ExternalLink, Clock, User } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
-import RatingModal from "@/components/RatingModal";
 import { toast } from "sonner";
 import { applicationAPI, campaignAPI, messageAPI, escrowAPI, ratingAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,7 +15,6 @@ const Applications = () => {
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const campaignIdFromUrl = searchParams.get('campaignId');
-  const [ratingTarget, setRatingTarget] = useState<any>(null);
 
   const startConvMutation = useMutation({
     mutationFn: (data: { participantId: string, campaignId?: string }) => 
@@ -67,15 +65,6 @@ const Applications = () => {
     onError: () => toast.error("Failed to update status")
   });
 
-  const rateMutation = useMutation({
-    mutationFn: (data: any) => ratingAPI.rate(selectedCampaignId, data),
-    onSuccess: () => {
-      toast.success("Rating submitted successfully!");
-      setRatingTarget(null);
-      queryClient.invalidateQueries({ queryKey: ['applications'] });
-    },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Failed to submit rating")
-  });
 
   const PlatformIcon = ({ platform }: { platform: string }) => {
     if (platform?.toLowerCase() === "instagram") return <Instagram className="w-3.5 h-3.5 text-primary" />;
@@ -126,8 +115,19 @@ const Applications = () => {
                 <Card key={app._id} className="bg-card border border-border p-6 hover-lift overflow-hidden relative">
                   <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
                     <div className="flex items-start gap-4 flex-1">
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20 shrink-0 relative">
-                        {app.influencer?.name?.charAt(0) || "I"}
+                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary border-2 border-primary/20 shrink-0 relative overflow-hidden">
+                        {app.influencer?.avatar ? (
+                          <img 
+                            src={app.influencer.avatar} 
+                            alt={app.influencer.name} 
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <span>{app.influencer?.name?.charAt(0) || "I"}</span>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -205,12 +205,9 @@ const Applications = () => {
                       ) : (app.status === "shortlisted" || app.status === "accepted") ? (
                           <>
                               {app.status === "accepted" ? (
-                                   <NeonButton 
-                                       neonVariant="primary" 
-                                       onClick={() => setRatingTarget({ id: app.influencer._id, name: app.influencer.name })}
-                                   >
-                                       <Star className="w-4 h-4 mr-2" />Rate Influencer
-                                   </NeonButton>
+                                   <div className="flex items-center gap-2 text-[10px] text-primary/60 font-bold uppercase tracking-widest px-3 py-2 bg-primary/5 rounded-lg border border-primary/10">
+                                      <Check className="w-3 h-3" /> Collaboration Completed
+                                   </div>
                               ) : (
                                    <NeonButton 
                                        neonVariant="primary" 
@@ -244,16 +241,6 @@ const Applications = () => {
           </div>
         )}
         
-        {ratingTarget && (
-            <RatingModal
-                isOpen={!!ratingTarget}
-                onClose={() => setRatingTarget(null)}
-                title={`Rate ${ratingTarget.name}`}
-                description="Your feedback helps influencers improve and builds trust in the community."
-                isSubmitting={rateMutation.isPending}
-                onSubmit={(data) => rateMutation.mutate({ ...data, rateeId: ratingTarget.id })}
-            />
-        )}
       </div>
     </DashboardLayout>
   );

@@ -7,7 +7,7 @@ interface CampaignCardProps {
   title: string;
   brandName: string;
   category: string;
-  platform: string;
+  platform: string | string[];
   budget: string;
   description: string;
   location: string;
@@ -15,6 +15,7 @@ interface CampaignCardProps {
   requirements: string[];
   urgency?: "low" | "medium" | "high" | "urgent";
   imageUrl?: string;
+  isApplied?: boolean;
   onApply?: () => void;
 }
 
@@ -30,6 +31,7 @@ const CampaignCard = ({
   requirements,
   urgency = "medium",
   imageUrl,
+  isApplied = false,
   onApply,
 }: CampaignCardProps) => {
   const getPlatformIcon = (p: string) => {
@@ -92,10 +94,14 @@ const CampaignCard = ({
             <span className="font-bold text-primary text-sm">{budget}</span>
           </div>
           
-          <Badge variant="outline" className="flex items-center gap-1.5 bg-muted/30 border-none px-3 py-1">
-            {getPlatformIcon(platform)}
-            <span className="capitalize">{platform.replace(/_/g, ' ')}</span>
-          </Badge>
+          <div className="flex flex-wrap gap-2">
+            {(Array.isArray(platform) ? platform : [platform]).map((p, idx) => (
+              <Badge key={idx} variant="outline" className="flex items-center gap-1.5 bg-muted/30 border-none px-3 py-1">
+                {getPlatformIcon(p)}
+                <span className="capitalize">{p.replace(/_/g, ' ')}</span>
+              </Badge>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -126,8 +132,18 @@ const CampaignCard = ({
           </div>
         </div>
 
-        <NeonButton neonVariant="primary" className="w-full py-5 text-sm font-bold transition-all" onClick={onApply}>
-          Apply for Collaboration
+        <NeonButton 
+          neonVariant={isApplied ? "secondary" : "primary"} 
+          className={`w-full py-5 text-sm font-bold transition-all ${isApplied ? 'opacity-70 border-green-500/50' : ''}`} 
+          onClick={isApplied ? undefined : onApply}
+          disabled={isApplied}
+        >
+          {isApplied ? (
+            <span className="flex items-center gap-2">
+              <Zap className="w-4 h-4 fill-green-500 text-green-500" /> 
+              Applied
+            </span>
+          ) : "Apply for Collaboration"}
         </NeonButton>
       </div>
     </Card>
