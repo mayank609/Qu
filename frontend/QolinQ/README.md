@@ -2,7 +2,7 @@
 
 Qolinq is a high-end digital ecosystem connecting premium brands with top-tier influencers. Built with a focus on experience, security, and performance.
 
-## Project Overview
+
 
 - **Frontend**: React + Vite + Tailwind CSS + TanStack Query
 - **Backend**: Node.js + Express + MongoDB
