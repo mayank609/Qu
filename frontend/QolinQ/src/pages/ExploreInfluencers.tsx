@@ -180,6 +180,7 @@ const ExploreInfluencers = () => {
             {influencers.map((profile: any) => (
               <InfluencerCard 
                 key={profile._id} 
+                id={profile.user?._id}
                 name={profile.user?.name || 'Influencer'}
                 bio={profile.bio}
                 category={profile.categories?.[0] || 'Uncategorized'}

@@ -77,6 +77,7 @@ const SavedProfiles = () => {
                 onClick={() => navigate(`/influencer/${profile.user?._id}`)}
               >
                 <InfluencerCard 
+                  id={profile.user?._id}
                   name={profile.user?.name || 'Influencer'}
                   bio={profile.bio || "No bio provided"}
                   category={profile.categories?.[0] || 'Influencer'}
