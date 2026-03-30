@@ -26,7 +26,6 @@ const Chat = () => {
   const [messageText, setMessageText] = useState("");
   const [showContract, setShowContract] = useState(false);
   const [showAiSummary, setShowAiSummary] = useState(false);
-  const [typingUser, setTypingUser] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const socketRef = useRef<any>(null);
@@ -52,7 +51,7 @@ const Chat = () => {
   useEffect(() => {
     if (!token) return;
 
-    socketRef.current = io(import.meta.env.VITE_API_URL || "http://localhost:5001", {
+    socketRef.current = io(import.meta.env.VITE_API_URL || "http://localhost:5000", {
       auth: { token },
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -88,13 +87,6 @@ const Chat = () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     });
 
-    socketRef.current.on("userTyping", ({ name, userId }: any) => {
-      if (userId !== user?._id) {
-        setTypingUser(name);
-        // Clear typing indicator after 3s of inactivity
-        setTimeout(() => setTypingUser(null), 3000);
-      }
-    });
 
     return () => {
       socketRef.current?.disconnect();
@@ -155,12 +147,6 @@ const Chat = () => {
         return;
     }
     sendMessageMutation.mutate({ content: messageText, type: 'text' });
-  };
-
-  const handleTyping = () => {
-    if (selectedChatId && socketRef.current) {
-        socketRef.current.emit("typing", { conversationId: selectedChatId });
-    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -259,14 +245,8 @@ const Chat = () => {
                   <div>
                     <h2 className="font-bold text-sm leading-none mb-1">{chatPartner?.name || "Loading..."}</h2>
                     <div className="flex items-center gap-1.5">
-                        {typingUser ? (
-                            <span className="text-[10px] text-primary font-medium animate-pulse">{typingUser} is typing...</span>
-                        ) : (
-                            <>
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                                <p className="text-[10px] text-muted-foreground">Active in negotiation</p>
-                            </>
-                        )}
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                        <p className="text-[10px] text-muted-foreground">Active in negotiation</p>
                     </div>
                   </div>
                 </div>
@@ -360,7 +340,6 @@ const Chat = () => {
                                 value={messageText} 
                                 onChange={(e) => {
                                     setMessageText(e.target.value);
-                                    handleTyping();
                                 }} 
                                 placeholder="Write your message..." 
                                 className="pr-10 bg-background border-primary/20 focus-visible:ring-primary/30 h-11" 

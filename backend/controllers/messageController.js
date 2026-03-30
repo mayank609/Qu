@@ -142,14 +142,20 @@ const sendMessage = async (req, res, next) => {
             moderationReason: moderated ? 'Spam detected' : ''
         });
 
-        // Notify other participants via Socket and DB
+        // Respond immediately to the client to prevent timeouts
+        res.status(201).json({
+            success: true,
+            data: message,
+        });
+
+        // Notify other participants asynchronously
         const io = req.app.get('io');
         if (io) {
             // Real-time delivery to the chat room
             io.to(`conv_${conversationId}`).emit('newMessage', message);
             
             // Push notification logic
-            await messageService.sendPushNotifications(conversation, message, req.user.name);
+            messageService.sendPushNotifications(conversation, message, req.user.name).catch(err => console.error('Push error:', err));
             
             // Real-time notification badge update
             conversation.participants.forEach(p => {
@@ -163,11 +169,6 @@ const sendMessage = async (req, res, next) => {
                 }
             });
         }
-
-        res.status(201).json({
-            success: true,
-            data: message,
-        });
     } catch (error) {
         next(error);
     }

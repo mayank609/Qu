@@ -32,22 +32,8 @@ const initializeSocket = (io) => {
             socket.join(`conv_${conversationId}`);
         });
 
-        // Real-time message (Now used primarily for real-time delivery if not using API)
-        socket.on('sendMessage', async (data) => {
-            try {
-                const { conversationId, content, type, fileUrl, fileName } = data;
-                const { message } = await messageService.createMessage(conversationId, socket.user._id, {
-                    content, type, fileUrl, fileName
-                });
-                
-                io.to(`conv_${conversationId}`).emit('newMessage', message);
-            } catch (err) { console.error('Socket message error:', err); }
-        });
-
-        // Typing indicator
-        socket.on('typing', ({ conversationId }) => {
-            socket.to(`conv_${conversationId}`).emit('userTyping', { userId: socket.user._id, name: socket.user.name });
-        });
+        // Typing indicator - REMOVED for minimal chat
+        // Real-time message - API now handles creation
 
         // Mark messages as read
         socket.on('messageRead', async ({ conversationId }) => {
