@@ -18,6 +18,7 @@ const NeonButton = forwardRef<HTMLButtonElement, NeonButtonProps>(
     return (
       <Button
         ref={ref}
+        variant="ghost"
         className={cn(
           "font-semibold transition-all duration-200",
           variantStyles[neonVariant],

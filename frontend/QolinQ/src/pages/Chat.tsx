@@ -51,7 +51,9 @@ const Chat = () => {
   useEffect(() => {
     if (!token) return;
 
-    socketRef.current = io(import.meta.env.VITE_API_URL || "http://localhost:5000", {
+    const SOCKET_URL = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : "http://localhost:5000");
+
+    socketRef.current = io(SOCKET_URL, {
       auth: { token },
       reconnection: true,
       reconnectionAttempts: 5,
