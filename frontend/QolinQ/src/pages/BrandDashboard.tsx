@@ -9,11 +9,30 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { brandAPI, campaignAPI, searchAPI } from "@/lib/api";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const BrandDashboard = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, isLoading: authLoading } = useAuth();
+
+  const { data: brandProfileRes } = useQuery({
+    queryKey: ['brand-profile'],
+    queryFn: () => brandAPI.getProfile(),
+    enabled: !!user && user.role === 'brand',
+  });
+
+  const toggleSaveMutation = useMutation({
+    mutationFn: (id: string) => brandAPI.toggleSaveInfluencer(id),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['brand-profile'] });
+      queryClient.invalidateQueries({ queryKey: ['saved-influencers'] });
+      toast.success(res.data.message);
+    },
+    onError: () => toast.error("Failed to update saved status")
+  });
+
+  const savedInfluencerIds = brandProfileRes?.data?.data?.savedInfluencers || [];
 
   const { data: dashboardData, isLoading: dashLoading } = useQuery({
     queryKey: ['brand-dashboard'],
@@ -181,8 +200,12 @@ const BrandDashboard = () => {
                 </div>
                 <div className="flex items-center justify-between border-t border-border pt-2">
                   <span className="text-sm font-semibold text-primary">₹{inf.priceExpectation?.min?.toLocaleString() || "N/A"}</span>
-                  <button onClick={() => toast.success(`${inf.user?.name} saved!`)} className="text-muted-foreground hover:text-primary transition-colors">
-                    <Bookmark className="w-4 h-4" />
+                  <button 
+                    onClick={() => toggleSaveMutation.mutate(inf.user?._id || inf.user)} 
+                    className={`transition-colors ${savedInfluencerIds.includes(inf.user?._id || inf.user) ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                    disabled={toggleSaveMutation.isPending}
+                  >
+                    <Bookmark className={`w-4 h-4 ${savedInfluencerIds.includes(inf.user?._id || inf.user) ? 'fill-current' : ''}`} />
                   </button>
                 </div>
               </Card>
