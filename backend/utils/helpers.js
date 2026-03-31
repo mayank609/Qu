@@ -69,10 +69,17 @@ const buildSort = (sortQuery, defaultSort = { createdAt: -1 }) => {
     return sort;
 };
 
+/** Escape a string for safe use inside MongoDB $regex (user-supplied search text). */
+const escapeRegex = (s) => {
+    if (s == null || s === '') return '';
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+};
+
 module.exports = {
     getPagination,
     paginationMeta,
     slugify,
     daysBetween,
     buildSort,
+    escapeRegex,
 };

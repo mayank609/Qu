@@ -18,6 +18,7 @@ const ExploreCampaigns = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [platform, setPlatform] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("");
   const [budgetRange, setBudgetRange] = useState("all");
   const [urgency, setUrgency] = useState("all");
   const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
@@ -25,18 +26,20 @@ const ExploreCampaigns = () => {
   const [offeredPrice, setOfferedPrice] = useState("");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['campaigns', category, platform, budgetRange, urgency, search],
+    queryKey: ['campaigns', category, platform, locationFilter, budgetRange, urgency, search],
     queryFn: () => {
       const minBudget = budgetRange === '0-5000' ? 0 : budgetRange === '5000-15000' ? 5000 : budgetRange === '15000-50000' ? 15000 : budgetRange === '50000+' ? 50000 : undefined;
       const maxBudget = budgetRange === '0-5000' ? 5000 : budgetRange === '5000-15000' ? 15000 : budgetRange === '15000-50000' ? 50000 : undefined;
-      
-      return searchAPI.campaigns({ 
-        category: category !== 'all' ? category : undefined, 
+      const loc = locationFilter.trim();
+
+      return searchAPI.campaigns({
+        category: category !== 'all' ? category : undefined,
         platform: platform !== 'all' ? platform.toLowerCase() : undefined,
+        location: loc || undefined,
         urgency: urgency !== 'all' ? urgency.toLowerCase() : undefined,
         minBudget,
         maxBudget,
-        search 
+        search: search.trim() || undefined,
       });
     },
   });
@@ -87,7 +90,7 @@ const ExploreCampaigns = () => {
           <p className="text-muted-foreground">Find brand deals that match your style</p>
         </div>
 
-        <NeonSearchBar placeholder="Search by title, brand, location, or deliverables..." value={search} onChange={setSearch} />
+        <NeonSearchBar placeholder="Search by title, brand, keywords, or deliverables..." value={search} onChange={setSearch} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <div className="space-y-1.5">
@@ -113,7 +116,8 @@ const ExploreCampaigns = () => {
                 <SelectItem value="facebook">Facebook</SelectItem>
                 <SelectItem value="tiktok">TikTok</SelectItem>
                 <SelectItem value="linkedin">LinkedIn</SelectItem>
-                <SelectItem value="twitter">Twitter</SelectItem>
+                <SelectItem value="twitter">Twitter (X)</SelectItem>
+                <SelectItem value="snapchat">Snapchat</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -143,6 +147,17 @@ const ExploreCampaigns = () => {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div className="space-y-1.5 animate-fade-in" style={{ animationDelay: '120ms' }}>
+          <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Location</Label>
+          <Input
+            placeholder="Filter by city or country (e.g. Mumbai, India)"
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+            className="bg-muted/30 border-border max-w-xl"
+          />
+          <p className="text-[10px] text-muted-foreground">Matches campaign target location (city or country).</p>
         </div>
 
         {isLoading ? (

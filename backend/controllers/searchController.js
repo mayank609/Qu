@@ -1,6 +1,18 @@
 const InfluencerProfile = require('../models/InfluencerProfile');
 const Campaign = require('../models/Campaign');
-const { getPagination, paginationMeta, buildSort } = require('../utils/helpers');
+const { getPagination, paginationMeta, buildSort, escapeRegex } = require('../utils/helpers');
+
+/** UI platform filter → campaign.platform[] enum values stored in DB */
+const CAMPAIGN_PLATFORM_GROUPS = {
+    instagram: ['instagram_reel', 'instagram_story', 'instagram_post'],
+    youtube: ['youtube_video', 'youtube_short'],
+    facebook: ['facebook_post'],
+    tiktok: ['tiktok_video'],
+    linkedin: ['linkedin_post'],
+    twitter: ['twitter_post'],
+    x: ['twitter_post'],
+    snapchat: ['snapchat_spotlight'],
+};
 
 const searchInfluencers = async (req, res, next) => {
     try {
@@ -113,16 +125,36 @@ const searchInfluencers = async (req, res, next) => {
 const searchCampaigns = async (req, res, next) => {
     try {
         const { page, limit, skip } = getPagination(req.query);
-        const { category, platform, minBudget, maxBudget, country, urgency, search, sort: sortQuery } = req.query;
-        
+        const {
+            category,
+            platform,
+            minBudget,
+            maxBudget,
+            country,
+            location: locationQuery,
+            urgency,
+            search,
+            sort: sortQuery,
+        } = req.query;
+
         let matchStage = { status: 'active' };
-        if (category) matchStage.category = category;
-        if (platform && platform !== 'all') {
-            matchStage.platform = { $in: [platform] };
+        if (category && category !== 'all') {
+            const c = String(category).trim();
+            matchStage.category = { $regex: `^${escapeRegex(c)}$`, $options: 'i' };
         }
-        if (urgency) matchStage.urgency = urgency;
-        if (country) matchStage['location.country'] = { $regex: country, $options: 'i' };
-        
+        if (platform && platform !== 'all') {
+            const p = String(platform).toLowerCase().trim();
+            const variants = CAMPAIGN_PLATFORM_GROUPS[p];
+            matchStage.platform = variants?.length
+                ? { $in: variants }
+                : { $in: [p] };
+        }
+        if (urgency && urgency !== 'all') matchStage.urgency = urgency;
+        if (country && String(country).trim()) {
+            const safe = escapeRegex(String(country).trim());
+            matchStage['location.country'] = { $regex: safe, $options: 'i' };
+        }
+
         if (minBudget || maxBudget) {
             matchStage['budgetRange.min'] = {};
             matchStage['budgetRange.max'] = {};
@@ -130,15 +162,28 @@ const searchCampaigns = async (req, res, next) => {
             if (maxBudget) matchStage['budgetRange.min'].$lte = parseInt(maxBudget);
         }
 
-        const pipeline = [
-            { $match: matchStage },
+        const pipeline = [{ $match: matchStage }];
+
+        if (locationQuery && String(locationQuery).trim()) {
+            const safe = escapeRegex(String(locationQuery).trim());
+            pipeline.push({
+                $match: {
+                    $or: [
+                        { 'location.city': { $regex: safe, $options: 'i' } },
+                        { 'location.country': { $regex: safe, $options: 'i' } },
+                    ],
+                },
+            });
+        }
+
+        pipeline.push(
             {
                 $lookup: {
                     from: 'users',
                     localField: 'brand',
                     foreignField: '_id',
-                    as: 'brandData'
-                }
+                    as: 'brandData',
+                },
             },
             { $unwind: '$brandData' },
             {
@@ -146,26 +191,27 @@ const searchCampaigns = async (req, res, next) => {
                     from: 'brandprofiles',
                     localField: 'brand',
                     foreignField: 'user',
-                    as: 'brandProfileData'
-                }
+                    as: 'brandProfileData',
+                },
             },
             { $unwind: { path: '$brandProfileData', preserveNullAndEmptyArrays: true } }
-        ];
+        );
 
-        if (search) {
+        if (search && String(search).trim()) {
+            const safe = escapeRegex(String(search).trim());
             pipeline.push({
                 $match: {
                     $or: [
-                        { title: { $regex: search, $options: 'i' } },
-                        { description: { $regex: search, $options: 'i' } },
-                        { 'brandData.name': { $regex: search, $options: 'i' } },
-                        { 'location.city': { $regex: search, $options: 'i' } },
-                        { 'location.country': { $regex: search, $options: 'i' } },
-                        { 'deliverables.description': { $regex: search, $options: 'i' } },
-                        { 'deliverables.type': { $regex: search, $options: 'i' } },
-                        { 'brandProfileData.description': { $regex: search, $options: 'i' } }
-                    ]
-                }
+                        { title: { $regex: safe, $options: 'i' } },
+                        { description: { $regex: safe, $options: 'i' } },
+                        { 'brandData.name': { $regex: safe, $options: 'i' } },
+                        { 'location.city': { $regex: safe, $options: 'i' } },
+                        { 'location.country': { $regex: safe, $options: 'i' } },
+                        { 'deliverables.description': { $regex: safe, $options: 'i' } },
+                        { 'deliverables.type': { $regex: safe, $options: 'i' } },
+                        { 'brandProfileData.description': { $regex: safe, $options: 'i' } },
+                    ],
+                },
             });
         }
 
