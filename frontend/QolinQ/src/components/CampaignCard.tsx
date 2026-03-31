@@ -34,6 +34,15 @@ const CampaignCard = ({
   isApplied = false,
   onApply,
 }: CampaignCardProps) => {
+  const getPlatformLabel = (p: string) => {
+    const key = p.toLowerCase();
+    if (key === "facebook_post") return "Facebook Reel";
+    if (key === "linkedin_post") return "Facebook Post";
+    if (key === "snapchat_spotlight") return "Facebook Story";
+    if (key === "twitter_post") return "Twitter (X) post";
+    return p.replace(/_/g, " ");
+  };
+
   const getPlatformIcon = (p: string) => {
     const platform = p.toLowerCase();
     if (platform.includes('instagram')) return <Instagram className="w-3.5 h-3.5" />;
@@ -86,7 +95,7 @@ const CampaignCard = ({
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{description}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{description}</p>
 
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-full px-4 py-1.5 transition-colors hover:bg-primary/10">
@@ -98,7 +107,7 @@ const CampaignCard = ({
             {(Array.isArray(platform) ? platform : [platform]).map((p, idx) => (
               <Badge key={idx} variant="outline" className="flex items-center gap-1.5 bg-muted/30 border-none px-3 py-1">
                 {getPlatformIcon(p)}
-                <span className="capitalize">{p.replace(/_/g, ' ')}</span>
+                <span className="capitalize">{getPlatformLabel(p)}</span>
               </Badge>
             ))}
           </div>

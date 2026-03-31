@@ -175,12 +175,23 @@ const Settings = () => {
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // In a real app, we'd upload to Cloudinary/S3 here
-            // For now, we'll use a placeholder or local preview
+            const maxFileSize = 2 * 1024 * 1024; // 2MB
+            if (!file.type.startsWith("image/")) {
+                toast.error("Please select a valid image file.");
+                return;
+            }
+            if (file.size > maxFileSize) {
+                toast.error("Image is too large. Max size is 2MB.");
+                return;
+            }
+
             const reader = new FileReader();
+            reader.onerror = () => {
+                toast.error("Failed to read image file. Please try again.");
+            };
             reader.onloadend = () => {
                 setAvatarPreview(reader.result as string);
-                toast.success("Profile photo updated localy! Click save to persist.");
+                toast.success("Profile photo updated locally. Click save to persist.");
             };
             reader.readAsDataURL(file);
         }

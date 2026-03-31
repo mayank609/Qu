@@ -87,7 +87,7 @@ const ExploreCampaigns = () => {
           <p className="text-muted-foreground">Find brand deals that match your style</p>
         </div>
 
-        <NeonSearchBar placeholder="Search campaigns by title, brand, or category..." value={search} onChange={setSearch} />
+        <NeonSearchBar placeholder="Search by title, brand, location, or deliverables..." value={search} onChange={setSearch} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <div className="space-y-1.5">

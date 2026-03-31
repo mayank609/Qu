@@ -204,7 +204,9 @@ const getDashboard = async (req, res, next) => {
         const [
             totalApplications,
             acceptedCampaigns,
-            pendingApplications,
+            appliedApplications,
+            shortlistedApplications,
+            rejectedApplications,
             totalEarnings,
             avgRating,
         ] = await Promise.all([
@@ -228,7 +230,8 @@ const getDashboard = async (req, res, next) => {
             data: {
                 totalApplications,
                 acceptedCampaigns,
-                pendingApplications,
+                pendingApplications: appliedApplications + shortlistedApplications,
+                appliedApplications,
                 shortlistedApplications,
                 rejectedApplications,
                 totalEarnings: totalEarnings[0]?.total || 0,

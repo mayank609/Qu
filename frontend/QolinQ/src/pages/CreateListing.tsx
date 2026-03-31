@@ -159,11 +159,11 @@ const CreateListing = () => {
                     { id: 'instagram_post', label: 'Instagram Post' },
                     { id: 'youtube_video', label: 'YouTube Video' },
                     { id: 'youtube_short', label: 'YouTube Shorts' },
-                    { id: 'facebook_post', label: 'Facebook' },
+                    { id: 'facebook_post', label: 'Facebook Reel' },
                     { id: 'tiktok_video', label: 'TikTok' },
-                    { id: 'linkedin_post', label: 'LinkedIn' },
-                    { id: 'twitter_post', label: 'Twitter/X' },
-                    { id: 'snapchat_spotlight', label: 'Snapchat' }
+                    { id: 'linkedin_post', label: 'Facebook Post' },
+                    { id: 'twitter_post', label: 'Twitter (X) post' },
+                    { id: 'snapchat_spotlight', label: 'Facebook Story' }
                   ].map((p) => {
                     const isSelected = formData.platform.includes(p.id);
                     return (

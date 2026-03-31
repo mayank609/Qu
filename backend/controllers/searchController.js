@@ -149,7 +149,11 @@ const searchCampaigns = async (req, res, next) => {
                     $or: [
                         { title: { $regex: search, $options: 'i' } },
                         { description: { $regex: search, $options: 'i' } },
-                        { 'brandData.name': { $regex: search, $options: 'i' } }
+                        { 'brandData.name': { $regex: search, $options: 'i' } },
+                        { 'location.city': { $regex: search, $options: 'i' } },
+                        { 'location.country': { $regex: search, $options: 'i' } },
+                        { 'deliverables.description': { $regex: search, $options: 'i' } },
+                        { 'deliverables.type': { $regex: search, $options: 'i' } }
                     ]
                 }
             });
