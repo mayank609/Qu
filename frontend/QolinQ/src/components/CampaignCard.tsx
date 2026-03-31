@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, DollarSign, Instagram, Youtube, Linkedin, Twitter, Globe, Zap } from "lucide-react";
+import { MapPin, Calendar, DollarSign, Instagram, Youtube, Linkedin, Twitter, Globe, Zap, Building2 } from "lucide-react";
 import NeonButton from "./NeonButton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CampaignCardProps {
   title: string;
@@ -15,6 +18,8 @@ interface CampaignCardProps {
   requirements: string[];
   urgency?: "low" | "medium" | "high" | "urgent";
   imageUrl?: string;
+  /** Brand profile "about" text from BrandProfile.description */
+  brandAbout?: string;
   isApplied?: boolean;
   onApply?: () => void;
 }
@@ -31,9 +36,12 @@ const CampaignCard = ({
   requirements,
   urgency = "medium",
   imageUrl,
+  brandAbout,
   isApplied = false,
   onApply,
 }: CampaignCardProps) => {
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const trimmedAbout = brandAbout?.trim() || "";
   const getPlatformLabel = (p: string) => {
     const key = p.toLowerCase();
     if (key === "facebook_post") return "Facebook Reel";
@@ -94,6 +102,33 @@ const CampaignCard = ({
             <h3 className="text-xl font-bold leading-tight group-hover:text-primary transition-colors">{title}</h3>
           </div>
         </div>
+
+        {trimmedAbout && (
+          <>
+            <button
+              type="button"
+              onClick={() => setAboutOpen(true)}
+              className="w-full text-left rounded-lg border border-border/60 bg-muted/20 p-3 transition-colors hover:bg-muted/35 hover:border-primary/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">About brand</span>
+              </div>
+              <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">{trimmedAbout}</p>
+              <span className="text-[10px] font-semibold text-primary mt-2 inline-block">Click to read full profile</span>
+            </button>
+            <Dialog open={aboutOpen} onOpenChange={setAboutOpen}>
+              <DialogContent className="sm:max-w-lg bg-card border-border max-h-[85vh] flex flex-col gap-0">
+                <DialogHeader className="pr-8">
+                  <DialogTitle className="text-lg">About {brandName || "Brand"}</DialogTitle>
+                </DialogHeader>
+                <ScrollArea className="max-h-[min(60vh,480px)] pr-3">
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed pb-1">{trimmedAbout}</p>
+                </ScrollArea>
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
 
         <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{description}</p>
 

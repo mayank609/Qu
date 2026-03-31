@@ -140,7 +140,16 @@ const searchCampaigns = async (req, res, next) => {
                     as: 'brandData'
                 }
             },
-            { $unwind: '$brandData' }
+            { $unwind: '$brandData' },
+            {
+                $lookup: {
+                    from: 'brandprofiles',
+                    localField: 'brand',
+                    foreignField: 'user',
+                    as: 'brandProfileData'
+                }
+            },
+            { $unwind: { path: '$brandProfileData', preserveNullAndEmptyArrays: true } }
         ];
 
         if (search) {
@@ -153,7 +162,8 @@ const searchCampaigns = async (req, res, next) => {
                         { 'location.city': { $regex: search, $options: 'i' } },
                         { 'location.country': { $regex: search, $options: 'i' } },
                         { 'deliverables.description': { $regex: search, $options: 'i' } },
-                        { 'deliverables.type': { $regex: search, $options: 'i' } }
+                        { 'deliverables.type': { $regex: search, $options: 'i' } },
+                        { 'brandProfileData.description': { $regex: search, $options: 'i' } }
                     ]
                 }
             });
@@ -172,15 +182,19 @@ const searchCampaigns = async (req, res, next) => {
         const results = await Campaign.aggregate(pipeline);
         
         const total = results[0].metadata[0]?.total || 0;
-        const campaigns = results[0].data.map(c => ({
-            ...c,
-            brand: {
-                _id: c.brandData._id,
-                name: c.brandData.name,
-                avatar: c.brandData.avatar,
-                trustBadge: c.brandData.trustBadge
-            }
-        }));
+        const campaigns = results[0].data.map((c) => {
+            const { brandData, brandProfileData, ...campaign } = c;
+            return {
+                ...campaign,
+                brand: {
+                    _id: brandData._id,
+                    name: brandData.name,
+                    avatar: brandData.avatar,
+                    trustBadge: brandData.trustBadge,
+                    description: brandProfileData?.description || '',
+                },
+            };
+        });
 
         res.json({
             success: true,

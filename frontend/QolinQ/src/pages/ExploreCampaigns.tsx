@@ -176,6 +176,7 @@ const ExploreCampaigns = () => {
                 requirements={campaign.deliverables.map((d: any) => d.description || d.type)}
                 urgency={campaign.urgency || "medium"}
                 imageUrl={campaign.imageUrl}
+                brandAbout={campaign.brand?.description}
                 isApplied={appliedCampaignIds.has(campaign._id)}
                 onApply={() => setSelectedCampaign(campaign)} 
               />

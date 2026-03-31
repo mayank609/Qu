@@ -106,9 +106,24 @@ const getCampaigns = async (req, res, next) => {
             Campaign.countDocuments(filter),
         ]);
 
+        const brandUserIds = campaigns.map((c) => c.brand?._id).filter(Boolean);
+        const brandProfiles = await BrandProfile.find({ user: { $in: brandUserIds } }).select('user description');
+        const brandAboutByUserId = new Map(
+            brandProfiles.map((p) => [p.user.toString(), p.description || ''])
+        );
+
+        const data = campaigns.map((c) => {
+            const plain = c.toObject();
+            const bid = plain.brand?._id?.toString();
+            if (plain.brand && bid) {
+                plain.brand = { ...plain.brand, description: brandAboutByUserId.get(bid) || '' };
+            }
+            return plain;
+        });
+
         res.json({
             success: true,
-            data: campaigns,
+            data,
             pagination: paginationMeta(total, page, limit),
         });
     } catch (error) {
@@ -141,6 +156,7 @@ const getCampaign = async (req, res, next) => {
                     ? {
                         companyName: brandProfile.companyName,
                         website: brandProfile.website,
+                        description: brandProfile.description,
                         ratings: brandProfile.ratings,
                         totalCampaigns: brandProfile.totalCampaigns,
                     }

@@ -17,14 +17,16 @@ const BrandSignup = () => {
   const { register } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ 
-    name: "", 
-    businessName: "", 
-    email: "", 
-    password: "", 
-    phone: "", 
-    categories: [] as string[], 
-    location: "" 
+  const [formData, setFormData] = useState({
+    name: "",
+    businessName: "",
+    email: "",
+    password: "",
+    phone: "",
+    categories: [] as string[],
+    location: "",
+    website: "",
+    aboutBrand: "",
   });
   const [otherCategory, setOtherCategory] = useState("");
   const categoryOptions = CATEGORIES;
@@ -54,11 +56,11 @@ const BrandSignup = () => {
       await brandAPI.updateProfile({
         companyName: formData.businessName,
         categories: finalCategories,
-        website: (formData as any).website,
-        description: (formData as any).description,
-        location: { 
-          city: formData.location.split(",")[0]?.trim(), 
-          country: formData.location.split(",")[1]?.trim() 
+        website: formData.website.trim(),
+        description: formData.aboutBrand.trim(),
+        location: {
+          city: formData.location.split(",")[0]?.trim(),
+          country: formData.location.split(",")[1]?.trim(),
         },
       });
 
@@ -146,18 +148,18 @@ const BrandSignup = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="website">Website <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
-              <Input id="website" placeholder="https://example.com" value={(formData as any).website || ""} onChange={(e) => setFormData({ ...formData, website: e.target.value } as any)} />
+              <Input id="website" placeholder="https://example.com" value={formData.website} onChange={(e) => setFormData({ ...formData, website: e.target.value })} />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">About the Brand / Requirements <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
+            <Label htmlFor="aboutBrand">About your brand <span className="text-muted-foreground font-normal text-xs">(Optional)</span></Label>
             <Textarea 
-              id="description" 
-              placeholder="Briefly describe your brand and what kind of influencers you're looking for..." 
-              value={(formData as any).description || ""} 
-              onChange={(e) => setFormData({ ...formData, description: e.target.value } as any)} 
-              className="min-h-[100px]"
+              id="aboutBrand" 
+              placeholder="Tell creators who you are, your values, and what collaborations you’re looking for…" 
+              value={formData.aboutBrand} 
+              onChange={(e) => setFormData({ ...formData, aboutBrand: e.target.value })} 
+              className="min-h-[120px]"
             />
           </div>
 
