@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, DollarSign, Instagram, Youtube, Linkedin, Twitter, Globe, Zap, Building2 } from "lucide-react";
+import { MapPin, Calendar, DollarSign, Instagram, Youtube, Linkedin, Twitter, Globe, Zap, Building2, FileText } from "lucide-react";
 import NeonButton from "./NeonButton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -41,7 +41,9 @@ const CampaignCard = ({
   onApply,
 }: CampaignCardProps) => {
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [campaignBriefOpen, setCampaignBriefOpen] = useState(false);
   const trimmedAbout = brandAbout?.trim() || "";
+  const trimmedDescription = description?.trim() || "";
   const getPlatformLabel = (p: string) => {
     const key = p.toLowerCase();
     if (key === "facebook_post") return "Facebook Reel";
@@ -130,7 +132,38 @@ const CampaignCard = ({
           </>
         )}
 
-        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">{description}</p>
+        {trimmedDescription ? (
+          <>
+            <div className="rounded-lg border border-border/60 bg-muted/15 p-3 space-y-2.5">
+              <div className="flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">About this campaign</span>
+              </div>
+              <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed whitespace-pre-wrap break-words">
+                {trimmedDescription}
+              </p>
+              <NeonButton
+                type="button"
+                neonVariant="outline"
+                className="w-full py-3 text-xs font-semibold"
+                onClick={() => setCampaignBriefOpen(true)}
+              >
+                Read full campaign brief
+              </NeonButton>
+            </div>
+            <Dialog open={campaignBriefOpen} onOpenChange={setCampaignBriefOpen}>
+              <DialogContent className="sm:max-w-lg bg-card border-border max-h-[85vh] flex flex-col gap-0">
+                <DialogHeader className="pr-8 text-left">
+                  <DialogTitle className="text-lg leading-snug">{title}</DialogTitle>
+                  <p className="text-xs text-muted-foreground font-normal pt-1">Full campaign description</p>
+                </DialogHeader>
+                <ScrollArea className="max-h-[min(60vh,480px)] pr-3">
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed pb-1">{trimmedDescription}</p>
+                </ScrollArea>
+              </DialogContent>
+            </Dialog>
+          </>
+        ) : null}
 
         <div className="flex flex-wrap gap-4 items-center">
           <div className="flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-full px-4 py-1.5 transition-colors hover:bg-primary/10">
