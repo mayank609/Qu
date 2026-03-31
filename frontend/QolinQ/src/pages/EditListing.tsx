@@ -13,9 +13,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ImagePlus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+const MAX_COVER_IMAGE_BYTES = 2 * 1024 * 1024;
 
 const EditListing = () => {
   const { id } = useParams();
@@ -102,6 +104,29 @@ const EditListing = () => {
       setIsSaving(false);
     }
   };
+
+  const handleCoverImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file (JPG, PNG, or WebP).");
+      return;
+    }
+    if (file.size > MAX_COVER_IMAGE_BYTES) {
+      toast.error("Image is too large. Maximum size is 2MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => toast.error("Could not read that file. Try another image.");
+    reader.onloadend = () => {
+      setFormData((prev) => ({ ...prev, imageUrl: reader.result as string }));
+      toast.success("Cover image added.");
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const clearCoverImage = () => setFormData((prev) => ({ ...prev, imageUrl: "" }));
 
   if (isLoading) {
     return (
@@ -289,23 +314,55 @@ const EditListing = () => {
             </h2>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Campaign Cover Image URL</Label>
-                <Input 
-                  placeholder="Paste a high-quality image URL (e.g., Unsplash link)" 
-                  value={formData.imageUrl}
-                  onChange={e => setFormData({...formData, imageUrl: e.target.value})}
+                <Label>Campaign cover image</Label>
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                  <label className="inline-flex items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-3 text-sm font-medium cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors w-full sm:w-auto">
+                    <ImagePlus className="w-4 h-4 text-primary" />
+                    Upload from device
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={handleCoverImageFile}
+                    />
+                  </label>
+                  {formData.imageUrl && (
+                    <Button type="button" variant="ghost" size="sm" onClick={clearCoverImage} className="text-destructive hover:text-destructive">
+                      <X className="w-4 h-4 mr-1" />
+                      Remove image
+                    </Button>
+                  )}
+                </div>
+                <p className="text-[10px] text-muted-foreground">
+                  JPG, PNG, WebP, or GIF. Max 2MB. Recommended aspect ~16:9.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground font-normal">Or paste an image URL (optional)</Label>
+                <Input
+                  placeholder="https://…"
+                  value={formData.imageUrl?.startsWith("http") ? formData.imageUrl : ""}
+                  onChange={(e) => {
+                    const v = e.target.value.trim();
+                    if (!v) {
+                      if (formData.imageUrl?.startsWith("http")) clearCoverImage();
+                      return;
+                    }
+                    setFormData({ ...formData, imageUrl: v });
+                  }}
                   className="bg-muted/30"
                 />
               </div>
-              
+
               {formData.imageUrl && (
-                <div className="relative group rounded-xl overflow-hidden aspect-video bg-muted border border-border mt-4 max-w-md">
-                   <img 
-                    src={formData.imageUrl} 
-                    alt="Preview" 
+                <div className="relative group rounded-xl overflow-hidden aspect-video bg-muted border border-border mt-2 max-w-md">
+                  <img
+                    src={formData.imageUrl}
+                    alt="Cover preview"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800';
+                      (e.target as HTMLImageElement).src =
+                        "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800";
                     }}
                   />
                 </div>
