@@ -20,6 +20,7 @@ const createCampaign = async (req, res, next) => {
             category,
             urgency,
             maxApplications,
+            imageUrl,
         } = req.body;
 
         const campaign = await Campaign.create({
@@ -38,6 +39,7 @@ const createCampaign = async (req, res, next) => {
             urgency: urgency || 'medium',
             maxApplications: maxApplications || 50,
             status: 'active',
+            imageUrl: imageUrl || '',
         });
 
         // Increment brand campaign count
@@ -188,6 +190,7 @@ const updateCampaign = async (req, res, next) => {
             'title', 'description', 'deliverables', 'platform', 'budgetRange',
             'timeline', 'audienceTarget', 'hashtags', 'contentGuidelines',
             'location', 'category', 'urgency', 'status', 'maxApplications',
+            'imageUrl',
         ];
 
         allowedFields.forEach((field) => {
