@@ -14,12 +14,10 @@ import { toast } from "sonner";
 import { influencerAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { CATEGORIES } from "@/constants/categories";
+import { SUPPORT_PHONE_DISPLAY, SUPPORT_WHATSAPP_URL } from "@/constants/support";
 
 /** Per-file cap keeps base64 payloads under the API JSON body limit (10 MB for the whole save). */
 const MAX_BEST_CONTENT_FILE_BYTES = 7 * 1024 * 1024;
-
-const SUPPORT_WHATSAPP_URL = "https://wa.me/918597264942";
-const SUPPORT_PHONE_DISPLAY = "+91 85972 64942";
 
 const Settings = () => {
     const navigate = useNavigate();
