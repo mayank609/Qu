@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, MessageSquare, TrendingUp, Users, Instagram, Youtube, Twitter, Facebook, MapPin, Bookmark, ClipboardList } from "lucide-react";
+import { Eye, TrendingUp, Users, Instagram, Youtube, Twitter, Facebook, MapPin, Bookmark, ClipboardList, Wallet } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -80,7 +80,7 @@ const BrandDashboard = () => {
     { label: "Active Campaigns", value: dashboard?.activeCampaigns?.toString() || "0", icon: TrendingUp },
     { label: "Total Campaigns", value: dashboard?.totalCampaigns?.toString() || "0", icon: Eye },
     { label: "Applications", value: dashboard?.totalApplicationsReceived?.toString() || "0", icon: Users },
-    { label: "Rating", value: dashboard?.rating?.average || "N/A", icon: MessageSquare },
+    { label: "Total spent", value: `₹${(dashboard?.totalSpent ?? 0).toLocaleString()}`, icon: Wallet },
   ];
 
   const PlatformIcon = ({ platform }: { platform: string }) => {

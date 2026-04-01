@@ -3,7 +3,6 @@ const BrandProfile = require('../models/BrandProfile');
 const Campaign = require('../models/Campaign');
 const Application = require('../models/Application');
 const Escrow = require('../models/Escrow');
-const Rating = require('../models/Rating');
 const Notification = require('../models/Notification');
 
 // @desc    Get brand profile
@@ -91,7 +90,6 @@ const getDashboard = async (req, res, next) => {
             totalCampaigns,
             totalApplications,
             totalSpent,
-            avgRating,
         ] = await Promise.all([
             Campaign.countDocuments({ brand: req.user._id, status: 'active' }),
             Campaign.countDocuments({ brand: req.user._id }),
@@ -111,10 +109,6 @@ const getDashboard = async (req, res, next) => {
                 { $match: { brand: req.user._id, status: 'released' } },
                 { $group: { _id: null, total: { $sum: '$amount' } } },
             ]),
-            Rating.aggregate([
-                { $match: { ratee: req.user._id } },
-                { $group: { _id: null, avg: { $avg: '$overallScore' }, count: { $sum: 1 } } },
-            ]),
         ]);
 
         res.json({
@@ -124,10 +118,6 @@ const getDashboard = async (req, res, next) => {
                 totalCampaigns,
                 totalApplicationsReceived: totalApplications[0]?.total || 0,
                 totalSpent: totalSpent[0]?.total || 0,
-                rating: {
-                    average: avgRating[0]?.avg?.toFixed(1) || 0,
-                    count: avgRating[0]?.count || 0,
-                },
             },
         });
     } catch (error) {

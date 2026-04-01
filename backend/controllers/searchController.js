@@ -87,8 +87,7 @@ const searchInfluencers = async (req, res, next) => {
         // Sorting
         const sort = buildSort(sortQuery, {
             'userData.trustBadge': -1,
-            'ratings.average': -1,
-            'totalFollowers': -1
+            totalFollowers: -1,
         });
         pipeline.push({ $sort: sort });
 

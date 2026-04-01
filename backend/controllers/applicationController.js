@@ -119,7 +119,6 @@ const getCampaignApplications = async (req, res, next) => {
                             totalFollowers: profile.totalFollowers,
                             engagementRate: profile.engagementRate,
                             categories: profile.categories,
-                            ratings: profile.ratings,
                             niche: profile.niche,
                         }
                         : null,
@@ -172,7 +171,6 @@ const getAllBrandApplications = async (req, res, next) => {
                             totalFollowers: profile.totalFollowers,
                             engagementRate: profile.engagementRate,
                             categories: profile.categories,
-                            ratings: profile.ratings,
                             niche: profile.niche,
                             location: profile.location
                         }

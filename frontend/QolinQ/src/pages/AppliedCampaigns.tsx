@@ -7,7 +7,6 @@ import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { applicationAPI, messageAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
@@ -43,8 +42,6 @@ const AppliedCampaigns = () => {
     },
     onError: (err: any) => toast.error(err.response?.data?.message || "Upload failed")
   });
-
-  // Rating flow intentionally disabled.
 
   const handleUpload = (appId: string, type: 'draft' | 'final') => {
     const url = prompt(`Enter ${type} URL (e.g. YouTube/Instagram link or Google Drive file):`);
@@ -179,7 +176,6 @@ const AppliedCampaigns = () => {
                     
                     {app.status === 'accepted' && (
                         <>
-                            {/* Rating CTA intentionally disabled. */}
                             {!app.contentDraft?.url && (
                                 <NeonButton 
                                     neonVariant="primary" 
@@ -210,8 +206,6 @@ const AppliedCampaigns = () => {
             ))}
           </div>
         )}
-
-        {/* Rating modal intentionally disabled. */}
 
         <Dialog open={!!briefCampaign} onOpenChange={(open) => !open && setBriefCampaign(null)}>
           <DialogContent className="sm:max-w-[550px] bg-card border-border max-h-[80vh] overflow-y-auto">

@@ -59,7 +59,6 @@ app.use('/api/campaigns', require('./routes/campaign'));
 app.use('/api/applications', require('./routes/application'));
 app.use('/api/messages', require('./routes/message'));
 app.use('/api/escrow', require('./routes/escrow'));
-app.use('/api/ratings', require('./routes/rating'));
 app.use('/api/search', require('./routes/search'));
 app.use('/api/notifications', require('./routes/notification'));
 app.use('/api/admin', require('./routes/admin'));

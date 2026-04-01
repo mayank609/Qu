@@ -2,7 +2,6 @@ const User = require('../models/User');
 const InfluencerProfile = require('../models/InfluencerProfile');
 const Application = require('../models/Application');
 const Escrow = require('../models/Escrow');
-const Rating = require('../models/Rating');
 const Notification = require('../models/Notification');
 
 // @desc    Get influencer own profile
@@ -208,7 +207,6 @@ const getDashboard = async (req, res, next) => {
             shortlistedApplications,
             rejectedApplications,
             totalEarnings,
-            avgRating,
         ] = await Promise.all([
             Application.countDocuments({ influencer: req.user._id }),
             Application.countDocuments({ influencer: req.user._id, status: 'accepted' }),
@@ -218,10 +216,6 @@ const getDashboard = async (req, res, next) => {
             Escrow.aggregate([
                 { $match: { influencer: req.user._id, status: 'released' } },
                 { $group: { _id: null, total: { $sum: '$netAmount' } } },
-            ]),
-            Rating.aggregate([
-                { $match: { ratee: req.user._id } },
-                { $group: { _id: null, avg: { $avg: '$overallScore' }, count: { $sum: 1 } } },
             ]),
         ]);
 
@@ -235,10 +229,6 @@ const getDashboard = async (req, res, next) => {
                 shortlistedApplications,
                 rejectedApplications,
                 totalEarnings: totalEarnings[0]?.total || 0,
-                rating: {
-                    average: avgRating[0]?.avg?.toFixed(1) || 0,
-                    count: avgRating[0]?.count || 0,
-                },
                 profileViews: profile?.profileViews || 0,
                 completedCampaigns: profile?.completedCampaigns || 0,
             },
@@ -259,20 +249,6 @@ const getAnalytics = async (req, res, next) => {
             .limit(10)
             .populate('campaign', 'title brand budgetRange');
 
-        const ratingBreakdown = await Rating.aggregate([
-            { $match: { ratee: req.user._id } },
-            {
-                $group: {
-                    _id: null,
-                    avgCommunication: { $avg: '$communication' },
-                    avgTimeliness: { $avg: '$timeliness' },
-                    avgProfessionalism: { $avg: '$professionalism' },
-                    avgOverall: { $avg: '$overallScore' },
-                    totalRatings: { $sum: 1 },
-                },
-            },
-        ]);
-
         res.json({
             success: true,
             data: {
@@ -281,7 +257,6 @@ const getAnalytics = async (req, res, next) => {
                 engagementRate: profile?.engagementRate || 0,
                 profileViews: profile?.profileViews || 0,
                 recentApplications,
-                ratingBreakdown: ratingBreakdown[0] || null,
             },
         });
     } catch (error) {

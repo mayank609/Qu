@@ -94,12 +94,6 @@ export const escrowAPI = {
     getStatus: (campaignId: string) => api.get(`/escrow/status/${campaignId}`),
 };
 
-// ─── Ratings ───
-export const ratingAPI = {
-    rate: (campaignId: string, data: any) => api.post(`/ratings/${campaignId}`, data),
-    getUserRatings: (userId: string, params?: any) => api.get(`/ratings/user/${userId}`, { params }),
-};
-
 // ─── Search ───
 export const searchAPI = {
     influencers: (params?: any) => api.get('/search/influencers', { params }),

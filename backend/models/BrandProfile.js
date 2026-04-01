@@ -49,13 +49,6 @@ const brandProfileSchema = new mongoose.Schema(
             state: { type: String, default: '' },
             country: { type: String, default: '' },
         },
-        ratings: {
-            average: { type: Number, default: 0 },
-            count: { type: Number, default: 0 },
-            communication: { type: Number, default: 0 },
-            timeliness: { type: Number, default: 0 },
-            professionalism: { type: Number, default: 0 },
-        },
         totalCampaigns: {
             type: Number,
             default: 0,

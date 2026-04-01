@@ -13,7 +13,6 @@ const notificationSchema = new mongoose.Schema(
                 'application_update',
                 'payment_confirmation',
                 'deadline_reminder',
-                'rating_reminder',
                 'featured_campaign',
                 'campaign_invite',
                 'message_received',

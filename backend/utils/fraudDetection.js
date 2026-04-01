@@ -82,36 +82,6 @@ const checkEngagementSpike = (currentStats, previousStats) => {
 };
 
 /**
- * Check for repeated low ratings
- * Flag users who consistently receive poor ratings
- */
-const checkRepeatedLowRatings = (ratings) => {
-    const alerts = [];
-
-    if (ratings.count >= 3 && ratings.average < 2.0) {
-        alerts.push({
-            type: 'low_ratings',
-            severity: 'high',
-            message: `User has an average rating of ${ratings.average} across ${ratings.count} campaigns`,
-            details: {
-                average: ratings.average,
-                count: ratings.count,
-            },
-        });
-    }
-
-    if (ratings.count >= 5 && ratings.average < 2.5) {
-        alerts.push({
-            type: 'low_ratings',
-            severity: 'medium',
-            message: `Consistently below-average ratings (${ratings.average}/5 across ${ratings.count} reviews)`,
-        });
-    }
-
-    return alerts;
-};
-
-/**
  * Run all fraud checks on a profile
  */
 const runFraudChecks = (profile, previousStats = null) => {
@@ -124,7 +94,6 @@ const runFraudChecks = (profile, previousStats = null) => {
             },
             previousStats
         ),
-        ...checkRepeatedLowRatings(profile.ratings || { count: 0, average: 0 }),
     ];
 
     return {
@@ -138,6 +107,5 @@ const runFraudChecks = (profile, previousStats = null) => {
 module.exports = {
     checkFakeFollowers,
     checkEngagementSpike,
-    checkRepeatedLowRatings,
     runFraudChecks,
 };

@@ -159,7 +159,6 @@ const getCampaign = async (req, res, next) => {
                         companyName: brandProfile.companyName,
                         website: brandProfile.website,
                         description: brandProfile.description,
-                        ratings: brandProfile.ratings,
                         totalCampaigns: brandProfile.totalCampaigns,
                     }
                     : null,

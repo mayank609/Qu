@@ -7,7 +7,7 @@ import { Instagram, Youtube, Twitter, Facebook, MapPin, MessageCircle, Check, X,
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
-import { applicationAPI, campaignAPI, messageAPI, escrowAPI, ratingAPI } from "@/lib/api";
+import { applicationAPI, campaignAPI, messageAPI, escrowAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +24,7 @@ const Applications = () => {
       navigate(`/chat?id=${res.data.data._id}`);
     },
     onError: () => {
-      toast.error("Failed to start conversation");
+      toast.error("Can't message directly. Please shortlist the application first.");
     }
   });
   

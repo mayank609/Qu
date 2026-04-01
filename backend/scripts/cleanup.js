@@ -11,8 +11,6 @@ const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const Escrow = require('../models/Escrow');
 const Notification = require('../models/Notification');
-const Rating = require('../models/Rating');
-
 dotenv.config();
 
 const cleanup = async () => {
@@ -31,7 +29,6 @@ const cleanup = async () => {
             { name: 'Message', model: Message },
             { name: 'Escrow', model: Escrow },
             { name: 'Notification', model: Notification },
-            { name: 'Rating', model: Rating }
         ];
 
         console.log('🧹 Starting cleanup...');

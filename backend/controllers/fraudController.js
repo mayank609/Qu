@@ -2,11 +2,9 @@ const InfluencerProfile = require('../models/InfluencerProfile');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
 const Application = require('../models/Application');
-const Rating = require('../models/Rating');
-
 /**
  * @desc    Analyze influencer profile for anomalies
- * PRD: Fake follower detection, Engagement spike anomaly, Repeated low ratings
+ * PRD: Fake follower detection, Engagement spike anomaly
  */
 const detectProfileAnomaly = async (profile) => {
     let anomalies = [];
@@ -16,17 +14,7 @@ const detectProfileAnomaly = async (profile) => {
         anomalies.push('suspiciously_low_engagement');
     }
 
-    // 2. Repeated Low Ratings (CRITICAL for OLX model)
-    const lowRatingsCount = await Rating.countDocuments({
-        ratee: profile.user,
-        overallScore: { $lt: 2.5 }
-    });
-    
-    if (lowRatingsCount >= 3) {
-        anomalies.push('repeated_low_ratings');
-    }
-
-    // 3. Engagement Spike Anomaly: Unusually high engagement for fake profiles
+    // 2. Engagement Spike Anomaly: Unusually high engagement for fake profiles
     if (profile.engagementRate > 20 && profile.totalFollowers > 1000) {
         anomalies.push('engagement_spike_anomaly');
     }

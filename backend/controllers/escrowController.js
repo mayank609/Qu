@@ -133,17 +133,6 @@ const releasePayment = async (req, res, next) => {
             link: `/earnings`,
         });
 
-        // Send rating reminders
-        for (const userId of [escrow.brand, escrow.influencer]) {
-            await Notification.create({
-                user: userId,
-                type: 'rating_reminder',
-                title: 'Rate Your Experience',
-                message: 'Campaign completed! Please rate your experience.',
-                link: `/rate/${escrow.campaign}`,
-            });
-        }
-
         // Send Email
         emailService.sendPaymentEmail(escrow.influencer.email, escrow.amount, 'released')
             .catch(err => console.error('Email notification failed:', err));

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, MessageSquare, Bookmark, TrendingUp, Camera } from "lucide-react";
+import { Eye, MessageSquare, Bookmark, Camera } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -51,7 +51,7 @@ const InfluencerDashboard = () => {
   const stats = [
     { label: "Applications", value: dashboard?.totalApplications?.toString() || "0", icon: MessageSquare },
     { label: "Accepted", value: dashboard?.acceptedCampaigns?.toString() || "0", icon: Bookmark },
-    { label: "Rating", value: dashboard?.rating?.average || "N/A", icon: TrendingUp },
+    { label: "Profile views", value: dashboard?.profileViews?.toString() || "0", icon: Eye },
   ];
 
   const updateProfileMutation = useMutation({

@@ -96,22 +96,11 @@ const influencerProfileSchema = new mongoose.Schema(
                 platform: String,
             },
         ],
-        ratings: {
-            average: { type: Number, default: 0 },
-            count: { type: Number, default: 0 },
-            communication: { type: Number, default: 0 },
-            timeliness: { type: Number, default: 0 },
-            professionalism: { type: Number, default: 0 },
-        },
         completedCampaigns: {
             type: Number,
             default: 0,
         },
         totalEarnings: {
-            type: Number,
-            default: 0,
-        },
-        searchRank: {
             type: Number,
             default: 0,
         },
@@ -130,6 +119,4 @@ influencerProfileSchema.index({ totalFollowers: -1 });
 influencerProfileSchema.index({ engagementRate: -1 });
 influencerProfileSchema.index({ categories: 1 });
 influencerProfileSchema.index({ 'location.country': 1 });
-influencerProfileSchema.index({ searchRank: -1 });
-
 module.exports = mongoose.model('InfluencerProfile', influencerProfileSchema);
