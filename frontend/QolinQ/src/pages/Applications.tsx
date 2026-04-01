@@ -268,7 +268,17 @@ const Applications = () => {
                               )}
                               <NeonButton 
                                 neonVariant="outline" 
-                                onClick={() => startConvMutation.mutate({ participantId: app.influencer._id, campaignId: selectedCampaignId })}
+                                onClick={() =>
+                                  startConvMutation.mutate({
+                                    participantId: app.influencer._id,
+                                    // In "All Campaigns" view, selectedCampaignId is "all".
+                                    // Always send a real campaign ID for this application.
+                                    campaignId:
+                                      selectedCampaignId === "all"
+                                        ? (typeof app.campaign === "string" ? app.campaign : app.campaign?._id)
+                                        : selectedCampaignId,
+                                  })
+                                }
                                 disabled={startConvMutation.isPending}
                               >
                                 <MessageCircle className="w-4 h-4 mr-2" />Message
