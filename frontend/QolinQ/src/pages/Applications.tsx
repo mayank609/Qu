@@ -255,7 +255,7 @@ const Applications = () => {
                           <>
                               {app.status === "accepted" ? (
                                    <div className="flex items-center gap-2 text-[10px] text-primary/60 font-bold uppercase tracking-widest px-3 py-2 bg-primary/5 rounded-lg border border-primary/10">
-                                      <Check className="w-3 h-3" /> Collaboration Completed
+                                      <Check className="w-3 h-3" /> Accepted
                                    </div>
                               ) : (
                                    <NeonButton 
