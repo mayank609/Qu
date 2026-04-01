@@ -135,21 +135,22 @@ const CampaignCard = ({
         {trimmedDescription ? (
           <>
             <div className="rounded-lg border border-border/60 bg-muted/15 p-3 space-y-2.5">
-              <div className="flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">About this campaign</span>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-primary shrink-0" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">About this campaign</span>
+                </div>
+                <button
+                  type="button"
+                  className="text-[10px] font-semibold text-primary hover:underline whitespace-nowrap"
+                  onClick={() => setCampaignBriefOpen(true)}
+                >
+                  Read full brief
+                </button>
               </div>
               <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed whitespace-pre-wrap break-words">
                 {trimmedDescription}
               </p>
-              <NeonButton
-                type="button"
-                neonVariant="outline"
-                className="w-full py-2 text-[11px] font-medium"
-                onClick={() => setCampaignBriefOpen(true)}
-              >
-                Read full campaign brief
-              </NeonButton>
             </div>
             <Dialog open={campaignBriefOpen} onOpenChange={setCampaignBriefOpen}>
               <DialogContent className="sm:max-w-lg bg-card border-border max-h-[85vh] flex flex-col gap-0">
