@@ -15,6 +15,9 @@ import { influencerAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { CATEGORIES } from "@/constants/categories";
 
+/** Per-file cap keeps base64 payloads under the API JSON body limit (10 MB for the whole save). */
+const MAX_BEST_CONTENT_FILE_BYTES = 7 * 1024 * 1024;
+
 const Settings = () => {
     const navigate = useNavigate();
     const { user, updateUser, switchRole } = useAuth();
@@ -410,10 +413,14 @@ const Settings = () => {
                         </Card>
 
                         <Card className="bg-card border border-border p-6 shadow-glow">
-                             <div className="flex items-center justify-between mb-5">
+                             <div className="mb-4 flex flex-col gap-2 sm:mb-5 sm:flex-row sm:items-start sm:justify-between">
                                 <h2 className="text-lg font-bold">Best Content (Max 6)</h2>
-                                <p className="text-xs text-muted-foreground">Share your actual work files</p>
+                                <p className="text-xs text-muted-foreground sm:max-w-[14rem] sm:text-right">Share your actual work files</p>
                              </div>
+                             <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
+                                <span className="font-medium text-foreground">File size:</span> up to <strong>7 MB</strong> per image or video.
+                                Your full profile save (including all best-content slots) must stay under <strong>10 MB</strong> total—use smaller files if you upload several.
+                             </p>
                              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                 {Array.from({ length: 6 }).map((_, idx) => (
                                     <div key={idx} className="aspect-video relative group border-2 border-dashed border-border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
@@ -445,18 +452,23 @@ const Settings = () => {
                                                     accept="image/*,video/*"
                                                     onChange={(e) => {
                                                         const file = e.target.files?.[0];
-                                                        if (file) {
-                                                            const reader = new FileReader();
-                                                            reader.onloadend = () => {
-                                                                const newContent = [...formData.bestContent];
-                                                                newContent[idx] = { 
-                                                                    url: reader.result as string, 
-                                                                    type: file.type.startsWith('video') ? 'video' : 'image' 
-                                                                };
-                                                                setFormData({ ...formData, bestContent: newContent });
-                                                            };
-                                                            reader.readAsDataURL(file);
+                                                        if (!file) return;
+                                                        if (file.size > MAX_BEST_CONTENT_FILE_BYTES) {
+                                                            toast.error(`File is too large (max ${Math.round(MAX_BEST_CONTENT_FILE_BYTES / (1024 * 1024))} MB per item).`);
+                                                            e.target.value = "";
+                                                            return;
                                                         }
+                                                        const reader = new FileReader();
+                                                        reader.onloadend = () => {
+                                                            const newContent = [...formData.bestContent];
+                                                            newContent[idx] = { 
+                                                                url: reader.result as string, 
+                                                                type: file.type.startsWith('video') ? 'video' : 'image' 
+                                                            };
+                                                            setFormData({ ...formData, bestContent: newContent });
+                                                        };
+                                                        reader.readAsDataURL(file);
+                                                        e.target.value = "";
                                                     }}
                                                 />
                                             </label>
