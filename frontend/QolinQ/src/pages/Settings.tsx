@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Camera, Loader2, X, Video } from "lucide-react";
+import { Camera, Loader2, X, Video, MessageCircle } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { influencerAPI } from "@/lib/api";
@@ -17,6 +17,9 @@ import { CATEGORIES } from "@/constants/categories";
 
 /** Per-file cap keeps base64 payloads under the API JSON body limit (10 MB for the whole save). */
 const MAX_BEST_CONTENT_FILE_BYTES = 7 * 1024 * 1024;
+
+const SUPPORT_WHATSAPP_URL = "https://wa.me/918597264942";
+const SUPPORT_PHONE_DISPLAY = "+91 85972 64942";
 
 const Settings = () => {
     const navigate = useNavigate();
@@ -50,6 +53,7 @@ const Settings = () => {
         youtubeConnected: false,
         portfolioLink1: "",
         portfolioLink2: "",
+        portfolioLink3: "",
         otherNiche: "",
         bestContent: [] as { url: string; type: string }[],
     });
@@ -86,6 +90,7 @@ const Settings = () => {
                     facebookConnected: profile.platforms?.facebook?.connected || !!profile.platforms?.facebook?.handle,
                     portfolioLink1: profile.portfolioLinks?.[0]?.url || "",
                     portfolioLink2: profile.portfolioLinks?.[1]?.url || "",
+                    portfolioLink3: profile.portfolioLinks?.[2]?.url || "",
                     otherNiche: "",
                     bestContent: profile.bestContent || [],
                 });
@@ -125,9 +130,10 @@ const Settings = () => {
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
                 priceExpectation: { min: Number(formData.price) },
                 portfolioLinks: [
-                    { title: "Link 1", url: formData.portfolioLink1 },
-                    { title: "Link 2", url: formData.portfolioLink2 },
-                ].filter(p => p.url),
+                    { title: "Link 1", url: formData.portfolioLink1, platform: "other" },
+                    { title: "Link 2", url: formData.portfolioLink2, platform: "other" },
+                    { title: "Link 3", url: formData.portfolioLink3, platform: "other" },
+                ].filter(p => p.url?.trim()),
                 bestContent: formData.bestContent,
                 avatar: avatarPreview
             };
@@ -217,6 +223,32 @@ const Settings = () => {
                     <h1 className="text-3xl font-bold text-gradient mb-1">Settings</h1>
                     <p className="text-muted-foreground">Manage your influencer account</p>
                 </div>
+
+                <Card className="border border-border bg-card p-4 shadow-glow md:p-5">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="space-y-1">
+                            <h2 className="text-sm font-semibold">Contact support</h2>
+                            <p className="text-xs text-muted-foreground">Message us on WhatsApp for help with your account or campaigns.</p>
+                            <a
+                                href={SUPPORT_WHATSAPP_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm font-medium tabular-nums text-primary underline-offset-4 hover:underline"
+                            >
+                                {SUPPORT_PHONE_DISPLAY}
+                            </a>
+                        </div>
+                        <NeonButton
+                            neonVariant="primary"
+                            type="button"
+                            className="w-full shrink-0 gap-2 sm:w-auto"
+                            onClick={() => window.open(SUPPORT_WHATSAPP_URL, "_blank", "noopener,noreferrer")}
+                        >
+                            <MessageCircle className="h-4 w-4" />
+                            Open WhatsApp
+                        </NeonButton>
+                    </div>
+                </Card>
 
                 <Tabs defaultValue="profile" className="space-y-6">
                     <TabsList className="flex w-full overflow-x-auto bg-transparent border-b border-border rounded-none h-auto p-0 gap-4 no-scrollbar mb-4">
@@ -407,8 +439,9 @@ const Settings = () => {
                         <Card className="bg-card border border-border p-6 shadow-glow">
                             <h2 className="text-lg font-bold mb-5">Profile Links</h2>
                             <div className="space-y-3">
-                                <div className="space-y-2"><Label>Profile Link 1</Label><Input id="portfolioLink1" value={formData.portfolioLink1} onChange={handleInputChange} /></div>
-                                <div className="space-y-2"><Label>Profile Link 2</Label><Input id="portfolioLink2" value={formData.portfolioLink2} onChange={handleInputChange} /></div>
+                                <div className="space-y-2"><Label>Profile Link 1</Label><Input id="portfolioLink1" placeholder="https://..." value={formData.portfolioLink1} onChange={handleInputChange} /></div>
+                                <div className="space-y-2"><Label>Profile Link 2</Label><Input id="portfolioLink2" placeholder="https://..." value={formData.portfolioLink2} onChange={handleInputChange} /></div>
+                                <div className="space-y-2"><Label>Profile Link 3</Label><Input id="portfolioLink3" placeholder="https://..." value={formData.portfolioLink3} onChange={handleInputChange} /></div>
                             </div>
                         </Card>
 
