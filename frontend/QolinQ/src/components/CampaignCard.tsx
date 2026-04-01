@@ -145,7 +145,7 @@ const CampaignCard = ({
               <NeonButton
                 type="button"
                 neonVariant="outline"
-                className="w-full py-3 text-xs font-semibold"
+                className="w-full py-2 text-[11px] font-medium"
                 onClick={() => setCampaignBriefOpen(true)}
               >
                 Read full campaign brief
