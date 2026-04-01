@@ -61,7 +61,7 @@ const AppliedCampaigns = () => {
 
   return (
     <DashboardLayout userType="influencer">
-      <div className="p-6 space-y-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
         <div className="animate-fade-in flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gradient mb-1">Applied Campaigns</h1>
@@ -89,17 +89,22 @@ const AppliedCampaigns = () => {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {appliedCampaigns.map((app: any) => (
-              <Card key={app._id} className="bg-card border border-border p-6 hover-lift relative overflow-hidden">
+              <Card key={app._id} className="bg-card border border-border p-4 sm:p-6 hover-lift relative overflow-hidden">
                 {app.status === 'accepted' && (
-                    <div className="absolute top-0 right-0 p-1 px-3 bg-primary/10 text-[10px] font-bold text-primary rounded-bl-lg flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3" /> ESCROW SECURED
+                    <>
+                    <div className="sm:hidden mb-3 flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-2 text-[10px] font-bold text-primary">
+                        <ShieldCheck className="w-3.5 h-3.5 shrink-0" /> ESCROW SECURED
                     </div>
+                    <div className="hidden sm:flex absolute top-0 right-0 items-center gap-1 rounded-bl-lg bg-primary/10 px-3 py-1.5 text-[10px] font-bold text-primary">
+                        <ShieldCheck className="w-3 h-3 shrink-0" /> ESCROW SECURED
+                    </div>
+                    </>
                 )}
                 
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                  <div className="flex-1">
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4 sm:gap-6">
+                  <div className={`flex-1 min-w-0 sm:min-h-0 ${app.status === 'accepted' ? 'sm:pr-[9.5rem] lg:pr-0' : ''}`}>
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <h3 className="font-bold text-lg">{app.campaign?.title}</h3>
+                      <h3 className="min-w-0 flex-1 basis-full break-words text-base font-bold sm:basis-auto sm:flex-initial sm:text-lg">{app.campaign?.title}</h3>
                       <Badge variant="outline" className="text-[10px] capitalize">{app.campaign?.platform}</Badge>
                       <Badge variant={statusColor(app.status)} className="text-[10px] capitalize">{app.status}</Badge>
                     </div>
@@ -108,33 +113,33 @@ const AppliedCampaigns = () => {
                         by <span className="text-foreground font-semibold">{app.campaign?.brand?.name || "Premium Brand"}</span>
                     </p>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div className="space-y-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                        <div className="space-y-1 min-w-0">
                             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Budget Range</p>
-                            <div className="flex items-center gap-1.5 font-semibold text-sm">
-                                <DollarSign className="w-3.5 h-3.5 text-primary" />
-                                <span>₹{app.campaign?.budgetRange?.min?.toLocaleString()} - ₹{app.campaign?.budgetRange?.max?.toLocaleString()}</span>
+                            <div className="flex items-start gap-1.5 font-semibold text-sm min-w-0">
+                                <DollarSign className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                                <span className="break-words leading-snug">₹{app.campaign?.budgetRange?.min?.toLocaleString()} – ₹{app.campaign?.budgetRange?.max?.toLocaleString()}</span>
                             </div>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Your Offer</p>
-                            <div className="flex items-center gap-1.5 font-semibold text-sm">
-                                <span className="text-primary">₹{app.customPrice?.toLocaleString() || "Market Value"}</span>
+                            <div className="flex items-center gap-1.5 font-semibold text-sm min-w-0">
+                                <span className="text-primary break-words">₹{app.customPrice?.toLocaleString() || "Market Value"}</span>
                             </div>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Platform</p>
                             <div className="flex flex-wrap gap-1.5 text-sm">
-                                {(Array.isArray(app.campaign?.platform) ? app.campaign?.platform : [app.campaign?.platform]).map((p: string, i: number) => (
-                                    <Badge key={i} variant="secondary" className="h-5 text-[9px]">{p}</Badge>
+                                {(Array.isArray(app.campaign?.platform) ? app.campaign?.platform : [app.campaign?.platform]).filter(Boolean).map((p: string, i: number) => (
+                                    <Badge key={i} variant="secondary" className="h-5 text-[9px] max-w-full truncate">{p}</Badge>
                                 ))}
                             </div>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 min-w-0">
                             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Deadline</p>
-                            <div className="flex items-center gap-1.5 text-sm">
-                                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                                <span>{app.campaign?.timeline?.endDate ? new Date(app.campaign.timeline.endDate).toLocaleDateString() : 'Flexible'}</span>
+                            <div className="flex items-center gap-1.5 text-sm min-w-0">
+                                <Calendar className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                                <span className="break-words">{app.campaign?.timeline?.endDate ? new Date(app.campaign.timeline.endDate).toLocaleDateString() : 'Flexible'}</span>
                             </div>
                         </div>
                     </div>
@@ -162,7 +167,7 @@ const AppliedCampaigns = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-3 w-full md:w-44 shrink-0 justify-end">
+                  <div className="flex w-full shrink-0 flex-col gap-3 border-t border-border pt-4 lg:w-44 lg:border-t-0 lg:pt-0 justify-stretch lg:justify-end">
                     {(app.status === 'shortlisted' || app.status === 'accepted') && (
                         <NeonButton 
                             neonVariant="outline" 
@@ -197,8 +202,11 @@ const AppliedCampaigns = () => {
                         </>
                     )}
                     
-                    <NeonButton neonVariant="ghost" className="h-8 text-[10px] hover:bg-transparent" onClick={() => setBriefCampaign(app.campaign)}>
-                        View Campaign Brief <ExternalLink className="w-2.5 h-2.5 ml-1.5" />
+                    <NeonButton neonVariant="ghost" className="h-auto min-h-8 w-full justify-center whitespace-normal px-2 py-2 text-center text-[10px] leading-snug hover:bg-transparent sm:px-3" onClick={() => setBriefCampaign(app.campaign)}>
+                        <span className="inline-flex flex-wrap items-center justify-center gap-1">
+                          View campaign brief
+                          <ExternalLink className="w-2.5 h-2.5 shrink-0" aria-hidden />
+                        </span>
                     </NeonButton>
                   </div>
                 </div>
@@ -208,32 +216,46 @@ const AppliedCampaigns = () => {
         )}
 
         <Dialog open={!!briefCampaign} onOpenChange={(open) => !open && setBriefCampaign(null)}>
-          <DialogContent className="sm:max-w-[550px] bg-card border-border max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">{briefCampaign?.title}</DialogTitle>
-              <DialogDescription>
-                by {briefCampaign?.brand?.name || 'Brand'} · <span className="capitalize">{briefCampaign?.platform}</span>
+          <DialogContent className="left-1/2 top-[50%] w-[calc(100vw-1.25rem)] max-w-[550px] max-h-[min(88dvh,88vh)] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-y-auto overflow-x-hidden rounded-xl border-border bg-card p-4 pt-12 sm:p-6 sm:pt-6">
+            <DialogHeader className="space-y-2 pr-6 text-left">
+              <DialogTitle className="break-words text-lg font-bold leading-snug sm:text-xl">{briefCampaign?.title}</DialogTitle>
+              <DialogDescription className="break-words text-left">
+                by {briefCampaign?.brand?.name || 'Brand'}
+                {briefCampaign?.platform != null && briefCampaign.platform !== '' && (
+                  <>
+                    {' · '}
+                    <span className="capitalize">
+                      {Array.isArray(briefCampaign.platform)
+                        ? briefCampaign.platform.filter(Boolean).join(', ')
+                        : String(briefCampaign.platform)}
+                    </span>
+                  </>
+                )}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-5 py-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">{briefCampaign?.description || 'No description provided.'}</p>
+            <div className="space-y-4 py-4 sm:space-y-5 sm:py-5">
+              <p className="break-words text-sm leading-relaxed text-muted-foreground">{briefCampaign?.description || 'No description provided.'}</p>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Budget Range</p>
-                  <p className="text-sm font-semibold">₹{briefCampaign?.budgetRange?.min?.toLocaleString()} - ₹{briefCampaign?.budgetRange?.max?.toLocaleString()}</p>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                <div className="min-w-0 space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Budget Range</p>
+                  <p className="break-words text-sm font-semibold">₹{briefCampaign?.budgetRange?.min?.toLocaleString()} – ₹{briefCampaign?.budgetRange?.max?.toLocaleString()}</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Platform</p>
-                  <p className="text-sm font-semibold capitalize">{briefCampaign?.platform}</p>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Platform</p>
+                  <p className="break-words text-sm font-semibold capitalize">
+                    {Array.isArray(briefCampaign?.platform)
+                      ? briefCampaign.platform.filter(Boolean).join(', ')
+                      : briefCampaign?.platform ?? '—'}
+                  </p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Category</p>
-                  <p className="text-sm font-semibold capitalize">{briefCampaign?.category}</p>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category</p>
+                  <p className="break-words text-sm font-semibold capitalize">{briefCampaign?.category ?? '—'}</p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Deadline</p>
-                  <p className="text-sm font-semibold">{briefCampaign?.timeline?.endDate ? new Date(briefCampaign.timeline.endDate).toLocaleDateString() : 'Flexible'}</p>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Deadline</p>
+                  <p className="break-words text-sm font-semibold">{briefCampaign?.timeline?.endDate ? new Date(briefCampaign.timeline.endDate).toLocaleDateString() : 'Flexible'}</p>
                 </div>
               </div>
 
