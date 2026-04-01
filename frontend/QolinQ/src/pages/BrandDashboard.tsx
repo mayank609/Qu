@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, TrendingUp, Users, Instagram, Youtube, Twitter, Facebook, MapPin, Bookmark, ClipboardList, Wallet } from "lucide-react";
+import { Eye, TrendingUp, Users, Instagram, Youtube, Twitter, Facebook, MapPin, Bookmark } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
@@ -80,7 +80,6 @@ const BrandDashboard = () => {
     { label: "Active Campaigns", value: dashboard?.activeCampaigns?.toString() || "0", icon: TrendingUp },
     { label: "Total Campaigns", value: dashboard?.totalCampaigns?.toString() || "0", icon: Eye },
     { label: "Applications", value: dashboard?.totalApplicationsReceived?.toString() || "0", icon: Users },
-    { label: "Total spent", value: `₹${(dashboard?.totalSpent ?? 0).toLocaleString()}`, icon: Wallet },
   ];
 
   const PlatformIcon = ({ platform }: { platform: string }) => {
@@ -100,7 +99,7 @@ const BrandDashboard = () => {
           <p className="text-muted-foreground">Welcome back, {user?.name || "Manager"}</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-slide-up">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 animate-slide-up">
           {stats.map((stat, idx) => (
             <Card key={idx} className="bg-card border border-border p-5 hover-lift">
               <stat.icon className="w-5 h-5 text-primary mb-3" />

@@ -27,7 +27,7 @@ const ExploreInfluencers = () => {
       navigate(`/chat?id=${res.data.data._id}`);
     },
     onError: () => {
-      toast.error("Failed to start conversation");
+      toast.error("Can't message directly. Please shortlist the influencer first.");
     }
   });
 
