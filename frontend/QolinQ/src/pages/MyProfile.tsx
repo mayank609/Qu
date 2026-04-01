@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { toast } from "sonner";
 import { influencerAPI } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -26,6 +28,7 @@ const MyProfile = () => {
   const isLoading = profileLoading || dashLoading;
   const profile = profileRes?.data?.data || {};
   const stats = dashboardRes?.data?.data || {};
+  const [selectedContent, setSelectedContent] = useState<{ url: string; type: string } | null>(null);
 
   if (isLoading) {
     return (
@@ -135,12 +138,18 @@ const MyProfile = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {profile.bestContent?.length > 0 ? (
                 profile.bestContent.map((content: any, idx: number) => (
-                    <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-border bg-muted/30">
+                    <div key={idx} className="aspect-video rounded-lg overflow-hidden border border-border bg-muted/30 relative group">
                         {content.type === 'video' ? (
                             <video src={content.url} className="w-full h-full object-cover" controls />
                         ) : (
                             <img src={content.url} alt={`Best content ${idx+1}`} className="w-full h-full object-cover" />
                         )}
+                        <button
+                          type="button"
+                          className="absolute inset-0"
+                          onClick={() => setSelectedContent({ url: content.url, type: content.type })}
+                          aria-label={`Open best content ${idx + 1}`}
+                        />
                     </div>
                 ))
             ) : (
@@ -165,6 +174,21 @@ const MyProfile = () => {
             )}
           </div>
         </Card>
+
+        <Dialog open={!!selectedContent} onOpenChange={(open) => !open && setSelectedContent(null)}>
+          <DialogContent className="sm:max-w-4xl bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Best Content Preview</DialogTitle>
+            </DialogHeader>
+            <div className="w-full max-h-[75vh] rounded-lg overflow-hidden bg-black/70">
+              {selectedContent?.type === "video" ? (
+                <video src={selectedContent.url} className="w-full h-full max-h-[75vh] object-contain" controls autoPlay />
+              ) : (
+                <img src={selectedContent?.url} alt="Best content preview" className="w-full h-full max-h-[75vh] object-contain" />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

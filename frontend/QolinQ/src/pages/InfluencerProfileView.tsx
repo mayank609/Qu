@@ -1,4 +1,5 @@
 import { useNavigate, useParams, Link } from "react-router-dom";
+import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import PublicLayout from "@/components/PublicLayout";
 import { Card } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import { toast } from "sonner";
 import { influencerAPI, messageAPI } from "@/lib/api";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // TikTok icon (not available in lucide-react)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -47,6 +49,7 @@ const InfluencerProfileView = () => {
 
   const profile = profileRes?.data?.data || {};
   const isOwnProfile = currentUser?._id === profile.user?._id;
+  const [selectedContent, setSelectedContent] = useState<{ url: string; type: string } | null>(null);
 
   const Layout = currentUser ? DashboardLayout : PublicLayout;
   const layoutProps = currentUser ? { userType: currentUser.role as "brand" | "influencer" } : {};
@@ -249,6 +252,12 @@ const InfluencerProfileView = () => {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
                            <span className="text-xs text-white font-medium uppercase tracking-widest">{content.type}</span>
                         </div>
+                        <button
+                          type="button"
+                          className="absolute inset-0"
+                          onClick={() => setSelectedContent({ url: content.url, type: content.type })}
+                          aria-label={`Open featured ${content.type}`}
+                        />
                     </div>
                 ))
             ) : (
@@ -271,6 +280,21 @@ const InfluencerProfileView = () => {
                 </div>
             </div>
         )}
+
+        <Dialog open={!!selectedContent} onOpenChange={(open) => !open && setSelectedContent(null)}>
+          <DialogContent className="sm:max-w-4xl bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Best Content Preview</DialogTitle>
+            </DialogHeader>
+            <div className="w-full max-h-[75vh] rounded-lg overflow-hidden bg-black/70">
+              {selectedContent?.type === "video" ? (
+                <video src={selectedContent.url} className="w-full h-full max-h-[75vh] object-contain" controls autoPlay />
+              ) : (
+                <img src={selectedContent?.url} alt="Best content preview" className="w-full h-full max-h-[75vh] object-contain" />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
