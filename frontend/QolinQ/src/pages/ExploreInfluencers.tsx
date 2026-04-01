@@ -192,7 +192,7 @@ const ExploreInfluencers = () => {
                   ...(profile.platforms?.tiktok?.connected || profile.platforms?.tiktok?.handle ? [{ platform: "TikTok", count: profile.platforms.tiktok.followers > 1000 ? `${(profile.platforms.tiktok.followers/1000).toFixed(1)}K` : `${profile.platforms.tiktok.followers || 0}` }] : []),
                   ...(profile.platforms?.linkedin?.connected || profile.platforms?.linkedin?.handle ? [{ platform: "LinkedIn", count: profile.platforms.linkedin.connections > 1000 ? `${(profile.platforms.linkedin.connections/1000).toFixed(1)}K` : `${profile.platforms.linkedin.connections || 0}` }] : []),
                 ]}
-                price={`₹${profile.priceExpectation?.min?.toLocaleString()} - ₹${profile.priceExpectation?.max?.toLocaleString()}`}
+                price={`Starting ₹${profile.priceExpectation?.min?.toLocaleString() || 'N/A'}`}
                 location={profile.location?.city || 'India'}
                 image={profile.user?.avatar}
                 contentTypes={profile.categories?.slice(1) || []}
