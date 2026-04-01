@@ -2,11 +2,10 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, DollarSign, ShieldCheck, Clock, CheckCircle2, MessageCircle, Upload, ExternalLink, Star } from "lucide-react";
+import { Calendar, MapPin, DollarSign, ShieldCheck, Clock, CheckCircle2, MessageCircle, Upload, ExternalLink } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
-import RatingModal from "@/components/RatingModal";
 import { toast } from "sonner";
-import { applicationAPI, ratingAPI, messageAPI } from "@/lib/api";
+import { applicationAPI, messageAPI } from "@/lib/api";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -15,7 +14,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 const AppliedCampaigns = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [ratingTarget, setRatingTarget] = useState<any>(null);
   const [briefCampaign, setBriefCampaign] = useState<any>(null);
 
   const startConvMutation = useMutation({
@@ -46,15 +44,7 @@ const AppliedCampaigns = () => {
     onError: (err: any) => toast.error(err.response?.data?.message || "Upload failed")
   });
 
-  const rateMutation = useMutation({
-    mutationFn: (data: any) => ratingAPI.rate(data.campaignId, data),
-    onSuccess: () => {
-      toast.success("Rating submitted successfully!");
-      setRatingTarget(null);
-      queryClient.invalidateQueries({ queryKey: ['my-applications'] });
-    },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Failed to submit rating")
-  });
+  // Rating flow intentionally disabled.
 
   const handleUpload = (appId: string, type: 'draft' | 'final') => {
     const url = prompt(`Enter ${type} URL (e.g. YouTube/Instagram link or Google Drive file):`);
@@ -189,14 +179,7 @@ const AppliedCampaigns = () => {
                     
                     {app.status === 'accepted' && (
                         <>
-                            {app.finalProof?.url && (
-                                <NeonButton 
-                                    neonVariant="primary" 
-                                    onClick={() => setRatingTarget({ id: app.campaign.brand._id || app.campaign.brand, name: app.campaign.brand.name || "Brand", campaignId: app.campaign._id })}
-                                >
-                                    <Star className="w-4 h-4 mr-2" />Rate Brand
-                                </NeonButton>
-                            )}
+                            {/* Rating CTA intentionally disabled. */}
                             {!app.contentDraft?.url && (
                                 <NeonButton 
                                     neonVariant="primary" 
@@ -228,16 +211,7 @@ const AppliedCampaigns = () => {
           </div>
         )}
 
-        {ratingTarget && (
-            <RatingModal
-                isOpen={!!ratingTarget}
-                onClose={() => setRatingTarget(null)}
-                title={`Rate ${ratingTarget.name}`}
-                description="Your feedback helps brands improve and build trust in the community."
-                isSubmitting={rateMutation.isPending}
-                onSubmit={(data) => rateMutation.mutate({ ...data, rateeId: ratingTarget.id, campaignId: ratingTarget.campaignId })}
-            />
-        )}
+        {/* Rating modal intentionally disabled. */}
 
         <Dialog open={!!briefCampaign} onOpenChange={(open) => !open && setBriefCampaign(null)}>
           <DialogContent className="sm:max-w-[550px] bg-card border-border max-h-[80vh] overflow-y-auto">
