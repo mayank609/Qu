@@ -41,7 +41,7 @@ const ExploreInfluencers = () => {
       const maxFollowers = reach === '0-10k' ? 10000 : reach === '10k-50k' ? 50000 : reach === '50k-100k' ? 100000 : undefined;
 
       return searchAPI.influencers({ 
-        category: category !== 'all' ? category.toLowerCase() : undefined, 
+        categories: category !== 'all' ? category : undefined, 
         platform: platform !== 'all' ? platform.toLowerCase() : undefined,
         minPrice,
         maxPrice,

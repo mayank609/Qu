@@ -17,7 +17,7 @@ const CAMPAIGN_PLATFORM_GROUPS = {
 const searchInfluencers = async (req, res, next) => {
     try {
         const { page, limit, skip } = getPagination(req.query);
-        const { minFollowers, maxFollowers, country, niche, category, verified, sort: sortQuery, search, minPrice, maxPrice, platform } = req.query;
+        const { minFollowers, maxFollowers, country, niche, categories, verified, sort: sortQuery, search, minPrice, maxPrice, platform } = req.query;
         
         let matchStage = {};
         
@@ -33,7 +33,15 @@ const searchInfluencers = async (req, res, next) => {
         
         // Niche/Category filter
         if (niche) matchStage.niche = { $regex: niche, $options: 'i' };
-        if (category) matchStage.categories = category;
+        
+        const categoryOrNiche = [];
+        if (categories) {
+            const c = String(categories).trim();
+            categoryOrNiche.push(
+                { categories: { $regex: `^${escapeRegex(c)}$`, $options: 'i' } },
+                { niche: { $regex: `^${escapeRegex(c)}$`, $options: 'i' } }
+            );
+        }
         
         // Price filter
         if (minPrice || maxPrice) {
@@ -42,13 +50,29 @@ const searchInfluencers = async (req, res, next) => {
         }
 
         // Platform filter
+        let platformOr = [];
         if (platform && platform !== 'all') {
             const p = platform.toLowerCase();
-            matchStage.$or = [
+            platformOr = [
                 { [`platforms.${p}.connected`]: true },
                 { [`platforms.${p}.followers`]: { $gt: 0 } },
                 { [`platforms.${p}.handle`]: { $ne: '' } }
             ];
+        }
+
+        // Merge platform and category filters
+        if (platformOr.length > 0 && categoryOrNiche.length > 0) {
+            // Both filters exist - use $and to combine them
+            matchStage.$and = [
+                { $or: platformOr },
+                { $or: categoryOrNiche }
+            ];
+        } else if (platformOr.length > 0) {
+            // Only platform filter
+            matchStage.$or = platformOr;
+        } else if (categoryOrNiche.length > 0) {
+            // Only category filter
+            matchStage.$or = categoryOrNiche;
         }
 
         // Base aggregation pipeline
@@ -66,14 +90,15 @@ const searchInfluencers = async (req, res, next) => {
         ];
 
         // Search across profile AND user fields
-        if (search) {
+        if (search && String(search).trim()) {
+            const safe = escapeRegex(String(search).trim());
             pipeline.push({
                 $match: {
                     $or: [
-                        { 'userData.name': { $regex: search, $options: 'i' } },
-                        { bio: { $regex: search, $options: 'i' } },
-                        { niche: { $regex: search, $options: 'i' } },
-                        { categories: { $in: [new RegExp(search, 'i')] } }
+                        { 'userData.name': { $regex: safe, $options: 'i' } },
+                        { bio: { $regex: safe, $options: 'i' } },
+                        { niche: { $regex: safe, $options: 'i' } },
+                        { categories: { $in: [new RegExp(safe, 'i')] } }
                     ]
                 }
             });

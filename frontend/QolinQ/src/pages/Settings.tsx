@@ -128,6 +128,7 @@ const Settings = () => {
                 name: formData.name.trim(),
                 bio: formData.bio,
                 niche: nicheToSave,
+                categories: [nicheToSave],
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
                 priceExpectation: { min: Number(formData.price) },
                 portfolioLinks: [
