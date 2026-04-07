@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import PublicLayout from "@/components/PublicLayout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Eye, Bookmark, ShieldCheck, Share2, Instagram, Youtube, MessageCircle, User, LogIn, Twitter, Facebook } from "lucide-react";
+import { Eye, Bookmark, ShieldCheck, Share2, Instagram, Youtube, MessageCircle, User, LogIn, Twitter, Facebook, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { influencerAPI, messageAPI } from "@/lib/api";
@@ -50,6 +50,41 @@ const InfluencerProfileView = () => {
   const profile = profileRes?.data?.data || {};
   const isOwnProfile = currentUser?._id === profile.user?._id;
   const [selectedContent, setSelectedContent] = useState<{ url: string; type: string } | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [panY, setPanY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.2, 5));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.2, 0.5));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPanX(0);
+    setPanY(0);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - panX, y: e.clientY - panY });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
+      setPanX(e.clientX - dragStart.x);
+      setPanY(e.clientY - dragStart.y);
+    }
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    setZoom(prev => Math.min(Math.max(prev * delta, 0.5), 5));
+  };
 
   const Layout = currentUser ? DashboardLayout : PublicLayout;
   const layoutProps = currentUser ? { userType: currentUser.role as "brand" | "influencer" } : {};
@@ -101,9 +136,10 @@ const InfluencerProfileView = () => {
           </div>
           
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10 text-center md:text-left">
-            <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center text-4xl font-bold text-primary border-2 border-primary/20 overflow-hidden shadow-glow-sm">
+            <div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center text-4xl font-bold text-primary border-2 border-primary/20 overflow-hidden shadow-glow-sm cursor-pointer hover:border-primary/50 transition-colors"
+                 onClick={() => profile.user?.avatar && setSelectedContent({ url: profile.user.avatar, type: 'image' })}>
               {profile.user?.avatar ? (
-                <img src={profile.user?.avatar} alt={profile.user?.name} className="w-full h-full object-cover" />
+                <img src={profile.user?.avatar} alt={profile.user?.name} className="w-full h-full object-cover hover:scale-105 transition-transform" />
               ) : (
                 profile.user?.name?.charAt(0) || "U"
               )}
@@ -281,16 +317,72 @@ const InfluencerProfileView = () => {
             </div>
         )}
 
-        <Dialog open={!!selectedContent} onOpenChange={(open) => !open && setSelectedContent(null)}>
+        <Dialog open={!!selectedContent} onOpenChange={(open) => {
+          if (!open) {
+            setSelectedContent(null);
+            handleResetZoom();
+          }
+        }}>
           <DialogContent className="sm:max-w-4xl bg-card border-border">
             <DialogHeader>
-              <DialogTitle>Best Content Preview</DialogTitle>
+              <DialogTitle className="flex items-center justify-between">
+                <span>Best Content Preview</span>
+                {selectedContent?.type === 'image' && (
+                  <div className="flex items-center gap-2">
+                    <NeonButton
+                      neonVariant="outline"
+                      size="sm"
+                      onClick={handleZoomOut}
+                      disabled={zoom <= 0.5}
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </NeonButton>
+                    <span className="text-sm font-medium min-w-[60px] text-center">
+                      {Math.round(zoom * 100)}%
+                    </span>
+                    <NeonButton
+                      neonVariant="outline"
+                      size="sm"
+                      onClick={handleZoomIn}
+                      disabled={zoom >= 5}
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </NeonButton>
+                    <NeonButton
+                      neonVariant="outline"
+                      size="sm"
+                      onClick={handleResetZoom}
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </NeonButton>
+                  </div>
+                )}
+              </DialogTitle>
             </DialogHeader>
-            <div className="w-full max-h-[75vh] rounded-lg overflow-hidden bg-black/70">
+            <div className="w-full max-h-[75vh] rounded-lg overflow-hidden bg-black/70 relative">
               {selectedContent?.type === "video" ? (
                 <video src={selectedContent.url} className="w-full h-full max-h-[75vh] object-contain" controls autoPlay />
               ) : (
-                <img src={selectedContent?.url} alt="Best content preview" className="w-full h-full max-h-[75vh] object-contain" />
+                <div
+                  className="w-full h-full max-h-[75vh] overflow-hidden cursor-move"
+                  style={{ cursor: zoom > 1 ? 'grab' : 'default' }}
+                  onMouseDown={handleMouseDown}
+                  onMouseMove={handleMouseMove}
+                  onMouseUp={handleMouseUp}
+                  onMouseLeave={handleMouseUp}
+                  onWheel={handleWheel}
+                >
+                  <img
+                    src={selectedContent?.url}
+                    alt="Best content preview"
+                    className="w-full h-full object-contain transition-transform duration-100"
+                    style={{
+                      transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
+                      transformOrigin: 'center center',
+                    }}
+                    draggable={false}
+                  />
+                </div>
               )}
             </div>
           </DialogContent>
