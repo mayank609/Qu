@@ -120,15 +120,15 @@ const Chat = () => {
 
   return (
     <DashboardLayout userType={(user?.role === 'admin' ? 'brand' : user?.role) || "influencer"}>
-      <div className="h-[calc(100vh-128px)] flex overflow-hidden">
+      <div className="h-screen md:h-[calc(100vh-128px)] flex overflow-hidden">
         {/* Conversations List */}
         <div className={cn(
-            "w-full md:w-80 border-r border-border bg-card flex flex-col transition-all",
+            "w-full md:w-80 border-r border-border bg-card flex flex-col transition-all absolute md:relative inset-0 md:inset-auto z-20 md:z-auto",
             selectedChatId && "hidden md:flex"
         )}>
-          <div className="p-4 border-b border-border flex items-center justify-between">
-            <h2 className="text-lg font-bold">Messages</h2>
-            <Badge variant="outline" className="text-[10px]">{conversations.length} Active</Badge>
+          <div className="p-2 md:p-4 border-b border-border flex items-center justify-between">
+            <h2 className="text-base md:text-lg font-bold">Messages</h2>
+            <Badge variant="outline" className="text-[9px] md:text-[10px]">{conversations.length} Active</Badge>
           </div>
           <ScrollArea className="flex-1">
             {convsLoading ? (
@@ -144,33 +144,33 @@ const Chat = () => {
               return (
                 <div key={conv._id} onClick={() => handleSelectChat(conv._id)}
                   className={cn(
-                      "p-4 border-b border-border cursor-pointer transition-all hover:bg-muted/50 relative",
+                      "p-2 md:p-4 border-b border-border cursor-pointer transition-all hover:bg-muted/50 relative",
                       isActive && "bg-primary/5 border-l-4 border-l-primary"
                   )}>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
+                  <div className="flex items-start gap-2 md:gap-3">
+                    <div className="w-8 md:w-10 h-8 md:h-10 rounded-full bg-primary/10 flex items-center justify-center text-xs md:text-sm font-bold text-primary shrink-0">
                         {partner?.name?.charAt(0) || "U"}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-baseline mb-0.5">
-                        <h3 className="font-semibold text-sm truncate">{partner?.name || "Chat"}</h3>
-                        <span className="text-[10px] text-muted-foreground">
+                      <div className="flex justify-between items-baseline gap-1 mb-0.5">
+                        <h3 className="font-semibold text-xs md:text-sm truncate">{partner?.name || "Chat"}</h3>
+                        <span className="text-[8px] md:text-[10px] text-muted-foreground shrink-0">
                             {conv.updatedAt && new Date(conv.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                       <p className={cn(
-                          "text-xs truncate",
+                          "text-[11px] md:text-xs truncate",
                           isActive ? "text-foreground" : "text-muted-foreground"
                       )}>
                           {conv.lastMessage?.content || "No messages yet"}
                       </p>
                       {conv.campaign && (
-                          <Badge variant="secondary" className="mt-2 text-[9px] h-4 bg-muted/50 border-none font-normal">
-                              Campaign: {conv.campaign.title}
+                          <Badge variant="secondary" className="mt-1 text-[8px] md:text-[9px] h-3 md:h-4 bg-muted/50 border-none font-normal">
+                              {conv.campaign.title.substring(0, 20)}
                           </Badge>
                       )}
                     </div>
-                    {conv.isLocked && <Lock className="w-3 h-3 text-muted-foreground shrink-0 mt-1" />}
+                    {conv.isLocked && <Lock className="w-2.5 md:w-3 h-2.5 md:h-3 text-muted-foreground shrink-0 mt-0.5" />}
                   </div>
                 </div>
               );
@@ -179,39 +179,39 @@ const Chat = () => {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col bg-background relative">
+        <div className="w-full md:flex-1 flex flex-col bg-background relative">
           {selectedChatId ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-border bg-card flex items-center justify-between sticky top-0 z-10 backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <button className="md:hidden p-1 mr-1" onClick={() => setSelectedChatId(null)}><X className="w-4 h-4" /></button>
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+              <div className="p-2 md:p-4 border-b border-border bg-card flex items-center justify-between sticky top-0 z-10 backdrop-blur-sm">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <button className="md:hidden p-1" onClick={() => setSelectedChatId(null)}><X className="w-4 h-4" /></button>
+                  <div className="w-8 md:w-10 h-8 md:h-10 rounded-full bg-primary/10 flex items-center justify-center text-xs md:text-sm font-bold text-primary shrink-0">
                     {chatPartner?.name?.charAt(0) || "?"}
                   </div>
-                  <div>
-                    <h2 className="font-bold text-sm leading-none mb-1">{chatPartner?.name || "Loading..."}</h2>
+                  <div className="min-w-0">
+                    <h2 className="font-bold text-xs md:text-sm leading-none mb-0.5 truncate">{chatPartner?.name || "Loading..."}</h2>
                     <div className="flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                        <p className="text-[10px] text-muted-foreground">Active in negotiation</p>
+                        <p className="text-[9px] md:text-[10px] text-muted-foreground">Active</p>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <NeonButton neonVariant="outline" onClick={() => setShowContract(!showContract)} className="h-8 px-3">
-                        <Info className="w-3.5 h-3.5 mr-1.5" />
-                        <span className="text-xs">Contract</span>
+                <div className="flex items-center gap-1 md:gap-2">
+                    <NeonButton neonVariant="outline" onClick={() => setShowContract(!showContract)} className="h-8 px-2 md:px-3 text-[10px] md:text-xs">
+                        <Info className="w-3 md:w-3.5 h-3 md:h-3.5 mr-0.5 md:mr-1.5" />
+                        <span className="hidden md:inline">Contract</span>
                     </NeonButton>
                     <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
-                    <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors">
-                        <Paperclip className="w-4 h-4" />
+                    <button onClick={() => fileInputRef.current?.click()} className="p-1.5 md:p-2 hover:bg-muted rounded-full text-muted-foreground transition-colors">
+                        <Paperclip className="w-3.5 md:w-4 h-3.5 md:h-4" />
                     </button>
                 </div>
               </div>
 
               {/* Messages Area */}
-              <ScrollArea className="flex-1 p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed opacity-[0.98]">
-                <div className="space-y-6 pb-4">
+              <ScrollArea className="flex-1 p-2 md:p-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed opacity-[0.98]">
+                <div className="space-y-3 md:space-y-6 pb-4">
                   {messages.length === 0 && !msgsLoading && (
                       <div className="flex flex-col items-center justify-center h-48 opacity-30">
                           <MessageCircle className="w-12 h-12 mb-2" />
@@ -236,7 +236,7 @@ const Chat = () => {
                         )}
                         <div className={cn("flex items-end gap-2", isSelf ? "flex-row-reverse" : "flex-row")}>
                           <div className={cn(
-                              "max-w-[80%] md:max-w-[70%] p-3 rounded-2xl text-sm shadow-sm transition-all",
+                              "max-w-[85%] md:max-w-[70%] p-2 md:p-3 rounded-2xl text-sm shadow-sm transition-all",
                               isSelf 
                                 ? "bg-primary text-primary-foreground rounded-br-none" 
                                 : "bg-card border border-border rounded-bl-none text-foreground"
@@ -274,14 +274,14 @@ const Chat = () => {
               </ScrollArea>
 
               {/* Chat Input */}
-              <div className="p-4 border-t border-border bg-card">
+              <div className="p-2 md:p-4 border-t border-border bg-card">
                 {currentChat?.isLocked ? (
-                    <div className="flex items-center justify-center gap-2 p-3 bg-muted rounded-lg text-muted-foreground text-sm border border-dashed border-border mb-2">
-                        <Lock className="w-4 h-4" />
-                        <span>Deal completed. This conversation is archived.</span>
+                    <div className="flex items-center justify-center gap-2 p-2 md:p-3 bg-muted rounded-lg text-muted-foreground text-xs md:text-sm border border-dashed border-border mb-2">
+                        <Lock className="w-3 md:w-4 h-3 md:h-4" />
+                        <span>Deal completed. Archived.</span>
                     </div>
                 ) : (
-                    <form onSubmit={handleSend} className="flex gap-2 items-center">
+                    <form onSubmit={handleSend} className="flex gap-1 md:gap-2 items-center">
                         <div className="flex-1 relative">
                             <Input 
                                 value={messageText} 
@@ -289,18 +289,18 @@ const Chat = () => {
                                     setMessageText(e.target.value);
                                 }} 
                                 placeholder="Write your message..." 
-                                className="pr-10 bg-background border-primary/20 focus-visible:ring-primary/30 h-11" 
+                                className="pr-10 bg-background border-primary/20 focus-visible:ring-primary/30 h-9 md:h-11 text-sm md:text-base" 
                                 disabled={sendMessageMutation.isPending}
                             />
-                            <button type="button" onClick={() => setMessageText(prev => prev + "👋")} className="absolute right-3 top-1/2 -translate-y-1/2 text-sm opacity-50 hover:opacity-100 transition-opacity">👋</button>
+                            <button type="button" onClick={() => setMessageText(prev => prev + "👋")} className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 text-sm opacity-50 hover:opacity-100 transition-opacity">👋</button>
                         </div>
-                        <NeonButton neonVariant="primary" type="submit" className="h-11 px-5" disabled={sendMessageMutation.isPending || !messageText.trim()}>
-                            <Send className="w-4 h-4" />
+                        <NeonButton neonVariant="primary" type="submit" className="h-9 md:h-11 px-3 md:px-5" disabled={sendMessageMutation.isPending || !messageText.trim()}>
+                            <Send className="w-3.5 md:w-4 h-3.5 md:h-4" />
                         </NeonButton>
                     </form>
                 )}
-                <p className="text-[10px] text-center text-muted-foreground mt-2 px-8">
-                    By messaging, you agree to our professionalism guidelines. Keep it respectful.
+                <p className="text-[8px] md:text-[10px] text-center text-muted-foreground mt-1 md:mt-2 px-2 md:px-8">
+                    By messaging, you agree to our professionalism guidelines.
                 </p>
               </div>
 
