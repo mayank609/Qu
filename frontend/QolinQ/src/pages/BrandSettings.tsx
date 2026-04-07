@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Loader2, MessageCircle } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
+import { ImageZoomPicker } from "@/components/ImageZoomPicker";
 import { toast } from "sonner";
 import { brandAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -22,6 +23,8 @@ const BrandSettings = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [showImageZoomPicker, setShowImageZoomPicker] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         contactPerson: "",
@@ -109,13 +112,27 @@ const BrandSettings = () => {
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setLogoPreview(reader.result as string);
-                toast.success("Logo updated localy! Click save to persist.");
-            };
-            reader.readAsDataURL(file);
+            if (!file.type.startsWith("image/")) {
+                toast.error("Please select an image file");
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                toast.error("Image is too large. Maximum size is 2MB.");
+                return;
+            }
+            // Open the zoom picker modal
+            setShowImageZoomPicker(true);
         }
+    };
+
+    const handleImageZoomPickerOpen = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImageConfirm = (croppedImage: string) => {
+        setLogoPreview(croppedImage);
+        setShowImageZoomPicker(false);
+        toast.success("Logo updated locally! Click save to persist.");
     };
 
     if (isLoading) {
@@ -174,21 +191,38 @@ const BrandSettings = () => {
                     <TabsContent value="profile" className="space-y-6">
                         <Card className="bg-card border border-border p-4 md:p-6 shadow-glow">
                             <h2 className="text-lg font-bold mb-5">Brand Logo</h2>
-                            <div className="flex items-center gap-5">
-                                <label className="relative cursor-pointer group">
-                                    <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden border-2 border-dashed border-border group-hover:border-primary transition-colors">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden border-2 border-dashed border-border">
                                         {logoPreview ? (
                                             <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
                                         ) : (
-                                            <Camera className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                            <Camera className="w-6 h-6 text-muted-foreground" />
                                         )}
                                     </div>
-                                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
-                                </label>
-                                <div className="text-sm text-muted-foreground">
-                                    <p>Upload your brand logo</p>
-                                    <p className="text-xs">JPG, PNG. Max 2MB.</p>
+                                    <div className="space-y-3 flex-1">
+                                        <div>
+                                            <p className="text-sm font-medium">Upload your brand logo</p>
+                                            <p className="text-xs text-muted-foreground">JPG, PNG. Max 2MB.</p>
+                                        </div>
+                                        <NeonButton
+                                            neonVariant="primary"
+                                            size="sm"
+                                            onClick={handleImageZoomPickerOpen}
+                                            className="gap-2"
+                                        >
+                                            <Camera className="w-4 h-4" />
+                                            Choose & Zoom
+                                        </NeonButton>
+                                    </div>
                                 </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleLogoChange}
+                                />
                             </div>
                         </Card>
 
@@ -328,6 +362,13 @@ const BrandSettings = () => {
                         )}
                     </NeonButton>
                 </div>
+
+                <ImageZoomPicker
+                    isOpen={showImageZoomPicker}
+                    onCancel={() => setShowImageZoomPicker(false)}
+                    onImageSelect={handleImageConfirm}
+                    previewSize={200}
+                />
             </div>
         </DashboardLayout>
     );

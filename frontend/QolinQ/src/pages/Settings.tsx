@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Camera, Loader2, X, Video, MessageCircle } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
+import { ImageZoomPicker } from "@/components/ImageZoomPicker";
 import { toast } from "sonner";
 import { influencerAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,6 +26,8 @@ const Settings = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
+    const [showImageZoomPicker, setShowImageZoomPicker] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -191,17 +194,19 @@ const Settings = () => {
                 toast.error("Image is too large. Max size is 2MB.");
                 return;
             }
-
-            const reader = new FileReader();
-            reader.onerror = () => {
-                toast.error("Failed to read image file. Please try again.");
-            };
-            reader.onloadend = () => {
-                setAvatarPreview(reader.result as string);
-                toast.success("Profile photo updated locally. Click save to persist.");
-            };
-            reader.readAsDataURL(file);
+            // Open the zoom picker modal
+            setShowImageZoomPicker(true);
         }
+    };
+
+    const handleAvatarZoomPickerOpen = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleAvatarConfirm = (croppedImage: string) => {
+        setAvatarPreview(croppedImage);
+        setShowImageZoomPicker(false);
+        toast.success("Profile photo updated locally. Click save to persist.");
     };
 
     if (isLoading) {
@@ -259,21 +264,38 @@ const Settings = () => {
                     <TabsContent value="profile" className="space-y-6">
                         <Card className="bg-card border border-border p-4 md:p-6 shadow-glow">
                             <h2 className="text-lg font-bold mb-5">Profile Photo</h2>
-                            <div className="flex items-center gap-5">
-                                <label className="relative cursor-pointer group">
-                                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border-2 border-dashed border-border group-hover:border-primary transition-colors">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center gap-5">
+                                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border-2 border-dashed border-border">
                                         {avatarPreview ? (
                                             <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                                         ) : (
-                                            <Camera className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                                            <Camera className="w-6 h-6 text-muted-foreground" />
                                         )}
                                     </div>
-                                    <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
-                                </label>
-                                <div className="text-sm text-muted-foreground">
-                                    <p>Upload your profile photo</p>
-                                    <p className="text-xs">JPG, PNG. Max 2MB.</p>
+                                    <div className="space-y-3 flex-1">
+                                        <div>
+                                            <p className="text-sm font-medium">Upload your profile photo</p>
+                                            <p className="text-xs text-muted-foreground">JPG, PNG. Max 2MB.</p>
+                                        </div>
+                                        <NeonButton
+                                            neonVariant="primary"
+                                            size="sm"
+                                            onClick={handleAvatarZoomPickerOpen}
+                                            className="gap-2"
+                                        >
+                                            <Camera className="w-4 h-4" />
+                                            Choose & Zoom
+                                        </NeonButton>
+                                    </div>
                                 </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleAvatarChange}
+                                />
                             </div>
                         </Card>
 
@@ -585,6 +607,13 @@ const Settings = () => {
                         )}
                     </NeonButton>
                 </div>
+
+                <ImageZoomPicker
+                    isOpen={showImageZoomPicker}
+                    onCancel={() => setShowImageZoomPicker(false)}
+                    onImageSelect={handleAvatarConfirm}
+                    previewSize={200}
+                />
             </div>
         </DashboardLayout>
     );
