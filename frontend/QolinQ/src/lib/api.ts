@@ -105,6 +105,14 @@ export const fraudAPI = {
     getFlaggedProfiles: () => api.get('/admin/fraud/flagged'),
 };
 
+// ─── Admin ───
+export const adminAPI = {
+    getStats: () => api.get('/admin/stats'),
+    getUsers: (params?: any) => api.get('/admin/users', { params }),
+    verifyUser: (userId: string, data: { trustBadge?: boolean; verificationStatus?: string }) =>
+        api.put(`/admin/verify-user/${userId}`, data),
+};
+
 // ─── Notifications ───
 export const notificationAPI = {
     getAll: (params?: any) => api.get('/notifications', { params }),

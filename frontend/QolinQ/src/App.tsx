@@ -24,6 +24,7 @@ import Applications from "./pages/Applications";
 import SavedProfiles from "./pages/SavedProfiles";
 import AppliedCampaigns from "./pages/AppliedCampaigns";
 import AdminSecurity from "./pages/AdminSecurity";
+import AdminPanel from "./pages/AdminPanel";
 import Register from "./pages/Register";
 import InfluencerProfileView from "./pages/InfluencerProfileView";
 import EditListing from "./pages/EditListing";
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/saved-profiles" element={<SavedProfiles />} />
             <Route path="/applied-campaigns" element={<AppliedCampaigns />} />
             <Route path="/admin/security" element={<AdminSecurity />} />
+            <Route path="/admin" element={<AdminPanel />} />
             <Route path="/influencer/:id" element={<InfluencerProfileView />} />
             <Route path="/edit-listing/:id" element={<EditListing />} />
             <Route path="*" element={<NotFound />} />

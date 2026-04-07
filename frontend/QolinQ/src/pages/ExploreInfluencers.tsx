@@ -19,6 +19,7 @@ const ExploreInfluencers = () => {
   const [platform, setPlatform] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [reach, setReach] = useState("all");
+  const [sort, setSort] = useState("followers");
 
   const startConvMutation = useMutation({
     mutationFn: (data: { participantId: string, campaignId?: string }) => 
@@ -31,23 +32,31 @@ const ExploreInfluencers = () => {
     }
   });
 
+  const SORT_OPTIONS: Record<string, string> = {
+    followers: '-totalFollowers',
+    price_asc: 'priceExpectation.min',
+    price_desc: '-priceExpectation.min',
+    newest: '-createdAt',
+  };
+
   const { data, isLoading, error } = useQuery({
-    queryKey: ['influencers', category, platform, priceRange, reach, search],
+    queryKey: ['influencers', category, platform, priceRange, reach, search, sort],
     queryFn: () => {
       const minPrice = priceRange === '0-5000' ? 0 : priceRange === '5000-15000' ? 5000 : priceRange === '15000-50000' ? 15000 : priceRange === '50000+' ? 50000 : undefined;
       const maxPrice = priceRange === '0-5000' ? 5000 : priceRange === '5000-15000' ? 15000 : priceRange === '15000-50000' ? 50000 : undefined;
-      
+
       const minFollowers = reach === '0-10k' ? 0 : reach === '10k-50k' ? 10000 : reach === '50k-100k' ? 50000 : reach === '100k+' ? 100000 : undefined;
       const maxFollowers = reach === '0-10k' ? 10000 : reach === '10k-50k' ? 50000 : reach === '50k-100k' ? 100000 : undefined;
 
-      return searchAPI.influencers({ 
-        categories: category !== 'all' ? category : undefined, 
+      return searchAPI.influencers({
+        categories: category !== 'all' ? category : undefined,
         platform: platform !== 'all' ? platform.toLowerCase() : undefined,
         minPrice,
         maxPrice,
         minFollowers,
         maxFollowers,
-        search 
+        search,
+        sort: SORT_OPTIONS[sort],
       });
     },
   });
@@ -81,7 +90,7 @@ const ExploreInfluencers = () => {
 
         <NeonSearchBar placeholder="Search by name, niche, or platform..." value={search} onChange={setSearch} />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <div className="space-y-1.5">
             <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Category</Label>
             <Select value={category} onValueChange={setCategory}>
@@ -158,6 +167,19 @@ const ExploreInfluencers = () => {
                 <SelectItem value="10k-50k">Micro (10k - 50k)</SelectItem>
                 <SelectItem value="50k-100k">Mid (50k - 100k)</SelectItem>
                 <SelectItem value="100k+">Macro (100k+)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Sort By</Label>
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="bg-muted/30 border-border"><SelectValue placeholder="Sort by" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="followers">Most Followers</SelectItem>
+                <SelectItem value="price_asc">Price: Low to High</SelectItem>
+                <SelectItem value="price_desc">Price: High to Low</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
               </SelectContent>
             </Select>
           </div>

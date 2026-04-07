@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Search, MessageCircle, Settings, PlusCircle, List, User, Bookmark, ClipboardList, RefreshCw, LogOut, ShieldAlert } from "lucide-react";
+import { Home, Search, MessageCircle, Settings, PlusCircle, List, User, Bookmark, ClipboardList, RefreshCw, LogOut, ShieldAlert, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
@@ -49,6 +49,7 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
 
   // Add Admin items if user is admin
   if (user?.role === 'admin') {
+    navItems.push({ icon: LayoutDashboard, label: "Admin Panel", path: "/admin" });
     navItems.push({ icon: ShieldAlert, label: "Security", path: "/admin/security" });
   }
 

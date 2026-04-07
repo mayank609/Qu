@@ -92,8 +92,71 @@ const getFlaggedProfiles = async (req, res, next) => {
     }
 };
 
+// @desc    Get all users by role (influencer or brand) with profile info
+// @route   GET /api/admin/users?role=influencer&page=1&limit=20&search=
+const getUsers = async (req, res, next) => {
+    try {
+        const { role, search, page: pageStr, limit: limitStr } = req.query;
+        const page = parseInt(pageStr) || 1;
+        const limit = parseInt(limitStr) || 20;
+        const skip = (page - 1) * limit;
+
+        const query = {};
+        if (role && (role === 'influencer' || role === 'brand')) query.role = role;
+        if (search && String(search).trim()) {
+            const words = String(search).trim().split(/\s+/).filter(Boolean);
+            query.$and = words.map(w => ({
+                $or: [
+                    { name: { $regex: w, $options: 'i' } },
+                    { email: { $regex: w, $options: 'i' } },
+                ]
+            }));
+        }
+
+        const [users, total] = await Promise.all([
+            User.find(query)
+                .select('name email avatar role trustBadge verificationStatus isActive fraudScore createdAt')
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit),
+            User.countDocuments(query),
+        ]);
+
+        // Attach profile summaries
+        const enriched = await Promise.all(users.map(async (user) => {
+            const u = user.toObject();
+            if (user.role === 'influencer') {
+                const profile = await InfluencerProfile.findOne({ user: user._id })
+                    .select('totalFollowers niche categories location priceExpectation engagementRate');
+                u.profile = profile || null;
+            } else if (user.role === 'brand') {
+                const profile = await BrandProfile.findOne({ user: user._id })
+                    .select('companyName website categories location totalCampaigns totalSpent');
+                u.profile = profile || null;
+            }
+            return u;
+        }));
+
+        res.json({
+            success: true,
+            data: enriched,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+                hasNextPage: page * limit < total,
+                hasPrevPage: page > 1,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     verifyUser,
     getPlatformStats,
-    getFlaggedProfiles
+    getFlaggedProfiles,
+    getUsers,
 };

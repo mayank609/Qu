@@ -89,19 +89,21 @@ const searchInfluencers = async (req, res, next) => {
             { $unwind: '$userData' }
         ];
 
-        // Search across profile AND user fields
+        // Search across profile AND user fields (multi-word: all words must match)
         if (search && String(search).trim()) {
-            const safe = escapeRegex(String(search).trim());
-            pipeline.push({
-                $match: {
+            const words = String(search).trim().split(/\s+/).filter(Boolean);
+            const wordMatches = words.map(word => {
+                const safe = escapeRegex(word);
+                return {
                     $or: [
                         { 'userData.name': { $regex: safe, $options: 'i' } },
                         { bio: { $regex: safe, $options: 'i' } },
                         { niche: { $regex: safe, $options: 'i' } },
                         { categories: { $in: [new RegExp(safe, 'i')] } }
                     ]
-                }
+                };
             });
+            pipeline.push({ $match: wordMatches.length === 1 ? wordMatches[0] : { $and: wordMatches } });
         }
 
         // Verification filter
@@ -222,9 +224,10 @@ const searchCampaigns = async (req, res, next) => {
         );
 
         if (search && String(search).trim()) {
-            const safe = escapeRegex(String(search).trim());
-            pipeline.push({
-                $match: {
+            const words = String(search).trim().split(/\s+/).filter(Boolean);
+            const wordMatches = words.map(word => {
+                const safe = escapeRegex(word);
+                return {
                     $or: [
                         { title: { $regex: safe, $options: 'i' } },
                         { description: { $regex: safe, $options: 'i' } },
@@ -235,8 +238,9 @@ const searchCampaigns = async (req, res, next) => {
                         { 'deliverables.type': { $regex: safe, $options: 'i' } },
                         { 'brandProfileData.description': { $regex: safe, $options: 'i' } },
                     ],
-                },
+                };
             });
+            pipeline.push({ $match: wordMatches.length === 1 ? wordMatches[0] : { $and: wordMatches } });
         }
 
         const sort = buildSort(sortQuery);
