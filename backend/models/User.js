@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: ['brand', 'influencer'],
+            enum: ['brand', 'influencer', 'admin'],
             required: [true, 'Role is required'],
         },
         avatar: {

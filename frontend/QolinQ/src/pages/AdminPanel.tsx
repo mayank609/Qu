@@ -1,20 +1,75 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShieldCheck, ShieldAlert, Users, Building2, Search, UserCheck, UserX, TrendingUp } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Users, Building2, Search, UserCheck, UserX, TrendingUp, Lock } from "lucide-react";
 import NeonButton from "@/components/NeonButton";
 import { toast } from "sonner";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminAPI } from "@/lib/api";
-import { useNavigate } from "react-router-dom";
+import { adminAPI, authAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
+/* ─── Inline admin login ─── */
+const AdminLogin = () => {
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await login(email, password);
+      // AuthContext will update; AdminPanel re-renders and shows panel if role === 'admin'
+    } catch {
+      toast.error("Invalid credentials or not an admin account");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <Card className="w-full max-w-sm bg-card border-border p-8 space-y-6">
+        <div className="text-center space-y-1">
+          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+            <Lock className="w-6 h-6 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold">Admin Access</h1>
+          <p className="text-sm text-muted-foreground">Sign in with your admin account</p>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            type="email"
+            placeholder="Admin email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="bg-muted/30 border-border"
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="bg-muted/30 border-border"
+          />
+          <NeonButton neonVariant="primary" type="submit" className="w-full" disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+          </NeonButton>
+        </form>
+        <p className="text-xs text-muted-foreground text-center">
+          Run <code className="bg-muted px-1 rounded">node scripts/createAdmin.js</code> to create an admin account.
+        </p>
+      </Card>
+    </div>
+  );
+};
+
+/* ─── Main panel ─── */
 const AdminPanel = () => {
-  const navigate = useNavigate();
   const { user: currentUser, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<"influencer" | "brand">("influencer");
@@ -22,10 +77,30 @@ const AdminPanel = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  // Redirect non-admins
-  if (!authLoading && currentUser && currentUser.role !== "admin") {
-    navigate("/");
+  // Show loading while auth initialises
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary" />
+      </div>
+    );
   }
+
+  // Not logged in or not admin → show inline login instead of bouncing away
+  if (!currentUser || currentUser.role !== "admin") {
+    return <AdminLogin />;
+  }
+
+  /* ─── panel content (only renders when role === 'admin') ─── */
+  return <AdminPanelContent />;
+};
+
+const AdminPanelContent = () => {
+  const queryClient = useQueryClient();
+  const [tab, setTab] = useState<"influencer" | "brand">("influencer");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   const { data: statsRes } = useQuery({
     queryKey: ["admin-stats"],
@@ -44,7 +119,7 @@ const AdminPanel = () => {
     mutationFn: ({ userId, trustBadge, verificationStatus }: { userId: string; trustBadge?: boolean; verificationStatus?: string }) =>
       adminAPI.verifyUser(userId, { trustBadge, verificationStatus }),
     onSuccess: () => {
-      toast.success("User updated successfully");
+      toast.success("User updated");
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       queryClient.invalidateQueries({ queryKey: ["admin-stats"] });
     },
@@ -95,18 +170,15 @@ const AdminPanel = () => {
 
         {/* Tabs */}
         <div className="flex gap-2">
-          <button
-            onClick={() => { setTab("influencer"); setPage(1); }}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${tab === "influencer" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-          >
-            Influencers
-          </button>
-          <button
-            onClick={() => { setTab("brand"); setPage(1); }}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors ${tab === "brand" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
-          >
-            Brands
-          </button>
+          {(["influencer", "brand"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => { setTab(t); setPage(1); }}
+              className={`px-5 py-2 rounded-full text-sm font-semibold transition-colors capitalize ${tab === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"}`}
+            >
+              {t}s
+            </button>
+          ))}
         </div>
 
         {/* Search */}
@@ -120,7 +192,7 @@ const AdminPanel = () => {
           />
         </div>
 
-        {/* User List */}
+        {/* User list */}
         {isLoading ? (
           <div className="flex justify-center py-16">
             <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary" />
@@ -135,7 +207,6 @@ const AdminPanel = () => {
             {users.map((user: any) => (
               <Card key={user._id} className="bg-card border-border p-4 hover:border-primary/30 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                  {/* Avatar + info */}
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="w-11 h-11 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-bold text-primary shrink-0 overflow-hidden">
                       {user.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : user.name?.charAt(0)}
@@ -143,9 +214,7 @@ const AdminPanel = () => {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-0.5">
                         <p className="font-semibold truncate">{user.name}</p>
-                        {user.trustBadge && (
-                          <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0" />
-                        )}
+                        {user.trustBadge && <ShieldCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
                         <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${statusColor[user.verificationStatus] || statusColor.unverified}`}>
                           {user.verificationStatus}
                         </span>
@@ -153,50 +222,36 @@ const AdminPanel = () => {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                       {tab === "influencer" && user.profile && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {user.profile.niche || user.profile.categories?.[0] || "—"} •{" "}
-                          {user.profile.totalFollowers?.toLocaleString() || 0} followers •{" "}
-                          {user.profile.location?.city || "—"}
+                          {user.profile.niche || user.profile.categories?.[0] || "—"} • {user.profile.totalFollowers?.toLocaleString() || 0} followers • {user.profile.location?.city || "—"}
                         </p>
                       )}
                       {tab === "brand" && user.profile && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {user.profile.companyName || "—"} •{" "}
-                          {user.profile.totalCampaigns || 0} campaigns •{" "}
-                          {user.profile.location?.city || "—"}
+                          {user.profile.companyName || "—"} • {user.profile.totalCampaigns || 0} campaigns • {user.profile.location?.city || "—"}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex flex-wrap gap-2 shrink-0">
                     {user.verificationStatus !== "verified" && (
-                      <NeonButton
-                        neonVariant="primary"
-                        className="h-8 px-3 text-xs"
+                      <NeonButton neonVariant="primary" className="h-8 px-3 text-xs"
                         onClick={() => verifyMutation.mutate({ userId: user._id, verificationStatus: "verified", trustBadge: true })}
-                        disabled={verifyMutation.isPending}
-                      >
+                        disabled={verifyMutation.isPending}>
                         <UserCheck className="w-3.5 h-3.5 mr-1" /> Verify
                       </NeonButton>
                     )}
                     {user.verificationStatus !== "flagged" && (
-                      <NeonButton
-                        neonVariant="ghost"
-                        className="h-8 px-3 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
+                      <NeonButton neonVariant="ghost" className="h-8 px-3 text-xs text-destructive border-destructive/30 hover:bg-destructive/10"
                         onClick={() => verifyMutation.mutate({ userId: user._id, verificationStatus: "flagged" })}
-                        disabled={verifyMutation.isPending}
-                      >
+                        disabled={verifyMutation.isPending}>
                         <UserX className="w-3.5 h-3.5 mr-1" /> Flag
                       </NeonButton>
                     )}
                     {user.verificationStatus !== "unverified" && (
-                      <NeonButton
-                        neonVariant="ghost"
-                        className="h-8 px-3 text-xs"
+                      <NeonButton neonVariant="ghost" className="h-8 px-3 text-xs"
                         onClick={() => verifyMutation.mutate({ userId: user._id, verificationStatus: "unverified", trustBadge: false })}
-                        disabled={verifyMutation.isPending}
-                      >
+                        disabled={verifyMutation.isPending}>
                         Reset
                       </NeonButton>
                     )}
@@ -210,23 +265,13 @@ const AdminPanel = () => {
         {/* Pagination */}
         {pagination && pagination.totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 pt-2">
-            <NeonButton
-              neonVariant="ghost"
-              className="h-8 px-4 text-sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={!pagination.hasPrevPage}
-            >
+            <NeonButton neonVariant="ghost" className="h-8 px-4 text-sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={!pagination.hasPrevPage}>
               Previous
             </NeonButton>
-            <span className="text-sm text-muted-foreground">
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <NeonButton
-              neonVariant="ghost"
-              className="h-8 px-4 text-sm"
-              onClick={() => setPage((p) => p + 1)}
-              disabled={!pagination.hasNextPage}
-            >
+            <span className="text-sm text-muted-foreground">Page {pagination.page} of {pagination.totalPages}</span>
+            <NeonButton neonVariant="ghost" className="h-8 px-4 text-sm"
+              onClick={() => setPage((p) => p + 1)} disabled={!pagination.hasNextPage}>
               Next
             </NeonButton>
           </div>
