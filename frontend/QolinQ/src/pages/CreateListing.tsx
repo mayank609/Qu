@@ -17,7 +17,7 @@ import { CalendarIcon, ImagePlus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const MAX_COVER_IMAGE_BYTES = 2 * 1024 * 1024; // 2MB — keeps JSON payload within API limits
+const MAX_COVER_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB — keeps JSON payload within API limits
 
 const CreateListing = () => {
   const navigate = useNavigate();

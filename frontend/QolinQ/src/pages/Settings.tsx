@@ -17,8 +17,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { CATEGORIES } from "@/constants/categories";
 import { SUPPORT_PHONE_DISPLAY, SUPPORT_WHATSAPP_URL } from "@/constants/support";
 
-/** Per-file cap keeps base64 payloads under the API JSON body limit (10 MB for the whole save). */
-const MAX_BEST_CONTENT_FILE_BYTES = 7 * 1024 * 1024;
+/** Per-file cap keeps base64 payloads under the API JSON body limit (50 MB for the whole save). */
+const MAX_BEST_CONTENT_FILE_BYTES = 20 * 1024 * 1024;
 
 const Settings = () => {
     const navigate = useNavigate();
@@ -185,13 +185,13 @@ const Settings = () => {
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const maxFileSize = 2 * 1024 * 1024; // 2MB
+            const maxFileSize = 5 * 1024 * 1024; // 5MB
             if (!file.type.startsWith("image/")) {
                 toast.error("Please select a valid image file.");
                 return;
             }
             if (file.size > maxFileSize) {
-                toast.error("Image is too large. Max size is 2MB.");
+                toast.error("Image is too large. Max size is 5MB.");
                 return;
             }
             // Open the zoom picker modal

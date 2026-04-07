@@ -116,8 +116,8 @@ const BrandSettings = () => {
                 toast.error("Please select an image file");
                 return;
             }
-            if (file.size > 2 * 1024 * 1024) {
-                toast.error("Image is too large. Maximum size is 2MB.");
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("Image is too large. Maximum size is 5MB.");
                 return;
             }
             // Open the zoom picker modal
