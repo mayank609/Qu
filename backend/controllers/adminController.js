@@ -154,9 +154,30 @@ const getUsers = async (req, res, next) => {
     }
 };
 
+// @desc    Get full profile details for a single user (admin)
+// @route   GET /api/admin/users/:userId
+const getUserById = async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        const user = await User.findById(userId)
+            .select('name email avatar role trustBadge verificationStatus isActive fraudScore createdAt');
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+        const u = user.toObject();
+        if (user.role === 'influencer') {
+            u.profile = await InfluencerProfile.findOne({ user: user._id }).lean() || null;
+        } else if (user.role === 'brand') {
+            u.profile = await BrandProfile.findOne({ user: user._id }).lean() || null;
+        }
+
+        res.json({ success: true, data: u });
+    } catch (error) { next(error); }
+};
+
 module.exports = {
     verifyUser,
     getPlatformStats,
     getFlaggedProfiles,
     getUsers,
+    getUserById,
 };

@@ -109,6 +109,7 @@ export const fraudAPI = {
 export const adminAPI = {
     getStats: () => api.get('/admin/stats'),
     getUsers: (params?: any) => api.get('/admin/users', { params }),
+    getUserById: (userId: string) => api.get(`/admin/users/${userId}`),
     verifyUser: (userId: string, data: { trustBadge?: boolean; verificationStatus?: string }) =>
         api.put(`/admin/verify-user/${userId}`, data),
 };
