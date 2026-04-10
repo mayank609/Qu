@@ -186,13 +186,8 @@ const Settings = () => {
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const maxFileSize = 5 * 1024 * 1024; // 5MB
             if (!file.type.startsWith("image/")) {
                 toast.error("Please select a valid image file.");
-                return;
-            }
-            if (file.size > maxFileSize) {
-                toast.error("Image is too large. Max size is 5MB.");
                 return;
             }
             // Open the zoom picker modal

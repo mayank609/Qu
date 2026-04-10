@@ -69,11 +69,6 @@ const InfluencerDashboard = () => {
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1024 * 1024) { // 1MB limit for base64
-        toast.error("Photo is too large. Max 1MB.");
-        return;
-      }
-      
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
