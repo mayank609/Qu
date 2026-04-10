@@ -26,6 +26,7 @@ const Settings = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
+    const [pendingImageSrc, setPendingImageSrc] = useState<string | null>(null);
     const [showImageZoomPicker, setShowImageZoomPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -185,14 +186,18 @@ const Settings = () => {
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            if (!file.type.startsWith("image/")) {
-                toast.error("Please select a valid image file.");
-                return;
-            }
-            // Open the zoom picker modal
-            setShowImageZoomPicker(true);
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select a valid image file.");
+            return;
         }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            setPendingImageSrc(ev.target?.result as string);
+            setShowImageZoomPicker(true);
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
     };
 
     const handleAvatarZoomPickerOpen = () => {
@@ -276,9 +281,8 @@ const Settings = () => {
                                         </div>
                                         <NeonButton
                                             neonVariant="primary"
-                                            size="sm"
                                             onClick={handleAvatarZoomPickerOpen}
-                                            className="gap-2"
+                                            className="gap-2 text-sm px-3 py-1.5 h-8"
                                         >
                                             <Camera className="w-4 h-4" />
                                             Choose & Zoom
@@ -606,9 +610,10 @@ const Settings = () => {
 
                 <ImageZoomPicker
                     isOpen={showImageZoomPicker}
-                    onCancel={() => setShowImageZoomPicker(false)}
+                    onCancel={() => { setShowImageZoomPicker(false); setPendingImageSrc(null); }}
                     onImageSelect={handleAvatarConfirm}
                     previewSize={200}
+                    initialSource={pendingImageSrc}
                 />
             </div>
         </DashboardLayout>

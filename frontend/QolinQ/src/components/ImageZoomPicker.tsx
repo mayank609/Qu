@@ -10,6 +10,7 @@ interface ImageZoomPickerProps {
   onCancel: () => void;
   isOpen: boolean;
   previewSize?: number; // Size of the preview frame in pixels (default 200)
+  initialSource?: string | null; // Pre-load an image directly into the editor
 }
 
 export const ImageZoomPicker = ({
@@ -17,8 +18,9 @@ export const ImageZoomPicker = ({
   onCancel,
   isOpen,
   previewSize = 200,
+  initialSource,
 }: ImageZoomPickerProps) => {
-  const [imageSource, setImageSource] = useState<string | null>(null);
+  const [imageSource, setImageSource] = useState<string | null>(initialSource ?? null);
   const [zoom, setZoom] = useState(100);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
@@ -26,6 +28,18 @@ export const ImageZoomPicker = ({
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && initialSource) {
+      setImageSource(initialSource);
+      setZoom(100);
+      setOffsetX(0);
+      setOffsetY(0);
+    }
+    if (!isOpen) {
+      setImageSource(null);
+    }
+  }, [isOpen, initialSource]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
