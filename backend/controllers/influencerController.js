@@ -329,9 +329,21 @@ const getInfluencerById = async (req, res, next) => {
     }
 };
 
+// @desc    Update only the user's avatar (kept small to stay under Vercel 4.5MB body limit)
+// @route   PUT /api/influencer/avatar
+const updateAvatar = async (req, res, next) => {
+    try {
+        const { avatar } = req.body;
+        if (!avatar) return res.status(400).json({ success: false, message: 'avatar is required' });
+        await User.findByIdAndUpdate(req.user._id, { avatar });
+        res.json({ success: true, message: 'Avatar updated' });
+    } catch (error) { next(error); }
+};
+
 module.exports = {
     getProfile,
     updateProfile,
+    updateAvatar,
     connectPlatform,
     getDashboard,
     getAnalytics,

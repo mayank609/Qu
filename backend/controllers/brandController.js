@@ -64,9 +64,10 @@ const updateProfile = async (req, res, next) => {
 
         // Sync with User model
         const userUpdate = {};
-        if (companyName) userUpdate.name = companyName;
+        const nameToSync = req.body.name || companyName;
+        if (nameToSync) userUpdate.name = nameToSync;
         if (logo) userUpdate.avatar = logo;
-        
+
         if (Object.keys(userUpdate).length > 0) {
             await User.findByIdAndUpdate(req.user._id, userUpdate);
         }
@@ -252,9 +253,25 @@ const getSavedInfluencers = async (req, res, next) => {
     }
 };
 
+// @desc    Update only the brand user's avatar (kept small to stay under Vercel 4.5MB body limit)
+// @route   PUT /api/brand/avatar
+const updateAvatar = async (req, res, next) => {
+    try {
+        const { avatar } = req.body;
+        if (!avatar) return res.status(400).json({ success: false, message: 'avatar is required' });
+        // Update both User.avatar and BrandProfile.logo so all views stay in sync
+        await Promise.all([
+            User.findByIdAndUpdate(req.user._id, { avatar }),
+            BrandProfile.findOneAndUpdate({ user: req.user._id }, { logo: avatar }),
+        ]);
+        res.json({ success: true, message: 'Avatar updated' });
+    } catch (error) { next(error); }
+};
+
 module.exports = {
     getProfile,
     updateProfile,
+    updateAvatar,
     getDashboard,
     inviteInfluencer,
     toggleSaveInfluencer,

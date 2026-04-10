@@ -7,6 +7,7 @@ const ctrl = require('../controllers/influencerController');
 // These MUST go first to avoid conflict with /:id
 router.get('/profile', protect, roleGuard('influencer'), ctrl.getProfile);
 router.put('/profile', protect, roleGuard('influencer'), ctrl.updateProfile);
+router.put('/avatar', protect, roleGuard('influencer'), ctrl.updateAvatar);
 router.put('/connect-platform', protect, roleGuard('influencer'), ctrl.connectPlatform);
 router.get('/dashboard', protect, roleGuard('influencer'), ctrl.getDashboard);
 router.get('/analytics', protect, roleGuard('influencer'), ctrl.getAnalytics);

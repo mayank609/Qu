@@ -125,6 +125,12 @@ const Settings = () => {
         setIsSaving(true);
         const nicheToSave = formData.niche === "Other" ? formData.otherNiche : formData.niche;
         try {
+            // Save avatar separately (tiny request) so Vercel's 4.5 MB body limit
+            // on the main profile payload (which may include large bestContent) never blocks it.
+            if (avatarPreview && avatarPreview !== user?.avatar) {
+                await influencerAPI.updateAvatar(avatarPreview);
+            }
+
             const updateData = {
                 name: formData.name.trim(),
                 bio: formData.bio,
@@ -138,7 +144,6 @@ const Settings = () => {
                     { title: "Link 3", url: formData.portfolioLink3, platform: "other" },
                 ].filter(p => p.url?.trim()),
                 bestContent: formData.bestContent,
-                avatar: avatarPreview
             };
 
             await influencerAPI.updateProfile(updateData);

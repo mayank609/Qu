@@ -23,6 +23,7 @@ const BrandSettings = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [logoPreview, setLogoPreview] = useState<string | null>(null);
+    const [pendingImageSrc, setPendingImageSrc] = useState<string | null>(null);
     const [showImageZoomPicker, setShowImageZoomPicker] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -82,14 +83,18 @@ const BrandSettings = () => {
         setIsSaving(true);
         const categoryToSave = formData.category === "Other" ? formData.otherCategory : formData.category;
         try {
+            // Save avatar separately (tiny request) so Vercel's 4.5 MB body limit never blocks it.
+            if (logoPreview && logoPreview !== user?.avatar) {
+                await brandAPI.updateAvatar(logoPreview);
+            }
+
             const updateData = {
                 companyName: formData.companyName,
                 website: formData.website,
                 categories: [categoryToSave],
                 description: formData.description,
                 location: { city: formData.location.split(',')[0]?.trim() || "" },
-                logo: logoPreview,
-                name: formData.contactPerson // Update User name as well
+                name: formData.contactPerson,
             };
 
             await brandAPI.updateProfile(updateData);
@@ -111,14 +116,18 @@ const BrandSettings = () => {
 
     const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            if (!file.type.startsWith("image/")) {
-                toast.error("Please select an image file");
-                return;
-            }
-            // Open the zoom picker modal
-            setShowImageZoomPicker(true);
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            toast.error("Please select an image file");
+            return;
         }
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            setPendingImageSrc(ev.target?.result as string);
+            setShowImageZoomPicker(true);
+        };
+        reader.readAsDataURL(file);
+        e.target.value = "";
     };
 
     const handleImageZoomPickerOpen = () => {
@@ -203,9 +212,8 @@ const BrandSettings = () => {
                                         </div>
                                         <NeonButton
                                             neonVariant="primary"
-                                            size="sm"
                                             onClick={handleImageZoomPickerOpen}
-                                            className="gap-2"
+                                            className="gap-2 text-sm px-3 py-1.5 h-8"
                                         >
                                             <Camera className="w-4 h-4" />
                                             Choose & Zoom
@@ -361,9 +369,10 @@ const BrandSettings = () => {
 
                 <ImageZoomPicker
                     isOpen={showImageZoomPicker}
-                    onCancel={() => setShowImageZoomPicker(false)}
+                    onCancel={() => { setShowImageZoomPicker(false); setPendingImageSrc(null); }}
                     onImageSelect={handleImageConfirm}
                     previewSize={200}
+                    initialSource={pendingImageSrc}
                 />
             </div>
         </DashboardLayout>
