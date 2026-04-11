@@ -198,8 +198,28 @@ const Settings = () => {
         }
         const reader = new FileReader();
         reader.onload = (ev) => {
-            setPendingImageSrc(ev.target?.result as string);
-            setShowImageZoomPicker(true);
+            const original = ev.target?.result as string;
+            // Pre-resize to max 1200px so zoom picker never handles a huge base64 blob
+            const img = new Image();
+            img.onload = () => {
+                const MAX = 1200;
+                let w = img.width, h = img.height;
+                if (w > MAX || h > MAX) {
+                    const ratio = Math.min(MAX / w, MAX / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+                setPendingImageSrc(canvas.toDataURL('image/jpeg', 0.9));
+                setShowImageZoomPicker(true);
+            };
+            img.onerror = () => {
+                toast.error("Could not read image. Please try a different file.");
+            };
+            img.src = original;
         };
         reader.readAsDataURL(file);
         e.target.value = "";
@@ -282,7 +302,7 @@ const Settings = () => {
                                     <div className="space-y-3 flex-1">
                                         <div>
                                             <p className="text-sm font-medium">Upload your profile photo</p>
-                                            <p className="text-xs text-muted-foreground">JPG, PNG. Max 2MB.</p>
+                                            <p className="text-xs text-muted-foreground">JPG, PNG — any size.</p>
                                         </div>
                                         <NeonButton
                                             neonVariant="primary"

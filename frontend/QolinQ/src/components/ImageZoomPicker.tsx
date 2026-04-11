@@ -52,10 +52,28 @@ export const ImageZoomPicker = ({
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      setImageSource(event.target?.result as string);
-      setZoom(100);
-      setOffsetX(0);
-      setOffsetY(0);
+      const original = event.target?.result as string;
+      // Pre-resize to max 1200px before editing so the canvas never chokes on a huge blob
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          const ratio = Math.min(MAX / w, MAX / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+        setImageSource(canvas.toDataURL("image/jpeg", 0.9));
+        setZoom(100);
+        setOffsetX(0);
+        setOffsetY(0);
+      };
+      img.onerror = () => toast.error("Could not read the file. Try another image.");
+      img.src = original;
     };
     reader.onerror = () => {
       toast.error("Could not read the file. Try another image.");
@@ -170,7 +188,7 @@ export const ImageZoomPicker = ({
                   <p className="font-semibold text-foreground">Click to upload image</p>
                   <p className="text-sm text-muted-foreground">or drag and drop</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    PNG, JPG, GIF up to 5MB
+                    PNG, JPG — any size
                   </p>
                 </div>
                 <input
