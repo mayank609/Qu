@@ -78,6 +78,13 @@ const searchInfluencers = async (req, res, next) => {
         // Base aggregation pipeline
         const pipeline = [
             { $match: matchStage },
+            // Strip heavy fields (bestContent base64 blobs) before the join so the
+            // pipeline never approaches MongoDB's 100 MB in-memory sort limit.
+            {
+                $project: {
+                    bestContent: 0,
+                }
+            },
             {
                 $lookup: {
                     from: 'users',
@@ -86,7 +93,20 @@ const searchInfluencers = async (req, res, next) => {
                     as: 'userData'
                 }
             },
-            { $unwind: '$userData' }
+            { $unwind: '$userData' },
+            // Keep only the user sub-fields we actually display; drops the large
+            // base64 avatar early so sort + facet work on lean documents.
+            {
+                $addFields: {
+                    userData: {
+                        _id: '$userData._id',
+                        name: '$userData.name',
+                        avatar: '$userData.avatar',
+                        trustBadge: '$userData.trustBadge',
+                        verificationStatus: '$userData.verificationStatus',
+                    }
+                }
+            },
         ];
 
         // Search across profile AND user fields (multi-word: all words must match)
