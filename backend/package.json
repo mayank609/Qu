@@ -1,11 +1,11 @@
 {
   "name": "influencer-marketplace-backend",
   "version": "1.0.0",
-  "description": "Brand ↔️ Influencer Marketplace API",
+  "description": "Brand \u2194\ufe0f Influencer Marketplace API",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node init && node server.js",
+    "dev": "node init && nodemon server.js",
     "seed": "node scripts/seed.js"
   },
   "dependencies": {
