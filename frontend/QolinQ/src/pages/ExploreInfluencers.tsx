@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import NeonSearchBar from "@/components/NeonSearchBar";
 import InfluencerCard from "@/components/InfluencerCard";
@@ -13,14 +12,35 @@ import { CATEGORIES } from "@/constants/categories";
 
 const ExploreInfluencers = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user: currentUser } = useAuth();
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [platform, setPlatform] = useState("all");
-  const [priceRange, setPriceRange] = useState("all");
-  const [reach, setReach] = useState("all");
-  const [sort, setSort] = useState("followers");
+
+  const search = searchParams.get("search") || "";
+  const category = searchParams.get("category") || "all";
+  const platform = searchParams.get("platform") || "all";
+  const priceRange = searchParams.get("priceRange") || "all";
+  const reach = searchParams.get("reach") || "all";
+  const sort = searchParams.get("sort") || "followers";
+
+  const setParam = (key: string, value: string, defaultValue: string) => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (value === defaultValue) {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+      return next;
+    }, { replace: true });
+  };
+
+  const setSearch = (value: string) => setParam("search", value, "");
+  const setCategory = (value: string) => setParam("category", value, "all");
+  const setPlatform = (value: string) => setParam("platform", value, "all");
+  const setPriceRange = (value: string) => setParam("priceRange", value, "all");
+  const setReach = (value: string) => setParam("reach", value, "all");
+  const setSort = (value: string) => setParam("sort", value, "followers");
 
   const startConvMutation = useMutation({
     mutationFn: (data: { participantId: string, campaignId?: string }) => 
